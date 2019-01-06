@@ -1,4 +1,6 @@
 ﻿using CommonCSharpLibary.Facility;
+using CommonCSharpLibary.Interface;
+using CommonCSharpLibary.Model;
 using CryptoCommon.Interfaces;
 using PortableCSharpLib;
 using PortableCSharpLib.TechnicalAnalysis;
@@ -6,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CryptoCommon.Models

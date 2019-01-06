@@ -21,27 +21,27 @@ namespace CryptoCommon
         public delegate void ExceptionOccuredEventHandler(object sender, string exchange, Exception ex);
         public delegate void SymbolNotFoundEventHandler(object sender, string symbol);
 
-        public delegate void DepositAddedEventHandler(object sender, Funding deposit);
-        public delegate void DepositStatusChangedEventHandler(object sender, Funding deposit);
+        //public delegate void DepositAddedEventHandler(object sender, Funding deposit);
+        //public delegate void DepositStatusChangedEventHandler(object sender, Funding deposit);
 
-        public delegate void WithdrawAddeddEventHandler(object sender, Funding withdraw);
-        public delegate void WithdrawStatusChangedEventHandler(object sender, Funding withdraw);
+        //public delegate void WithdrawAddeddEventHandler(object sender, Funding withdraw);
+        //public delegate void WithdrawStatusChangedEventHandler(object sender, Funding withdraw);
 
-        public delegate void NewOrderAddedEventHandler(object sender, Order order);
+        //public delegate void NewOrderAddedEventHandler(object sender, Order order);
 
-        public delegate void OrderStatusChangedEventHandler(object sender, Order order);
-        public delegate void TwowayCoinToCurrencyOrderChangedEventHandler(object sender, TwowayCoinToCurrencyOrder order);
-        public delegate void OnewayCoinToCoinOrderChangedEventHandler(object sender, OnewayCoinToCoinOrder order);
+        //public delegate void OrderStatusChangedEventHandler(object sender, Order order);
+        //public delegate void TwowayCoinToCurrencyOrderChangedEventHandler(object sender, TwowayCoinToCurrencyOrder order);
+        //public delegate void OnewayCoinToCoinOrderChangedEventHandler(object sender, OnewayCoinToCoinOrder order);
 
-        public delegate void OrderListChangedEventHandler(object sender, IList<Order> order);
-        public delegate void TakeProfitOrderListChangedEventHandler(object sender, IList<TwowayCoinToCurrencyOrder> order);
+        //public delegate void OrderListChangedEventHandler(object sender, IList<Order> order);
+        //public delegate void TakeProfitOrderListChangedEventHandler(object sender, IList<TwowayCoinToCurrencyOrder> order);
 
-        //public delegate void AssetObtainedEventHandler(object sender, Assets asset);
-        public delegate void ExchangeAssetsUpdatedEventHandler(object sender, Assets oldAsset, Assets newAsset);
-        public delegate void AssetUpdatedEventHandler(object sender, string exchange, string asset, double oldValue, double newValue);
+        ////public delegate void AssetObtainedEventHandler(object sender, Assets asset);
+        //public delegate void ExchangeAssetsUpdatedEventHandler(object sender, Assets oldAsset, Assets newAsset);
+        //public delegate void AssetUpdatedEventHandler(object sender, string exchange, string asset, double oldValue, double newValue);
 
-        public delegate void FreeAssetChangedEventHandler(object sender, string currency, Assets asset);
-        public delegate void FreezedAssetChangedEventHandler(object sender, string currency, Assets asset);
+        //public delegate void FreeAssetChangedEventHandler(object sender, string currency, Assets asset);
+        //public delegate void FreezedAssetChangedEventHandler(object sender, string currency, Assets asset);
 
 
         public delegate void StateChangedEventHandler(object sender, bool isStarted);

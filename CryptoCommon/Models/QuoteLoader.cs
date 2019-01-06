@@ -1,15 +1,8 @@
-﻿using CommonCSharpLibary.Facility;
-using CryptoCommon.DataTypes;
+﻿using CryptoCommon.DataTypes;
 using CryptoCommon.Interfaces;
-using PortableCSharpLib;
 using PortableCSharpLib.TechnicalAnalysis;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace CryptoCommon.Models
 {

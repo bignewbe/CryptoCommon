@@ -1,7 +1,7 @@
 {
     "Single": {},
     "DebugAndRelease": {
-        "CommonCSharpLibary": "1.0.0",
-        "PortableCSharpLib": "1.0.5b54d75"
+        "PortableCSharpLib": "1.0.209592e",
+        "CommonCSharpLibary": "1.0.0"
     }
 }

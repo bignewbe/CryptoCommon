@@ -1,9 +1,11 @@
-﻿namespace CryptoCommon.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace CryptoCommon.Interfaces
 {
     public interface IStartStop
     {
-        void Start();
-        void Stop();
+        Task<bool> StartAsync();
+        Task<bool> StopAsync();
         bool IsStarted { get; }
     }
 }

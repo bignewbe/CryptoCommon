@@ -25,6 +25,7 @@ namespace CryptoCommon.DataTypes
         partial_closed,
         cancelled,
         expired,
+        failed,
         not_exist
     }
 

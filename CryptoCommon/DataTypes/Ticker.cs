@@ -8,7 +8,8 @@ namespace CryptoCommon.DataTypes
         public string Symbol { get; set; }
         public int Miliseconds { get { return (int)(Timestamp % 1000); } }
         public long Seconds { get { return Timestamp / 1000; } }
-
+        public int OpenBuyOrders { get; set; }
+        public int OpenSellOrders { get; set; }
         public long Timestamp { get; set; }
         public double Bid { get; set; }
         public double Ask { get; set; }
@@ -16,7 +17,7 @@ namespace CryptoCommon.DataTypes
         public double High { get; set; }
         public double Low { get; set; }
         public double Volume { get; set; }
-        public double VolumeLast24H { get; set; }
+        public double BaseVolume { get; set; }
 
         public Ticker()
         {
@@ -25,6 +26,7 @@ namespace CryptoCommon.DataTypes
         {
             this.Copy(other);
         }
+
         public void Copy(Ticker other)
         {
             this.Symbol = other.Symbol;
@@ -34,8 +36,10 @@ namespace CryptoCommon.DataTypes
             this.Last = other.Last;
             this.High = other.High;
             this.Low = other.Low;
-            this.VolumeLast24H = other.VolumeLast24H;
+            this.BaseVolume = other.BaseVolume;
             this.Volume = other.Volume;
+            this.OpenBuyOrders = other.OpenBuyOrders;
+            this.OpenSellOrders = other.OpenSellOrders;
         }
     }
 }

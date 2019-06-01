@@ -15,12 +15,12 @@ namespace CryptoCommon.Interfaces
         Task<List<Order>> GetOpenOrders(string symbol, int timeout = 5000);
         Task<List<Order>> GetClosedOrders(string symbol, int timeout = 5000);
 
-        Task<(bool Success, string WithDrawId)> RequestWithdraw(string currency, string addressLabel, double amount, int timeout = 5000);
-        Task<bool> CancelWithdrawById(string currency, string withDrawId, int timeout = 5000);
-        Task<Funding> QueryWithdrawById(string currency, string withDrawId, int timeout = 5000);
+        //Task<(bool Success, string WithDrawId)> RequestWithdraw(string currency, string addressLabel, double amount, int timeout = 5000);
+        //Task<bool> CancelWithdrawById(string currency, string withDrawId, int timeout = 5000);
+        //Task<Funding> QueryWithdrawById(string currency, string withDrawId, int timeout = 5000);
 
-        Task<Assets> GetAssets(int timeout = 5000);
-        Task<List<Funding>> GetDepositRecords(string currency, int timeout = 5000);
-        Task<List<Funding>> GetWithdrawRecords(string currency, int timeout = 5000);
+        //Task<Assets> GetAssets(int timeout = 5000);
+        //Task<List<Funding>> GetDepositRecords(string currency, int timeout = 5000);
+        //Task<List<Funding>> GetWithdrawRecords(string currency, int timeout = 5000);
     }
 }

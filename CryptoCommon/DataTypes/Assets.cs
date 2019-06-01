@@ -6,6 +6,8 @@ namespace CryptoCommon.DataTypes
     public class Assets : IEquatable<Assets>
     {
         public string Exchange { get; set; }
+        //public string Currency { get; set; }
+        //public string Id { get; set; }
         public Dictionary<string, double> Free { get; set; } = new Dictionary<string, double>();
         public Dictionary<string, double> Freezed { get; set; } = new Dictionary<string, double>();
 

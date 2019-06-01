@@ -12,7 +12,7 @@ namespace CryptoCommon.Models
     public class ProductMeta : IProductMeta
     {
         private Dictionary<string, Dictionary<string, string>> _standardCurrencyToExchangeCurrency;
-        private Dictionary<string, Dictionary<string, string>> _altNameToExchangeSymbol;
+        //private Dictionary<string, Dictionary<string, string>> _altNameToExchangeSymbol;
 
         //public static Dictionary<string, string> OkBaseUrl = new Dictionary<string, string>
         //{
@@ -21,12 +21,12 @@ namespace CryptoCommon.Models
         //};
         //public Dictionary<string, string> BaseUrl { get; set; }
 
+        public Dictionary<string, double> TradingFee { get; set; }
         public Dictionary<string, Dictionary<string, string>> API { get; set; }
         public Dictionary<string, List<string>> SymbolToCapture { get; set; }
 
         public Dictionary<string, Dictionary<string, Dictionary<string, string>>> Address { get; set; }
         public Dictionary<string, string> ExchangeToFiat { get; set; }
-
         public Dictionary<string, string> ExchangeCurrency { get; set; }
         public Dictionary<string, Dictionary<string, string>> ExchangeRate { get; set; }
         public Dictionary<string, Dictionary<string, List<string>>> OneWayCoinToCurrencyTakeProfit { get; set; }
@@ -35,13 +35,13 @@ namespace CryptoCommon.Models
         public Dictionary<string, Dictionary<string, List<string>>> OneWayCoinToCoinTakeProfit { get; set; }
         public Dictionary<string, Dictionary<string, string>> ExchangeCurrencyToStandard { get; set; }
         public Dictionary<string, Dictionary<string, string>> ExchangeSymbolToStandard { get; set; }
-        public Dictionary<string, Dictionary<string, string>> ExchangeSymbolToAltName { get; set; }
+        public Dictionary<string, Dictionary<string, double>> MinMaxTradingAmount { get; private set; } = new Dictionary<string, Dictionary<string, double>>();
+        public Dictionary<string, Dictionary<string, string>> minMaxTradingAmount { get; set; }
         Dictionary<string, Dictionary<string, string>> _standardSymbolToExchangeSymbol;
 
         public Dictionary<string, Dictionary<string, Dictionary<string, double>>> WithDrawCost { get; set; }
-
-                
-
+        public List<string> Exchanges { get { return _standardSymbolToExchangeSymbol == null? null : _standardSymbolToExchangeSymbol.Keys.ToList(); } }
+        
         public ProductMeta()
         {
         }
@@ -54,7 +54,6 @@ namespace CryptoCommon.Models
         {
             var str = File.ReadAllText(filename);
             var m = JsonConvert.DeserializeObject<ProductMeta>(str);
-
             this.TwoWayCoinToCoinTakeProfit = m.TwoWayCoinToCoinTakeProfit;
             this.API = m.API;
             this.SymbolToCapture = m.SymbolToCapture;
@@ -68,15 +67,24 @@ namespace CryptoCommon.Models
             this.ExchangeToFiat = m.ExchangeToFiat;
             this.ExchangeCurrencyToStandard = m.ExchangeCurrencyToStandard;
             this.ExchangeSymbolToStandard = m.ExchangeSymbolToStandard;
-            this.ExchangeSymbolToAltName = m.ExchangeSymbolToAltName;
-            
-            _altNameToExchangeSymbol = new Dictionary<string, Dictionary<string, string>>();
-            foreach (var key in this.ExchangeSymbolToAltName.Keys)
-                _altNameToExchangeSymbol.Add(key, this.ExchangeSymbolToAltName[key].ToDictionary(kv => kv.Value, kv => kv.Key));
-            
+            this.TradingFee = m.TradingFee;
+            this.minMaxTradingAmount = m.minMaxTradingAmount;
+
+            foreach (var k1 in this.minMaxTradingAmount.Keys)
+            {
+                this.MinMaxTradingAmount.Add(k1, new Dictionary<string, double>());
+                foreach (var k2 in this.minMaxTradingAmount[k1].Keys)
+                    this.MinMaxTradingAmount[k1].Add(k2, double.Parse(this.minMaxTradingAmount[k1][k2]));
+            }
+
             _standardCurrencyToExchangeCurrency = new Dictionary<string, Dictionary<string, string>>();
-            foreach(var key in this.ExchangeCurrencyToStandard.Keys)
-                _standardCurrencyToExchangeCurrency.Add(key, this.ExchangeCurrencyToStandard[key].ToDictionary(kv=>kv.Value, kv=>kv.Key));
+            foreach (var key in this.ExchangeCurrencyToStandard.Keys)
+            {
+                var d = new Dictionary<string, string>();
+                foreach (var kv in this.ExchangeCurrencyToStandard[key])
+                    if (!d.ContainsKey(kv.Value)) d.Add(kv.Value, kv.Key);
+                _standardCurrencyToExchangeCurrency.Add(key, d);
+            }
 
             _standardSymbolToExchangeSymbol = new Dictionary<string, Dictionary<string, string>>();
             foreach(var key in this.ExchangeSymbolToStandard.Keys)
@@ -87,7 +95,6 @@ namespace CryptoCommon.Models
         {
             //if (!this.SymbolToStandard.ContainsKey(exchange)) return null;
             //if (!this.SymbolToStandard[exchange].ContainsKey(exchangeSymbol)) return null;
-
             return this.ExchangeSymbolToStandard[exchange][exchangeSymbol];
         }
 
@@ -95,7 +102,6 @@ namespace CryptoCommon.Models
         {
             //if (!this._standardSymbolToExchangeSymbol.ContainsKey(exchange)) return null;
             //if (!this._standardSymbolToExchangeSymbol[exchange].ContainsKey(standardSymbol)) return null;
-
             return this._standardSymbolToExchangeSymbol[exchange][standardSymbol];
         }
 
@@ -149,16 +155,16 @@ namespace CryptoCommon.Models
                 return _standardCurrencyToExchangeCurrency[exchange][standardCurrency];
         }
 
-        public string ConvertExchangeAltNameToExchangeSymbol(string exchange, string altName)
-        {
-            return _altNameToExchangeSymbol[exchange][altName];
-        }
+        //public string ConvertExchangeAltNameToExchangeSymbol(string exchange, string altName)
+        //{
+        //    return _altNameToExchangeSymbol[exchange][altName];
+        //}
 
-        public string ConvertExchangeAltNameToStandardSymbol(string exchange, string altName)
-        {
-            var exchangeSymbol = _altNameToExchangeSymbol[exchange][altName];
-            return this.ExchangeSymbolToStandard[exchange][exchangeSymbol];
-        }
+        //public string ConvertExchangeAltNameToStandardSymbol(string exchange, string altName)
+        //{
+        //    var exchangeSymbol = _altNameToExchangeSymbol[exchange][altName];
+        //    return this.ExchangeSymbolToStandard[exchange][exchangeSymbol];
+        //}
 
         public List<string> GetExchangeSymbolsForExchange(string exchange)
         {

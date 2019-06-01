@@ -1,7 +1,9 @@
 {
     "Single": {},
-    "DebugAndRelease": {
-        "PortableCSharpLib": "1.0.209592e",
-        "CommonCSharpLibary": "1.0.0"
-    }
+  "DebugAndRelease": {
+    "StockChart": "1.0.0",
+    "PortableCSharpLib": "1.0.0",
+    "Serialization": "1.0.0",
+    "CommonCSharpLibary": "1.0.0"
+  }
 }

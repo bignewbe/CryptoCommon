@@ -8,9 +8,12 @@ namespace CryptoCommon.Interfaces
 {
     public interface IProductMeta
     {
+        List<string> Exchanges { get; }
+        Dictionary<string, double> TradingFee { get; }
         Dictionary<string, Dictionary<string, string>> ExchangeRate { get; }
         Dictionary<string, Dictionary<string, List<string>>> OneWayCoinToCurrencyTakeProfit { get; }
         Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>> TwoWayCoinToCurrencyTakeProfit { get; }
+        Dictionary<string, Dictionary<string, double>> MinMaxTradingAmount { get; }
 
         //string ConvertExchangeSymbolToStandard(string exchangeSymbol);
         string ConvertExchangeSymbolToStandardSymbol(string exchange, string exchangeSymbol);
@@ -19,8 +22,8 @@ namespace CryptoCommon.Interfaces
         string ConvertStandardCurrencyToExchangeCurrency(string exchange, string standardCurrency);
         //string ConvertCryptoToStandardSymbol(string exchange, string crypto);
 
-        string ConvertExchangeAltNameToExchangeSymbol(string exchange, string altName);
-        string ConvertExchangeAltNameToStandardSymbol(string exchange, string altName);
+        //string ConvertExchangeAltNameToExchangeSymbol(string exchange, string altName);
+        //string ConvertExchangeAltNameToStandardSymbol(string exchange, string altName);
 
         List<string> GetExchangeSymbolsForExchange(string exchange);
         List<string> GetStandardSymbolsForExchange(string exchange);

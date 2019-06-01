@@ -1,28 +1,27 @@
 ﻿using CryptoCommon.DataTypes;
-using System;
+using PortableCSharpLib.DataType;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CryptoCommon.Interfaces
 {
-    public interface IMarket
+    public interface IMarket : IRealtimeTicker, IQuoteBasicDownloader
     {
-        void Start();
-        void Stop();
-        bool IsStarted { get; }
-        HashSet<string> SubscribedStandardSymbols { get; }
+        //void Start();
+        //void Stop();
+        //bool IsStarted { get; }
         string Exchange { get; }
-        //Task Init();
+        //HashSet<string> SubscribedStandardSymbols { get; }
         //event EventHandlers.DataBarReceivedEventHandler OnDataBarReceived;
         //event EventHandlers.DataBarReceivedEventHandlerList OnDataBarListReceived;
-        event EventHandlers.TickerReceivedEventHandlerList OnTickerListReceived;
-        event EventHandlers.TickerReceivedEventHandler OnTickerReceived;
-        event EventHandlers.CaptureStateChangedEventHandler OnCaptureStateChanged;
-        event EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
+        //event EventHandlers.TickerReceivedEventHandler OnTickerReceived;
+        //event EventHandlers.CaptureStateChangedEventHandler OnCaptureStateChanged;
+        //event EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
 
+        Task<List<string>> GetAvailableSymbols();
         Task<Ticker> GetTicker(string symbol, int timeout = 5000);
         Task<Orderbook> GetOrderbook(string symbol, int timeout = 5000);
+        Task<List<OHLC>> GetOHLC(string symbol, int interval, int timeout = 5000);
+        //Task<QuoteBasicBase> DownloadHistQuote(string symbol, int interval, int timeout = 50000);
     }
 }

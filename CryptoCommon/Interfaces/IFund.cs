@@ -13,13 +13,20 @@ namespace CryptoCommon.Interfaces
 
         Task<Assets> GetAssets(int timeout = 5000);
         Task<string> Withdraw(string currency, double amount, string address, int timeout = 5000);
-
-        //Task<Funding> CheckWithdraw(string withdrawId, int timeout = 5000);
         
+        //Task<string> RequestWithdraw(string currency, string addressLabel, double amount, int timeout = 5000);
+        Task<bool> CancelWithdrawById(string currency, string withDrawId, int timeout = 5000);
+        Task<Funding> QueryWithdrawById(string currency, string withDrawId, int timeout = 5000);
+
+        Task<List<Funding>> GetDepositRecords(string currency, int timeout = 5000);
+        Task<List<Funding>> GetWithdrawRecords(string currency, int timeout = 5000);
+        
+        
+        //Task<Funding> CheckWithdraw(string withdrawId, int timeout = 5000);        
         //Task<bool> CancelWithdraw(string withdrawId, int timeout = 5000);
         //Task<List<Funding>> GetDepositRecords(string currency, int timeout = 5000);
         //Task<List<Funding>> GetWithdrawRecords(string currency, int timeout = 5000);
-        
+
         //bool IsStarted { get; }
         //Task Start(int miliseconds);
         //void Stop();

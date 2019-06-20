@@ -1,4 +1,5 @@
-﻿using CryptoCommon.DataTypes;
+﻿using CommonCSharpLibary.Interface;
+using CryptoCommon.DataTypes;
 using PortableCSharpLib.DataType;
 using System.Collections.Generic;
 using System.Threading.Tasks;

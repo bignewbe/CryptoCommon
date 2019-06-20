@@ -29,12 +29,33 @@ namespace CryptoCommon.Models
             if (!Directory.Exists(folder))
                 throw new DirectoryNotFoundException(folder);
 
+            if (!this.IsDirectoryWritable(folder))
+                throw new Exception($"{folder} not writable");
+            
             this.DataFolder = folder;
 
             //_download = download;
             _maxNumBarsInFile = maxNumBarsInFile;
             this.Exchange = exchange;
             this.OnQuoteSaved += HistoricalQuote_OnQuoteSaved;
+        }
+
+        bool IsDirectoryWritable(string dirPath, bool throwIfFails = false)
+        {
+            try
+            {
+                using (FileStream fs = File.Create(Path.Combine(dirPath, Path.GetRandomFileName()), 1, FileOptions.DeleteOnClose))
+                {
+                }
+                return true;
+            }
+            catch
+            {
+                if (throwIfFails)
+                    throw;
+                else
+                    return false;
+            }
         }
 
         private void HistoricalQuote_OnQuoteSaved(object sender, string exchange, string filename)

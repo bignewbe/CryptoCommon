@@ -1,21 +1,22 @@
 ﻿using CryptoCommon.DataTypes;
-using PortableCSharpLib.DataType;
-using PortableCSharpLib.Interace;
+using CryptoCommon.Future.Interface;
 using PortableCSharpLib.TechnicalAnalysis;
 using System;
 using System.Collections.Generic;
+using OHLC = PortableCSharpLib.DataType.OHLC;
+using Ticker = PortableCSharpLib.DataType.Ticker;
 
 namespace CryptoCommon
 {
     public class EventHandlers
     {
         public delegate void ConnectionChangedEventHandler(object sender, bool isConnected);
-
         public delegate void DataBarReceivedEventHandler(object sender, string exchange, OHLC ohlc);
         public delegate void CandleListReceivedEventHandler(object sender, string exchange, List<OHLC> ohlc);
         public delegate void TickerReceivedEventHandler(object sender, string exchange, Ticker ticker);
         public delegate void TickerReceivedEventHandlerList(object sender, string exchange, List<Ticker> ticker);
         public delegate void CaptureStateChangedEventHandler(object sender, string exchange, bool isStarted);
+        public delegate void FutureOrderReceivedEventHandler(object sender, List<FutureOrder> order);        
 
         public delegate void ExceptionOccuredEventHandler2(object sender, Exception ex);
         public delegate void ExceptionOccuredEventHandler(object sender, string exchange, Exception ex);
@@ -27,15 +28,7 @@ namespace CryptoCommon
         public delegate void OneWayCoinToCurrencyProfitCalculatedEventHandler(object sender, string exchange1, string exchange2, string crypto, double profit);
         public delegate void OneWayCoinToCoinProfitCalculatedEventHandler(object sender, string exchange1, string exchange2, string symbol, double profitBuyAtExch1, double profitSellAtExch1, Ticker tickExch1, Ticker tickExch2);
 
-        /// <summary>
-        /// buy symbol1@exchange1, sell symbol2@exchange1. 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="exchange1"></param>
-        /// <param name="exchange2"></param>
-        /// <param name="symbol1"></param>
-        /// <param name="symbol2"></param>
-        /// <param name="profit"></param>        
+
         public delegate void TwoWayCoinToCoinProfitCalculatedEventHandler(object sender, string exchange1, string symbol1, string exchange2, string symbol2, double profit);
 
         //from crypto models
@@ -44,9 +37,6 @@ namespace CryptoCommon
         public delegate void OrderExecutedEventHandler(object sender, string symbol, int orderId, double executePrice, int quantity);
         public delegate void OrderClosedEventHandler(object sender, string symbol, int orderId, double closePrice, int quantity);
 
-        //public delegate void OrderPartialExecutedEventHandler(object sender, string symbol, int orderId, double executePrice, int quantity);
-        //public delegate void OrderPartialClosedEventHandler(object sender, string symbol, int orderId, double closePrice, int quantity);
-        //public delegate void OrderCreatedEventHandler(object sender, Order order);
 
         public delegate void QuoteRemovedEventHandler(object sender, IQuoteBasicBase quote);
         public delegate void QuoteDataReceivedEventHandler(object sender, string symbol, long time, double open, double close, double high, double low, double volume);
@@ -75,12 +65,11 @@ namespace CryptoCommon
         public delegate void FreeAssetChangedEventHandler(object sender, string currency, Assets asset);
         public delegate void FreezedAssetChangedEventHandler(object sender, string currency, Assets asset);
         
-        public delegate void QuoteBasicDataAddedOrUpdatedEventHandler(object sender, string exchange, IQuoteBasicBase quote, int numAppended);
-        public delegate void QuoteCaptureDataAddedOrUpdatedEventHandler(object sender, string exchange, IQuoteCapture quote, int numAppended);
-        public delegate void QuoteSavedEventHandler(object sender, string exchange, string filename);
 
 
-
+        //public delegate void QuoteBasicDataAddedOrUpdatedEventHandler(object sender, string exchange, IQuoteBasicBase quote, int numAppended);
+        //public delegate void QuoteCaptureDataAddedOrUpdatedEventHandler(object sender, string exchange, IQuoteCapture quote, int numAppended);
+        //public delegate void QuoteSavedEventHandler(object sender, string exchange, string filename);
         //public delegate void DepositAddedEventHandler(object sender, Funding deposit);
         //public delegate void DepositStatusChangedEventHandler(object sender, Funding deposit);
         //public delegate void WithdrawAddeddEventHandler(object sender, Funding withdraw);

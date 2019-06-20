@@ -1,130 +1,94 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{97CB4769-E571-482D-9966-D044E2E4CAE5}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CryptoCommon</RootNamespace>
-    <AssemblyName>CryptoCommon</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Drawing.Design" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Reference Include="CommonCSharpLibary">
-      <HintPath>lib\CommonCSharpLibary\Release\1.0.0\CommonCSharpLibary.dll</HintPath>
-    </Reference>
-    <Reference Include="StockChart">
-      <HintPath>lib\StockChart\Release\1.0.0\StockChart.dll</HintPath>
-    </Reference>
-    <Reference Include="Serialization">
-      <HintPath>lib\Serialization\Release\1.0.0\Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="PortableCSharpLib">
-      <HintPath>lib\PortableCSharpLib\Release\1.0.0\PortableCSharpLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Reference Include="CommonCSharpLibary">
-      <HintPath>lib\CommonCSharpLibary\Debug\1.0.0\CommonCSharpLibary.dll</HintPath>
-    </Reference>
-    <Reference Include="StockChart">
-      <HintPath>lib\StockChart\Debug\1.0.0\StockChart.dll</HintPath>
-    </Reference>
-    <Reference Include="Serialization">
-      <HintPath>lib\Serialization\Debug\1.0.0\Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="PortableCSharpLib">
-      <HintPath>lib\PortableCSharpLib\Debug\1.0.0\PortableCSharpLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DataTypes\Assets.cs" />
-    <Compile Include="DataTypes\EnumType.cs" />
-    <Compile Include="DataTypes\Funding.cs" />
-    <Compile Include="DataTypes\OnewayCoinToCoinOrder.cs" />
-    <Compile Include="DataTypes\Order.cs" />
-    <Compile Include="DataTypes\Orderbook.cs" />
-    <Compile Include="DataTypes\TwowayCoinToCurrencyOrder.cs" />
-    <Compile Include="EventHandlers.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="Extentions.cs" />
-    <Compile Include="Interfaces\IQuoteBasicDownloader.cs" />
-    <Compile Include="Interfaces\IFund.cs" />
-    <Compile Include="Interfaces\IQuoteBasicFileStore.cs" />
-    <Compile Include="Interfaces\IMarket.cs" />
-    <Compile Include="Interfaces\IOrder.cs" />
-    <Compile Include="Interfaces\IQuoteCaptureMemStore.cs" />
-    <Compile Include="Interfaces\IRealtimeCandle.cs" />
-    <Compile Include="Interfaces\ITickerStore.cs" />
-    <Compile Include="Interfaces\IProductMeta.cs" />
-    <Compile Include="Interfaces\IProfitCalculator.cs" />
-    <Compile Include="Interfaces\IQuoteBasicMemStore.cs" />
-    <Compile Include="Interfaces\IRealtimeTicker.cs" />
-    <Compile Include="Interfaces\IStartStop.cs" />
-    <Compile Include="Models\QuoteBasicFileStore.cs" />
-    <Compile Include="Models\QuoteCaptureMemStore.cs" />
-    <Compile Include="Models\TickerStore.cs" />
-    <Compile Include="Models\ProductMeta.cs" />
-    <Compile Include="Models\ProfitCalculator.cs" />
-    <Compile Include="Models\QuoteBasicMemStore.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="dependency.json" />
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<!-- <PropertyGroup Label="Globals"> -->
+		<!-- <ProjectGuid>630f0115-224e-433b-aee5-1396bcb6b962</ProjectGuid> -->
+	<!-- </PropertyGroup> -->
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Chart\**" />
+		<Compile Remove="ClientInterface\**" />
+		<Compile Remove="Facility\**" />
+		<Compile Remove="Http\**" />
+		<Compile Remove="lib\**" />
+		<Compile Remove="Properties_Obsolete\**" />
+		<EmbeddedResource Remove="Chart\**" />
+		<EmbeddedResource Remove="ClientInterface\**" />
+		<EmbeddedResource Remove="Facility\**" />
+		<EmbeddedResource Remove="Http\**" />
+		<EmbeddedResource Remove="lib\**" />
+		<EmbeddedResource Remove="Properties_Obsolete\**" />
+		<None Remove="Chart\**" />
+		<None Remove="ClientInterface\**" />
+		<None Remove="Facility\**" />
+		<None Remove="Http\**" />
+		<None Remove="lib\**" />
+		<None Remove="Properties_Obsolete\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="DataTypes\OHLC.cs" />
+		<Compile Remove="DataTypes\PriceVolumePair.cs" />
+		<Compile Remove="DataTypes\QuoteBasicFileInfo.cs" />
+		<Compile Remove="DataTypes\QuoteCaptureFileInfo.cs" />
+		<Compile Remove="DataTypes\Ticker.cs" />
+		<Compile Remove="Interfaces\ICache.cs" />
+		<Compile Remove="Interfaces\IQuoteBasicDownloader.cs" />
+		<Compile Remove="Interfaces\IQuoteBasicFileStore.cs" />
+		<Compile Remove="Interfaces\IQuoteBasicMemStore.cs" />
+		<Compile Remove="Interfaces\IQuoteCaptureMemStore.cs" />
+		<Compile Remove="Interfaces\IQuoteCapturer.cs" />
+		<Compile Remove="Interfaces\IQuoteClient.cs" />
+		<Compile Remove="Interfaces\IQuoteLoader.cs" />
+		<Compile Remove="Interfaces\IQuoteQuery.cs" />
+		<Compile Remove="Interfaces\IRateGate.cs" />
+		<Compile Remove="Interfaces\ITraderModel.cs" />
+		<Compile Remove="Interfaces\ITradeSecond.cs" />
+		<Compile Remove="Models\Cache.cs" />
+		<Compile Remove="Models\DownloadQuoteBasic.cs" />
+		<Compile Remove="Models\EqualAndCopyUseReflectionExtension.cs" />
+		<Compile Remove="Models\QuoteBasicFileStore.cs" />
+		<Compile Remove="Models\QuoteBasicMemStore.cs" />
+		<Compile Remove="Models\QuoteCaptureMemStore.cs" />
+		<Compile Remove="Models\QuoteCapturer.cs" />
+		<Compile Remove="Models\QuoteCapturerWithNetwork.cs" />
+		<Compile Remove="Models\QuoteClient.cs" />
+		<Compile Remove="Models\QuoteLoader.cs" />
+		<Compile Remove="Models\QuoteQuery.cs" />
+		<Compile Remove="Models\RateGate.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove=".refsignored" />
+		<None Remove="New Text Document.txt" />
+		<None Remove="NLog.config" />
+		<None Remove="NLog.xsd" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<Reference Include="Serialization">
+			<HintPath>lib\Serialization\Debug\1.0.0\Serialization.dll</HintPath>
+		</Reference>
+		<Reference Include="PortableCSharpLib">
+			<HintPath>lib\PortableCSharpLib\Debug\1.0.0\PortableCSharpLib.dll</HintPath>
+		</Reference>
+		<Reference Include="CommonCSharpLibary">
+			<HintPath>lib\CommonCSharpLibary\Debug\1.0.0\CommonCSharpLibary.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<Reference Include="CyptoCommon">
+			<HintPath>lib\CyptoCommon\Release\1.0.0\CyptoCommon.dll</HintPath>
+		</Reference>
+		<Reference Include="Serialization">
+			<HintPath>lib\Serialization\Release\1.0.0\Serialization.dll</HintPath>
+		</Reference>
+		<Reference Include="PortableCSharpLib">
+			<HintPath>lib\PortableCSharpLib\Release\1.0.0\PortableCSharpLib.dll</HintPath>
+		</Reference>
+		<Reference Include="CommonCSharpLibary">
+			<HintPath>lib\CommonCSharpLibary\Release\1.0.0\CommonCSharpLibary.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 </Project>

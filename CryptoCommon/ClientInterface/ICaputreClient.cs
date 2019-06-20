@@ -1,4 +1,5 @@
 ﻿using CryptoCommon.DataTypes;
+using PortableCSharpLib.DataType;
 using PortableCSharpLib.TechnicalAnalysis;
 using System.Collections.Generic;
 

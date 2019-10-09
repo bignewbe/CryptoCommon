@@ -32,7 +32,10 @@
 		<Compile Remove="DataTypes\QuoteBasicFileInfo.cs" />
 		<Compile Remove="DataTypes\QuoteCaptureFileInfo.cs" />
 		<Compile Remove="DataTypes\Ticker.cs" />
+		<Compile Remove="Future\DataType\FutureState.cs" />
+		<Compile Remove="Future\DataType\FutureType.cs" />
 		<Compile Remove="Interfaces\ICache.cs" />
+		<Compile Remove="Interfaces\IIdEqualCopy.cs" />
 		<Compile Remove="Interfaces\IQuoteBasicDownloader.cs" />
 		<Compile Remove="Interfaces\IQuoteBasicFileStore.cs" />
 		<Compile Remove="Interfaces\IQuoteBasicMemStore.cs" />

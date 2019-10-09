@@ -85,7 +85,7 @@ namespace CryptoCommon.DataTypes
                 this.OrderIdExchange2 == orderId);
         }
 
-        public bool UpdateOrder(Order order)
+        public bool UpdateOrder(SpotOrder order)
         {
             var updated = false;
             if (order.OrderId == this.OrderIdExchange1)

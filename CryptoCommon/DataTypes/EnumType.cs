@@ -12,22 +12,58 @@ namespace CryptoCommon.DataTypes
         buy_limit,
         buy_market,
         sell_limit,
-        sell_market
+        sell_market,
+
+        open_long,
+        open_short,
+        close_long,
+        close_short
     }
 
-    public enum OrderStatus
+    public enum OrderState
     {
         none,
         cancel_pending,
         pending,
         open,
-        closed,
-        partial_closed,
+        //closed,
+        //partial_closed,
         cancelled,
         expired,
         failed,
-        not_exist
+        //not_exist,
+
+        //none,
+        //open,
+        //failed,
+        //cancelled,
+        partial_filled,
+        fully_filled,
+        summitting,
+        cancelling
     }
+
+    //public enum FutureState
+    //{
+    //    none,
+    //    open,
+    //    failed,
+    //    cancelled,
+    //    partial_filled,
+    //    fully_filled,
+    //    summitting,
+    //    cancelling
+    //}
+
+    //public enum FutureType
+    //{
+    //    none,
+    //    open_long,
+    //    open_short,
+    //    close_long,
+    //    close_short
+    //}
+
 
     //okCoin: （-3:撤销中;-2:已撤销;-1:失败;0:等待提现;1:提现中;2:已汇出;3:邮箱确认;4:人工审核中5:等待身份认
 

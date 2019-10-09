@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CryptoCommon.DataTypes
@@ -16,7 +14,9 @@ namespace CryptoCommon.DataTypes
             }
             catch (Exception ex)
             {
-                return new ServiceResult<T> { Result = false, Message = ex.ToString() };
+                var r = new ServiceResult<T> { Result = false, Message = ex.ToString() };
+                Console.WriteLine(r.Message);
+                return r;
             }
         }
 

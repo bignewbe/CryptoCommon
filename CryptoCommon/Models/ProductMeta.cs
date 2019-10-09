@@ -95,14 +95,20 @@ namespace CryptoCommon.Models
         {
             //if (!this.SymbolToStandard.ContainsKey(exchange)) return null;
             //if (!this.SymbolToStandard[exchange].ContainsKey(exchangeSymbol)) return null;
-            return this.ExchangeSymbolToStandard[exchange][exchangeSymbol];
+            if (this.ExchangeSymbolToStandard[exchange].ContainsKey(exchangeSymbol))
+                return this.ExchangeSymbolToStandard[exchange][exchangeSymbol];
+            else
+                return exchangeSymbol;
         }
 
         public string ConvertStandardSymbolToExchangeSymbol(string exchange, string standardSymbol)
         {
             //if (!this._standardSymbolToExchangeSymbol.ContainsKey(exchange)) return null;
             //if (!this._standardSymbolToExchangeSymbol[exchange].ContainsKey(standardSymbol)) return null;
-            return this._standardSymbolToExchangeSymbol[exchange][standardSymbol];
+            if (this._standardSymbolToExchangeSymbol[exchange].ContainsKey(standardSymbol))
+                return this._standardSymbolToExchangeSymbol[exchange][standardSymbol];
+            else
+                return standardSymbol;
         }
 
         public static (string fiat, string crypto) GetCurrenciesFromStandardSymbol(string standardSymbol)

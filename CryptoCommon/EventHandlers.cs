@@ -16,7 +16,6 @@ namespace CryptoCommon
         public delegate void TickerReceivedEventHandler(object sender, string exchange, Ticker ticker);
         public delegate void TickerReceivedEventHandlerList(object sender, string exchange, List<Ticker> ticker);
         public delegate void CaptureStateChangedEventHandler(object sender, string exchange, bool isStarted);
-        public delegate void FutureOrderReceivedEventHandler(object sender, List<FutureOrder> order);        
 
         public delegate void ExceptionOccuredEventHandler2(object sender, Exception ex);
         public delegate void ExceptionOccuredEventHandler(object sender, string exchange, Exception ex);
@@ -36,27 +35,24 @@ namespace CryptoCommon
         public delegate void OrderCancelledEventHandler(object sender, string symbol, int orderId);
         public delegate void OrderExecutedEventHandler(object sender, string symbol, int orderId, double executePrice, int quantity);
         public delegate void OrderClosedEventHandler(object sender, string symbol, int orderId, double closePrice, int quantity);
-
-
+        
         public delegate void QuoteRemovedEventHandler(object sender, IQuoteBasicBase quote);
         public delegate void QuoteDataReceivedEventHandler(object sender, string symbol, long time, double open, double close, double high, double low, double volume);
         public delegate void EmaUpdatedEventHandler(object sender, List<double> ema, int count);
 
         public delegate void ChartDataRangeChangedEventHandler(object sender);
-
         public delegate void DepositAddedEventHandler(object sender, Funding deposit);
         public delegate void DepositStatusChangedEventHandler(object sender, Funding deposit);
 
         public delegate void WithdrawAddeddEventHandler(object sender, Funding withdraw);
         public delegate void WithdrawStatusChangedEventHandler(object sender, Funding withdraw);
+        public delegate void NewOrderAddedEventHandler(object sender, SpotOrder order);
 
-        public delegate void NewOrderAddedEventHandler(object sender, Order order);
-
-        public delegate void OrderStatusChangedEventHandler(object sender, Order order);
+        public delegate void OrderStatusChangedEventHandler(object sender, SpotOrder order);
         public delegate void TwowayCoinToCurrencyOrderChangedEventHandler(object sender, TwowayCoinToCurrencyOrder order);
         public delegate void OnewayCoinToCoinOrderChangedEventHandler(object sender, OnewayCoinToCoinOrder order);
 
-        public delegate void OrderListChangedEventHandler(object sender, IList<Order> order);
+        public delegate void OrderListChangedEventHandler(object sender, IList<SpotOrder> order);
         public delegate void TakeProfitOrderListChangedEventHandler(object sender, IList<TwowayCoinToCurrencyOrder> order);
 
         public delegate void ExchangeAssetsUpdatedEventHandler(object sender, Assets oldAsset, Assets newAsset);

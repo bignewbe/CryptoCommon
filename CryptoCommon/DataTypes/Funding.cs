@@ -17,7 +17,7 @@ namespace CryptoCommon.DataTypes
         public string Method { get; set; }
         public double Amount { get; set; }
         public double Fee { get; set; }
-        public FundingStatus Status { get; set; }
+        public FundingStatus State { get; set; }
         public string RefId { get; set; }
         public string txid { get; set; }
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CryptoCommon.DataTypes
 {
-    public class Orderbook
+    public class Orderbook 
     {
         public DateTime Timestamp { get; set; }
         public string Symbol { get; set; }

@@ -35,14 +35,13 @@ namespace CryptoCommon.Future.Interface
         ////public string Ordertype { get; set; }
         //public OrderType Ordertype { get; set; }   //open long, open short, close long, clost short
         //public string Id { get { return OrderId; } }
-
-        public int Leverage { get; set; }
+        //public int Leverage { get; set; }
 
         public FutureOrder() : base()
         {
         }
 
-        public FutureOrder(string exchange, string instrument_id, int amount, double price, OrderType type, string refId, int leverage) : base()
+        public FutureOrder(string exchange, string instrument_id, int amount, double price, OrderType type, string refId) : base()
         {
             this.Exchange = exchange;
             this.TimeCreated = DateTime.UtcNow;
@@ -51,7 +50,7 @@ namespace CryptoCommon.Future.Interface
             this.Price = price;
             this.Ordertype = type;
             this.RefId = refId;
-            this.Leverage = leverage;
+            //this.Leverage = leverage;
         }
 
         public FutureOrder(FutureOrder other)
@@ -62,54 +61,49 @@ namespace CryptoCommon.Future.Interface
         public bool Equals(FutureOrder other)
         {
             if (other == null) return false;
-            return base.Equals(other) && this.Leverage == other.Leverage;
+            return base.Equals(other);
         }
 
         public void Copy(FutureOrder other)
         {
-            if (other != null)
-            {
+            if (other != null) 
                 base.Copy(other);
-                this.Leverage = other.Leverage;
-            }
         }
 
-        public bool EqualsExceptTimeLastAndPrevRefId(FutureOrder other)
-        {
-            if (other == null) return false;
+        //public bool EqualsExceptTimeLastAndPrevRefId(FutureOrder other)
+        //{
+        //    return (this.TimeCreated == other.TimeCreated &&
+        //            //this.Leverage == other.Leverage &&
+        //            this.Exchange == other.Exchange &&
+        //            this.Symbol == other.Symbol &&
+        //            this.Amount == other.Amount &&
+        //            this.AvgPrice == other.AvgPrice &&
+        //            this.DealAmount == other.DealAmount &&
+        //            this.OrderId == other.OrderId &&
+        //            this.Price == other.Price &&
+        //            this.State == other.State &&
+        //            this.RefId == other.RefId &&
+        //            this.CommissionPaid == other.CommissionPaid &&
+        //            this.Ordertype == other.Ordertype);
+        //}
 
-            return (this.TimeCreated == other.TimeCreated &&
-                    this.Leverage == other.Leverage &&
-                    this.Exchange == other.Exchange &&
-                    this.Symbol == other.Symbol &&
-                    this.Amount == other.Amount &&
-                    this.AvgPrice == other.AvgPrice &&
-                    this.DealAmount == other.DealAmount &&
-                    this.OrderId == other.OrderId &&
-                    this.Price == other.Price &&
-                    this.State == other.State &&
-                    this.RefId == other.RefId &&
-                    this.CommissionPaid == other.CommissionPaid &&
-                    this.Ordertype == other.Ordertype);
-        }
+        //public void CopyExceptTimeLastAndPrevRefId(FutureOrder other)
+        //{
+        //    if (other == null) return;
 
-        public void CopyExceptTimeLastAndPrevRefId(FutureOrder other)
-        {
-            if (other == null) return;
-
-            this.TimeCreated = other.TimeCreated;
-            this.Leverage = other.Leverage;
-            this.Exchange = other.Exchange;
-            this.Symbol = other.Symbol;
-            this.Amount = other.Amount;
-            this.AvgPrice = other.AvgPrice;
-            this.DealAmount = other.DealAmount;
-            this.OrderId = other.OrderId;
-            this.Price = other.Price;
-            this.State = other.State;
-            this.RefId = other.RefId;
-            this.CommissionPaid = other.CommissionPaid;
-            this.Ordertype = other.Ordertype;
-        }
+        //    this.TimeCreated = other.TimeCreated;
+        //    //this.Leverage = other.Leverage;
+        //    this.Exchange = other.Exchange;
+        //    this.Symbol = other.Symbol;
+        //    this.Amount = other.Amount;
+        //    this.AvgPrice = other.AvgPrice;
+        //    this.DealAmount = other.DealAmount;
+        //    this.OrderId = other.OrderId;
+        //    this.Price = other.Price;
+        //    this.State = other.State;
+        //    this.RefId = other.RefId;
+        //    this.CommissionPaid = other.CommissionPaid;
+        //    this.Ordertype = other.Ordertype;
+        //}
     }
 }

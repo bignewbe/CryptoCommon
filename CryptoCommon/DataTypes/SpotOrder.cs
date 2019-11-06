@@ -1,4 +1,5 @@
-﻿using PortableCSharpLib.Interace;
+﻿using CryptoCommon.Future.DataType;
+using PortableCSharpLib.Interace;
 using System;
 
 namespace CryptoCommon.DataTypes
@@ -21,6 +22,7 @@ namespace CryptoCommon.DataTypes
         public OrderType Ordertype { get; set; }
         public string PrevRefId { get; set; }
         public string RefId { get; set; }
+        public ExecutionType ExecutionType { get; set; } = ExecutionType.Standard;
 
         public SpotOrder()
         {
@@ -47,7 +49,8 @@ namespace CryptoCommon.DataTypes
                 this.State == other.State &&
                 this.Ordertype == other.Ordertype &&
                 this.RefId == other.RefId &&
-                this.CommissionPaid == other.CommissionPaid);
+                this.CommissionPaid == other.CommissionPaid &&
+                this.ExecutionType == other.ExecutionType);
         }
 
         public void Copy(SpotOrder other)
@@ -67,6 +70,7 @@ namespace CryptoCommon.DataTypes
                 this.Ordertype = other.Ordertype;
                 this.RefId = other.RefId;
                 this.CommissionPaid = other.CommissionPaid;
+                this.ExecutionType = other.ExecutionType;
             }
         }
     }

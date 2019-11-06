@@ -52,14 +52,17 @@ namespace CryptoCommon.Future.DataType
         public void Copy(FutureBalance other)
         {
             if (other == null) return;
-
             this.Currency = other.Currency;
             this.equity = other.equity;
-            this.available_margin = other.available_margin;
-            this.margin = other.margin;
+            this.total_available_balance = other.total_available_balance;
             this.margin_mode = other.margin_mode;
+            this.available_margin = other.available_margin;
+            this.can_withdraw = other.can_withdraw;
+            this.margin = other.margin;
             this.margin_for_unfilled = other.margin_for_unfilled;
             this.margin_frozen = other.margin_frozen;
+            this.margin_ratio = other.margin_ratio;
+            this.maint_margin_ratio = other.maint_margin_ratio;
             this.realized_pnl = other.realized_pnl;
             this.unrealized_pnl = other.unrealized_pnl;
         }
@@ -70,11 +73,15 @@ namespace CryptoCommon.Future.DataType
             return (
                     this.Currency == other.Currency &&
                     this.equity == other.equity &&
-                    this.available_margin == other.available_margin &&
-                    this.margin == other.margin &&
+                    this.total_available_balance == other.total_available_balance &&
                     this.margin_mode == other.margin_mode &&
+                    this.available_margin == other.available_margin &&
+                    this.can_withdraw == other.can_withdraw &&
+                    this.margin == other.margin &&
                     this.margin_for_unfilled == other.margin_for_unfilled &&
                     this.margin_frozen == other.margin_frozen &&
+                    this.margin_ratio == other.margin_ratio &&
+                    this.maint_margin_ratio == other.maint_margin_ratio &&
                     this.realized_pnl == other.realized_pnl &&
                     this.unrealized_pnl == other.unrealized_pnl);
         }

@@ -78,15 +78,16 @@ namespace CryptoCommon.Future.Interface
         public string short_unrealised_pnl { get; set; }
 
         public string Id { get { return instrument_id; } }
-        public void Copy(FuturePosition other)
-        {
-            base.Copy(other);
-        }
 
-        public bool Equals(FuturePosition other)
-        {
-            return base.Equals(other);
-        }
+        //public void Copy(FuturePosition other)
+        //{
+        //    base.Copy(other);
+        //}
+
+        //public bool Equals(FuturePosition other)
+        //{
+        //    return base.Equals(other);
+        //}
     }
 
     //public class FuturePosition

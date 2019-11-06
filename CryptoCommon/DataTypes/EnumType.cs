@@ -106,4 +106,32 @@ namespace CryptoCommon.DataTypes
         one_hour,
         day
     }
+
+    public enum SubscribeType
+    {
+        None,
+        SpotCandle,
+        SpotTicker,
+        SpotOrder,
+        SpotAccount,
+        SpotDepth5,
+        FutureCandle,
+        FutureTicker,
+        FutureOrder,
+        FutureAccount,
+        FuturePosition,
+        FutureDepth,
+        FutureDepth5,
+        FutureDepth200,
+        FutureTrade,
+        SwapCandle,
+        SwapTicker,
+        SwapOrder,
+        SwapAccount,
+        SwapPosition,
+        SwapDepth,
+        SwapDepth5,
+        SwapDepth200,
+        SwapTrade
+    }
 }

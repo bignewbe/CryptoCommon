@@ -32,8 +32,8 @@ namespace CryptoCommon.Interfaces
         Task<SpotOrder> CheckOrder(SpotOrder order, int timeout = 5000);
 
         Task<List<SpotOrder>> GetOpenOrders(string symbol, int timeout = 5000);
-        Task<List<SpotOrder>> GetClosedOrders(string symbol, int timeout = 5000);
-
+        Task<List<SpotOrder>> GetClosedOrders(string symbol, int timeout = 5000);      //order which is filled
+        Task<List<SpotOrder>> GetCancelledOrders(string symbol, int timeout = 5000);
 
         //Task<List<SpotOrder>> GetAllOpenOrders(int timeout = 5000);
         //Task<List<SpotOrder>> GetAllClosedOrders(int timeout = 5000);

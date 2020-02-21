@@ -9,6 +9,7 @@ namespace CryptoCommon.DataTypes
     public enum OrderType
     {
         none,
+
         buy_limit,
         buy_market,
         sell_limit,
@@ -17,7 +18,10 @@ namespace CryptoCommon.DataTypes
         open_long,
         open_short,
         close_long,
-        close_short
+        close_short,
+
+        stop_sell,
+        stop_buy,
     }
 
     public enum OrderState

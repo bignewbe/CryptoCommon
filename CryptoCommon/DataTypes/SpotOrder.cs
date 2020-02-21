@@ -17,6 +17,7 @@ namespace CryptoCommon.DataTypes
         public double DealAmount { get; set; }
         public string OrderId { get; set; }
         public double Price { get; set; }
+        public double TriggerPrice { get; set; }
         public double CommissionPaid { get; set; }
         public OrderState State { get; set; }
         public OrderType Ordertype { get; set; }
@@ -46,6 +47,7 @@ namespace CryptoCommon.DataTypes
                 this.DealAmount == other.DealAmount &&
                 this.OrderId == other.OrderId &&
                 this.Price == other.Price &&
+                this.TriggerPrice == other.TriggerPrice &&
                 this.State == other.State &&
                 this.Ordertype == other.Ordertype &&
                 this.RefId == other.RefId &&
@@ -66,6 +68,7 @@ namespace CryptoCommon.DataTypes
                 this.DealAmount = other.DealAmount;
                 this.OrderId = other.OrderId;
                 this.Price = other.Price;
+                this.TriggerPrice = other.TriggerPrice;
                 this.State = other.State;
                 this.Ordertype = other.Ordertype;
                 this.RefId = other.RefId;

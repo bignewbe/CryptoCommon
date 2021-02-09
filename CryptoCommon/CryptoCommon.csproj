@@ -81,9 +81,6 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">
-		<Reference Include="CyptoCommon">
-			<HintPath>lib\CyptoCommon\Release\1.0.0\CyptoCommon.dll</HintPath>
-		</Reference>
 		<Reference Include="Serialization">
 			<HintPath>lib\Serialization\Release\1.0.0\Serialization.dll</HintPath>
 		</Reference>

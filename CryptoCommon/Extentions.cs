@@ -1,4 +1,5 @@
-﻿using PortableCSharpLib.TechnicalAnalysis;
+﻿using CryptoCommon.DataTypes;
+using PortableCSharpLib.TechnicalAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,18 @@ namespace CryptoCommon
                 if (!valueComparer.Equals(kvp.Value, secondValue)) return false;
             }
             return true;
+        }
+
+        public static bool IsOrderOpen(this SpotOrder order)
+        {
+            if (order.State == OrderState.none ||
+                order.State == OrderState.open ||
+                order.State == OrderState.summitting ||
+                order.State == OrderState.partial_filled ||
+                order.State == OrderState.cancelling)
+                return true;
+            else
+                return false;
         }
     }
 }

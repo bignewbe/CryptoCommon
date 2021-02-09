@@ -6,15 +6,66 @@ using System.Text;
 
 namespace CryptoCommon.DataTypes
 {
+    public class SyncStatus
+    {
+        Func<long> _funcGetCurrentTime;
+        long _timestamp;
+        int _secondsToWait;
+        HashSet<string> _refIds = new HashSet<string>();
+
+        public SyncStatus(int secondsToWait = 300, Func<long> funcGetCurrentTime = null)
+        {
+            _secondsToWait = secondsToWait;
+            _funcGetCurrentTime = funcGetCurrentTime;
+        }
+
+        private void SetTimestamp()
+        {
+            _timestamp = _funcGetCurrentTime == null ? DateTime.UtcNow.GetUnixTimeFromUTC() : _funcGetCurrentTime();
+        }
+
+        public void AddRefId(string refId)
+        {
+            if (string.IsNullOrEmpty(refId)) return;
+
+            lock (this)
+            {
+                if (!_refIds.Contains(refId)) _refIds.Add(refId);
+                this.SetTimestamp();
+            }
+        }
+        public void RemoveRefId(string refId)
+        {
+            if (string.IsNullOrEmpty(refId)) return;
+            lock (this)
+            {
+                if (_refIds.Contains(refId)) _refIds.Remove(refId);
+                this.SetTimestamp();
+            }
+        }
+        public bool IsHandlingInProgress(long tnow)
+        {
+            lock (this)
+            {
+                if (tnow - _timestamp > _secondsToWait)
+                    _refIds.Clear();
+
+                return (_refIds.Count > 0);
+            }
+        }
+    }
+
     public class LocalProxyStatus
     {
         Func<long> _funcGetCurrentTime;
         long _timestamp;
+        int _secondsToWait;
         HashSet<string> _refIdSubmit = new HashSet<string>();
         HashSet<string> _refIdCancel = new HashSet<string>();
 
-        public LocalProxyStatus(Func<long> funcGetCurrentTime = null)
+        public LocalProxyStatus(int secondsToWait=3600, Func<long> funcGetCurrentTime = null)
         {
+            _secondsToWait = secondsToWait;
             _funcGetCurrentTime = funcGetCurrentTime;
         }
 
@@ -62,7 +113,7 @@ namespace CryptoCommon.DataTypes
         {
             lock (this)
             {
-                if (tnow - _timestamp > 600)
+                if (tnow - _timestamp > _secondsToWait)
                 {
                     _refIdCancel.Clear();
                     _refIdSubmit.Clear();
@@ -72,7 +123,7 @@ namespace CryptoCommon.DataTypes
         }
     }
 
-    public class SpotTradeInfo : LocalProxyStatus, IIdEqualCopy<SpotTradeInfo>
+    public class SpotTradeInfo : IIdEqualCopy<SpotTradeInfo>
     {
         public double? _prevSoldPrice;
         public double? _prevBoughtPrice;
@@ -114,7 +165,7 @@ namespace CryptoCommon.DataTypes
         {
         }
 
-        public SpotTradeInfo(string paramId, string symbol, Func<long> funcGetCurrentTime = null) : base(funcGetCurrentTime)
+        public SpotTradeInfo(string paramId, string symbol)
         {
             this.ParamId = paramId;
             this.Symbol = symbol;

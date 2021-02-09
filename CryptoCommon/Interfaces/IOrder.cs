@@ -27,6 +27,9 @@ namespace CryptoCommon.Interfaces
         //Task<SpotOrder> BuyLimit(SpotOrder order, int timeout = 5000);
         //Task<SpotOrder> SellLimit(SpotOrder order, int timeout = 5000);
 
+        Task<long> GetLastTimeForOrder(string orderId, string symbol);
+        Task<bool> UpdateLastTimeForOrder(SpotOrder order);
+
         Task<SpotOrder> PlaceOrder(SpotOrder order, int timeout = 5000);
         Task<bool> CancelOrder(SpotOrder order, int timeout = 5000);
         Task<SpotOrder> CheckOrder(SpotOrder order, int timeout = 5000);

@@ -161,6 +161,8 @@ namespace CryptoCommon.DataTypes
         public double AvgSoldPrice { get; set; }
         public double AvgBoughtPrice { get; set; }
 
+        public bool IsTraderStarted { get; set; }
+
         public SpotTradeInfo()
         {
         }

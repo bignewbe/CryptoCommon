@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CryptoCommon
 {
-    public static class Extentions
+    public static class MyExtentions
     {
         public static bool DictionaryEqual<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second)
         {

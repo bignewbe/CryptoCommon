@@ -49,7 +49,7 @@ namespace CryptoCommon.Models
         {
             this.LoadFromJsonFile(fileProjectMeta);
         }
-        
+
         void LoadFromJsonFile(string filename)
         {
             var str = File.ReadAllText(filename);
@@ -87,8 +87,21 @@ namespace CryptoCommon.Models
             }
 
             _standardSymbolToExchangeSymbol = new Dictionary<string, Dictionary<string, string>>();
-            foreach(var key in this.ExchangeSymbolToStandard.Keys)
-                _standardSymbolToExchangeSymbol.Add(key, this.ExchangeSymbolToStandard[key].ToDictionary(kv => kv.Value, kv => kv.Key));
+            foreach (var key in this.ExchangeSymbolToStandard.Keys)
+            {
+                _standardSymbolToExchangeSymbol.Add(key, new Dictionary<string, string>());
+
+                var d = this._standardSymbolToExchangeSymbol[key];
+
+                foreach (var kv in this.ExchangeSymbolToStandard[key])
+                {
+                    if (!d.ContainsKey(kv.Value))
+                        d.Add(kv.Value, kv.Key);
+                    else
+                        Console.WriteLine($"{kv.Value}:{kv.Key} exist already with value = {d[kv.Value]}");
+                }
+                //_standardSymbolToExchangeSymbol.Add(key, this.ExchangeSymbolToStandard[key].ToDictionary(kv => kv.Value, kv => kv.Key));
+            }
         }
 
         public string ConvertExchangeSymbolToStandardSymbol(string exchange, string exchangeSymbol)

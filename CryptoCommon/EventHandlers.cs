@@ -60,7 +60,7 @@ namespace CryptoCommon
 
         public delegate void FreeAssetChangedEventHandler(object sender, string currency, Assets asset);
         public delegate void FreezedAssetChangedEventHandler(object sender, string currency, Assets asset);
-        
+
 
 
         //public delegate void QuoteBasicDataAddedOrUpdatedEventHandler(object sender, string exchange, IQuoteBasicBase quote, int numAppended);
@@ -81,5 +81,8 @@ namespace CryptoCommon
         //public delegate void AssetUpdatedEventHandler(object sender, string exchange, string asset, double oldValue, double newValue);
         //public delegate void FreeAssetChangedEventHandler(object sender, string currency, Assets asset);
         //public delegate void FreezedAssetChangedEventHandler(object sender, string currency, Assets asset);
+
+        public delegate void ItemWithIdChangedEventHandler<T>(object sender, string id, T item);
+        public delegate void ItemChangedEventHandler<T>(object sender, T item);
     }
 }

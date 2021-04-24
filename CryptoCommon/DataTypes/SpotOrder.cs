@@ -23,6 +23,13 @@ namespace CryptoCommon.DataTypes
         public OrderType Ordertype { get; set; }
         public string PrevRefId { get; set; }
         public string RefId { get; set; }
+
+        public string AlgoId { get; set; }
+        public double TPTriggerPrice { get; set; }
+        public double TPPrice { get; set; }
+        public double SLTriggerPrice { get; set; }
+        public double SLPrice { get; set; }
+
         public ExecutionType ExecutionType { get; set; } = ExecutionType.Standard;
 
         public SpotOrder()
@@ -52,7 +59,12 @@ namespace CryptoCommon.DataTypes
                 this.Ordertype == other.Ordertype &&
                 this.RefId == other.RefId &&
                 this.CommissionPaid == other.CommissionPaid &&
-                this.ExecutionType == other.ExecutionType);
+                this.ExecutionType == other.ExecutionType &&
+                this.AlgoId == other.AlgoId &&
+                this.TPTriggerPrice == other.TPTriggerPrice &&
+                this.TPPrice == other.TPPrice &&
+                this.SLTriggerPrice == other.SLTriggerPrice &&
+                this.SLPrice == other.SLPrice);
         }
 
         public void Copy(SpotOrder other)
@@ -74,6 +86,11 @@ namespace CryptoCommon.DataTypes
                 this.RefId = other.RefId;
                 this.CommissionPaid = other.CommissionPaid;
                 this.ExecutionType = other.ExecutionType;
+                this.AlgoId = other.AlgoId;
+                this.TPTriggerPrice = other.TPTriggerPrice;
+                this.TPPrice = other.TPPrice;
+                this.SLTriggerPrice = other.SLTriggerPrice;
+                this.SLPrice = other.SLPrice;
             }
         }
     }

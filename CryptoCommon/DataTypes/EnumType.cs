@@ -44,7 +44,9 @@ namespace CryptoCommon.DataTypes
         partial_filled,
         fully_filled,
         summitting,
-        cancelling
+        cancelling,
+
+        effective //for stop order
     }
 
     //public enum FutureState

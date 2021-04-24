@@ -160,8 +160,11 @@ namespace CryptoCommon.DataTypes
         public double QtyBought { get; set; }
         public double AvgSoldPrice { get; set; }
         public double AvgBoughtPrice { get; set; }
+        public double LastPrice { get; set; }
 
         public bool IsTraderStarted { get; set; }
+
+        public double Pnl { get { return NetC1 * LastPrice + NetC2; }}
 
         public SpotTradeInfo()
         {
@@ -195,6 +198,7 @@ namespace CryptoCommon.DataTypes
             this.ExptC1 = other.ExptC1;
             this.AvailC1 = other.AvailC1;
             this.AvailC2 = other.AvailC2;
+            this.LastPrice = other.LastPrice;
             this.Ratio = other.Ratio;
             this.NumOpenBuyOrder = other.NumOpenBuyOrder;
             this.NumOpenSellOrder = other.NumOpenSellOrder;
@@ -222,6 +226,7 @@ namespace CryptoCommon.DataTypes
             this.ExptC1 == other.ExptC1 &&
             this.AvailC1 == other.AvailC1 &&
             this.AvailC2 == other.AvailC2 &&
+            this.LastPrice == other.LastPrice &&
             this.Ratio == other.Ratio &&
             this.NumOpenBuyOrder == other.NumOpenBuyOrder &&
             this.NumOpenSellOrder == other.NumOpenSellOrder &&

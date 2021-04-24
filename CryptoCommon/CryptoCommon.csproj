@@ -5,6 +5,7 @@
 	<!-- </PropertyGroup> -->
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+		<UserSecretsId>23683584-6ab5-49e3-ab32-7e9ee138df72</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Chart\**" />
@@ -67,7 +68,12 @@
 		<None Remove="NLog.xsd" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+		<PackageReference Include="Serilog" Version="2.10.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
 		<Reference Include="Serialization">

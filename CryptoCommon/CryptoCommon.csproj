@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<!-- <PropertyGroup Label="Globals"> -->
-		<!-- <ProjectGuid>630f0115-224e-433b-aee5-1396bcb6b962</ProjectGuid> -->
-	<!-- </PropertyGroup> -->
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<UserSecretsId>23683584-6ab5-49e3-ab32-7e9ee138df72</UserSecretsId>
+		<TargetFramework>net5.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Chart\**" />

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 
@@ -39,12 +40,13 @@ namespace CryptoCommon.Services
                 Console.WriteLine($"{_servicename} does not exist in appsettings.json");
                 return;
             }
-            _exchange = _config["Exchange"];
 
-            //create meta data
+            ////////////////////////////////////////////////////////
+            _exchange = _config["Exchange"];
             var config1 = _appConfig.GetSection("Path");
-            _logPath = config1["logPath"];
-            _dataPath = config1["dataPath"];
+            _dataPath = Path.Combine(config1["dataPath"], _exchange);
+            _logPath = Path.Combine(_dataPath, "logs");
+            
             var metaPath = config1["metaPath"];
             _meta = new ProductMeta(metaPath);
             Console.WriteLine($"metaPath = {metaPath}");

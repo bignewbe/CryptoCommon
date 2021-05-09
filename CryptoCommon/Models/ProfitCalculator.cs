@@ -44,7 +44,7 @@ namespace CryptoCommon.Models
     {
         ITickerStore _store;
         IProductMeta _meta;
-        Dictionary<string, IMarket> _markets;
+        Dictionary<string, ISpotMarket> _markets;
         //double _tradefee = 0.002;
         //Dictionary<string, Dictionary<string, double>> _exchangeRates;
 
@@ -60,7 +60,7 @@ namespace CryptoCommon.Models
         public event CryptoCommon.EventHandlers.TwoWayCoinToCurrencyProfitCalculatedEventHandler OnTwoWayCoinToCurrencyProfitCalculated;
         public event CryptoCommon.EventHandlers.TwoWayCoinToCoinProfitCalculatedEventHandler OnTwoWayCoinToCoinProfitCalculated;
 
-        public ProfitCalculator(ITickerStore store, IProductMeta meta, Dictionary<string, IMarket> markets,
+        public ProfitCalculator(ITickerStore store, IProductMeta meta, Dictionary<string, ISpotMarket> markets,
             Dictionary<string, Dictionary<string, List<string>>> toComputeOnewaycoinToCoin = null)
             //Dictionary<string, Dictionary<string, double>> exchangeRate,
             //Dictionary<string, Dictionary<string, List<string>>> toComputeOnewayCoinToCurrency,
@@ -71,11 +71,11 @@ namespace CryptoCommon.Models
             _meta = meta;
             _markets = markets;
 
-            foreach (var exch in _markets.Keys)
-            {
-                //_apiMarketSeconds[exch].OnTickerReceived += ProfitCalculator_OnTickerReceived;
-                _markets[exch].OnTickerListReceived += ProfitCalculator_OnTickerListReceived;
-            }
+            //foreach (var exch in _markets.Keys)
+            //{
+            //    //_apiMarketSeconds[exch].OnTickerReceived += ProfitCalculator_OnTickerReceived;
+            //    _markets[exch].OnTickerListReceived += ProfitCalculator_OnTickerListReceived;
+            //}
 
             /////////////////////////////////////////////////////////////////////////////////////////////////
             /////one way coin to currency
@@ -183,7 +183,7 @@ namespace CryptoCommon.Models
             _store.OnTickerUpdated += _store_OnPriceUpdated;
         }
 
-        private void _store_OnPriceUpdated(object sender, string exchange, Ticker oldtick, Ticker newtick)
+        private void _store_OnPriceUpdated(object sender, string exchange, Ticker ticker, double volume)
         {
             lock (this)
             {
@@ -191,7 +191,7 @@ namespace CryptoCommon.Models
                 _isComputeProfitBusy = true;
             }
 
-            var symbol = oldtick.Symbol;
+            var symbol = ticker.Symbol;
 
             try
             {
@@ -418,13 +418,6 @@ namespace CryptoCommon.Models
             var r2 = (ticker2_exch1.Bid / ticker2_exch2.Ask);   //buy at exch2 and sell at exch1
             var profit = (1 - fee1) * (1 - fee1) * (1 - fee2) * (1 - fee2) * r1 * r2;   //take fee into account
             return profit;
-        }
-
-
-        private void ProfitCalculator_OnTickerListReceived(object sender, string exchange, List<Ticker> ticker)
-        {
-            foreach (var t in ticker)
-                _store.AddTicker(exchange, t);
         }
     }
 }

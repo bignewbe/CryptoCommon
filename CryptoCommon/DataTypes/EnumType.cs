@@ -116,6 +116,7 @@ namespace CryptoCommon.DataTypes
     public enum SubscribeType
     {
         None,
+        Binance,
         SpotCandle,
         SpotTicker,
         SpotOrder,

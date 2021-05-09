@@ -9,9 +9,11 @@ namespace CryptoCommon.Services
     {
         //ServiceResult<bool> UpdateLastTimeForOrder(SpotOrder order);
         ServiceResult<long> GetLastTimeForOrder(string orderId, string symbol);
-        ServiceResult<List<SpotOrder>> GetOpenStopOrder(string symbol);
-        ServiceResult<List<SpotOrder>> GetOpenOrders(string instrument_id, bool isReturnAll=false);         //submmiting + open + cancelling + partial filled
-        ServiceResult<List<SpotOrder>> GetClosedOrders(string instrument_id, bool isReturnAll = false);     //fully filled orders
+        //ServiceResult<List<SpotOrder>> GetOpenStopOrder(string symbol);
+        //ServiceResult<List<SpotOrder>> GetAllOpenOrders();
+        ServiceResult<List<SpotOrder>> GetOpenOrdersBySymbol(string symbol);                                 //submmiting + open + cancelling + partial filled
+        ServiceResult<List<SpotOrder>> GetClosedOrdersBySymbol(string symbol, bool isReturnAll = false);     //fully filled orders
+
         //ServiceResult<List<SpotOrder>> GetCancelleddOrders(string instrument_id); //fully filled orders
         //ServiceResult<List<SpotOrder>> GetFailedOrders(string instrument_id);     //fully filled orders
 
@@ -22,7 +24,7 @@ namespace CryptoCommon.Services
         ServiceResult<SpotOrder> PlaceOrder(SpotOrder order);
 
         //account
-        ServiceResult<Dictionary<string, SpotBalance>> GetAccounts();
+        ServiceResult<Dictionary<string, SpotBalance>> GetAccountBalance();
         //ServiceResult<SpotBalance> GetAccountByCurrency(string currency);
     }
 }

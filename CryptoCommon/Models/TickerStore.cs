@@ -14,7 +14,7 @@ namespace CryptoCommon.Models
         ConcurrentDictionary<string, ConcurrentDictionary<string, Ticker>> _tickers = new ConcurrentDictionary<string, ConcurrentDictionary<string, Ticker>>();
 
         public event CryptoCommon.EventHandlers.TickerUpdatedEventHandler OnTickerUpdated;
-        public event EventHandlers.TickerReceivedEventHandler OnTickerReceived;
+        //public event EventHandlers.TickerReceivedEventHandler OnTickerReceived;
 
         public double? ComputeRatioBetweenExchanges(string exchange1, string fiat1, string exchange2, string fiat2, string currency)
         {
@@ -31,9 +31,9 @@ namespace CryptoCommon.Models
             return _tickers[exchange1][standardSymbol1].Bid / _tickers[exchange2][standardSymbol2].Ask;
         }
 
-        public void AddTicker(string exchange, Ticker ticker)
+        public void AddTickers(string exchange, List<Ticker> tickers)
         {
-            lock (this)
+            foreach(var ticker in tickers)
             {
                 var symbol = ticker.Symbol;
 
@@ -45,10 +45,11 @@ namespace CryptoCommon.Models
 
                 if (ticker.Bid != old.Bid || ticker.Ask != old.Ask)
                 {
+                    var volume = ticker.Volume - _tickers[exchange][symbol].Volume;
                     _tickers[exchange][symbol].Copy(ticker);
-                    OnTickerUpdated?.Invoke(this, exchange, new Ticker(old), new Ticker(ticker));
+                    OnTickerUpdated?.Invoke(this, exchange, ticker, volume);
                 }
-                OnTickerReceived?.Invoke(this, exchange, new Ticker(ticker));
+                //OnTickerReceived?.Invoke(this, exchange, ticker);
             }
         }
 

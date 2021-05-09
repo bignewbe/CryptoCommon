@@ -25,17 +25,18 @@ namespace CryptoCommon.Interfaces
         //Task<SpotOrder> BuyLimit(SpotOrder order, int timeout = 5000);
         //Task<SpotOrder> SellLimit(SpotOrder order, int timeout = 5000);
 
-        Task<long> GetLastTimeForOrder(string orderId, string symbol);
-        Task<bool> UpdateLastTimeForOrder(SpotOrder order);
+        Task<long> GetLastTimeForClosedOrder(string orderId, string symbol);
+        Task<bool> UpdateLastTimeForClosedOrder(SpotOrder order);
 
         Task<SpotOrder> PlaceOrder(SpotOrder order, int timeout = 5000);
         Task<bool> CancelOrder(string symbol, string orderId, bool isStopOrder=false, int timeout = 5000);
         //Task<SpotOrder> CheckOrder(SpotOrder order, int timeout = 5000);
         Task<SpotOrder> CheckOrder(string symbol, string orderId, bool isStopOrder=false, int timeout = 5000);
 
-        Task<List<SpotOrder>> GetOpenOrders(string symbol, bool isReturnAll = false);
-        Task<List<SpotOrder>> GetClosedOrders(string symbol, bool isReturnAll = false);      //order which is filled
-        Task<List<SpotOrder>> GetCancelledOrders(string symbol, bool isReturnAll = false);
+        Task<List<SpotOrder>> GetAllOpenOrders();
+        Task<List<SpotOrder>> GetOpenOrdersBySymbol(string symbol);
+        Task<List<SpotOrder>> GetClosedOrdersBySymbol(string symbol, bool isReturnAll = false);      //order which is filled
+        Task<List<SpotOrder>> GetCancelledOrdersBySymbol(string symbol, bool isReturnAll = false);
 
         Task<List<SpotOrder>> GetOpenStopOrder(string symbol);
         //Task<List<string>> CancelStopOrders(string symbol, params string[] orderIds);

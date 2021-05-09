@@ -7,7 +7,7 @@ namespace CryptoCommon.Services
 {
     public interface ISubscribeService
     {
-        //void Subscribe(List<string> symbols);
+        //ServiceResult<bool> SubscribeAllSymbols(SubscribeType subscribeType);
         ServiceResult<bool> Subscribe(SubscribeType subscribeType, List<string> symbolOrCurrencies);
         ServiceResult<bool> Unbscribe(SubscribeType subscribeType, List<string> symbolOrCurrencies);
     }

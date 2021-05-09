@@ -1,4 +1,5 @@
 ﻿using CryptoCommon.DataTypes;
+using CryptoCommon.Future.DataType;
 using CryptoCommon.Future.Interface;
 using PortableCSharpLib.TechnicalAnalysis;
 using System;
@@ -22,7 +23,7 @@ namespace CryptoCommon
         public delegate void SymbolNotFoundEventHandler(object sender, string symbol);
 
         public delegate void StateChangedEventHandler(object sender, bool isStarted);
-        public delegate void TickerUpdatedEventHandler(object sender, string exchange, Ticker oldtick, Ticker newtick);
+        public delegate void TickerUpdatedEventHandler(object sender, string exchange, Ticker ticker, double volume);
         public delegate void TwoWayCoinToCurrencyProfitCalculatedEventHandler(object sender, string exchange1, string crypto1, string exchange2, string crypto2, double profit);
         public delegate void OneWayCoinToCurrencyProfitCalculatedEventHandler(object sender, string exchange1, string exchange2, string crypto, double profit);
         public delegate void OneWayCoinToCoinProfitCalculatedEventHandler(object sender, string exchange1, string exchange2, string symbol, double profitBuyAtExch1, double profitSellAtExch1, Ticker tickExch1, Ticker tickExch2);
@@ -82,7 +83,11 @@ namespace CryptoCommon
         //public delegate void FreeAssetChangedEventHandler(object sender, string currency, Assets asset);
         //public delegate void FreezedAssetChangedEventHandler(object sender, string currency, Assets asset);
 
-        public delegate void ItemWithIdChangedEventHandler<T>(object sender, string id, T item);
-        public delegate void ItemChangedEventHandler<T>(object sender, T item);
+        public delegate void FutureOrderReceivedEventHandler(object sender, List<FutureOrder> order);
+        public delegate void FutureBalanceReceivedEventHandler(object sender, FutureBalance balance);
+        public delegate void FuturePositionReceivedEventHandler(object sender, FuturePosition position);
+
+        public delegate void SpotOrderReceivedEventHandler(object sender, List<SpotOrder> orders);
+        public delegate void SpotBalanceReceivedEventHandler(object sender, List<SpotBalance> balances);
     }
 }

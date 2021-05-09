@@ -150,6 +150,8 @@ namespace CryptoCommon.DataTypes
                 double? rsi1 = null;
                 double? rsi3 = null;
                 double? ratio = null;
+                double? minChgFromLast = null;
+                double? minChgFromMa = null;
 
                 if (items.Length >= 10)
                 {
@@ -172,22 +174,38 @@ namespace CryptoCommon.DataTypes
                         ratio = double.Parse(str);
                 }
 
-                if (ratio.HasValue)
-                    p.Ratio = ratio.Value;
+                if (items.Length >= 13)
+                {
+                    var str = items[12];
+                    if (str != "d")
+                        minChgFromLast = double.Parse(str);
+                }
+
+                if (items.Length >= 14)
+                {
+                    var str = items[13];
+                    if (str != "d")
+                        minChgFromMa = double.Parse(str);
+                }
+
 
                 if (p.IsBuyFirst)
                 {
                     p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
                     p.Rsi1Thd = rsi1.HasValue ? rsi1.Value : 20;
                     p.Rsi3Thd = rsi3.HasValue ? rsi3.Value : 40;
-                    //p.Ratio  = ratio.HasValue ? ratio.Value : -3;
+                    p.Ratio  = ratio.HasValue ? ratio.Value : -3;
+                    p.MinChgFromLast = minChgFromLast.HasValue ? minChgFromLast.Value : -0.01;
+                    p.MinChgFromMA = minChgFromMa.HasValue ? minChgFromMa.Value : -0.02;
                 }
                 else
                 {
                     p.PriceOnlySell = price.HasValue ? price.Value : double.MinValue;
                     p.Rsi1Thd = rsi1.HasValue ? rsi1.Value : 80;
                     p.Rsi3Thd = rsi3.HasValue ? rsi3.Value : 60;
-                    //p.Ratio = ratio.HasValue ? ratio.Value : 3;
+                    p.Ratio = ratio.HasValue ? ratio.Value : 3;
+                    p.MinChgFromLast = minChgFromLast.HasValue ? minChgFromLast.Value : 0.01;
+                    p.MinChgFromMA = minChgFromMa.HasValue ? minChgFromMa.Value : 0.02;
                 }
             }
             return p;
@@ -738,10 +756,11 @@ namespace CryptoCommon.DataTypes
         {
             get
             {
-                if (Tradertype == EnumType.SpotSwingBand || Tradertype == EnumType.SpotTrader3)
-                    return $"{QuoteId}{GivenId}".Replace("-", "").Replace("_", "");
-                else 
-                    return GivenId;
+                //if (Tradertype == EnumType.SpotSwingBand || Tradertype == EnumType.SpotTrader3)
+                //    return $"{QuoteId}{GivenId}".Replace("-", "").Replace("_", "");
+                //else
+                //    return GivenId;
+                return $"{QuoteId}{GivenId}".Replace("-", "").Replace("_", "");
             }
         }  
         public string Exchange { get; set; }
@@ -804,7 +823,9 @@ namespace CryptoCommon.DataTypes
         public double LargeRatio_MinRatio { get; set; }
         [JsonIgnore]
         public double LargeRatio_MinChange { get; set; }
-        
+
+        public double MinChgFromLast { get; set; }
+        public double MinChgFromMA { get; set; }
 
         //used for buy/sell shoot
         [JsonIgnore]
@@ -1000,6 +1021,8 @@ namespace CryptoCommon.DataTypes
             this.IsDetectLargeRatio = other.IsDetectLargeRatio;
             this.LargeRatio_MinRatio = other.LargeRatio_MinRatio;
             this.LargeRatio_MinChange = other.LargeRatio_MinChange;
+            this.MinChgFromLast = other.MinChgFromLast;
+            this.MinChgFromMA = other.MinChgFromMA;
 
             this.Ratio1_Undershoot = other.Ratio1_Undershoot;
             this.Ratio2_Undershoot = other.Ratio2_Undershoot;
@@ -1082,6 +1105,8 @@ namespace CryptoCommon.DataTypes
                     this.IsSellFirst == other.IsSellFirst &&
                     this.NumPrevCandles == other.NumPrevCandles &&
                     //this.IsPlaceOrder == other.IsPlaceOrder &&
+                    this.MinChgFromLast == other.MinChgFromLast &&
+                    this.MinChgFromMA == other.MinChgFromMA &&                    
                     
                     this.IsDetectOvershoot == other.IsDetectOvershoot &&
                     this.IsDetectUndershoot == other.IsDetectUndershoot &&

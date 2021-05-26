@@ -32,8 +32,8 @@ namespace CryptoCommon.DataTypes
     public class SwingParam : IIdEqualCopy<SwingParam> //EqualAndCopyUseReflection<SwingParam>, 
     {
         /// <summary>
-        /// symbol:interval:qtyEach:minProfit:percent:price:isCompound:isCloseOrder:isCheckStopLoss:potential:rsi1  => SpotTrade3
-        /// symbol:interval:qtyEach:minProfit:percent:price:isCompound:isCloseOrder:isCheckStopLoss:rsi1:rsi3:ratio => SpotSwingShoot
+        /// symbol:interval:qtyEach:minProfit:percent:price:isCompound:isCloseOrder:isCheckStopLoss:potential:rsi1:rsi3                              => SpotTrade3
+        /// symbol:interval:qtyEach:minProfit:percent:price:isCompound:isCloseOrder:isCheckStopLoss:rsi1:rsi3:ratio:minChgFromLast:minChgFromMa      => SpotSwingShoot
         /// </summary>
         /// <param name="exchange"></param>
         /// <param name="inputStr"></param>
@@ -125,24 +125,98 @@ namespace CryptoCommon.DataTypes
                 p.MinPotential = minPotential;
 
 
-                double? rsi1 = null;
+                double? rsi1_single = null;
+                double? rsi3_single = null;
+                double? rsi1_double1 = null;
+                double? rsi3_double1 = null;
+                double? rsi1_double2 = null;
+                double? rsi3_double2 = null;
+                int? numBars = 5;
+                int? maxDist = 3;
+                double? stopLoss = -0.12;
+
                 if (items.Length >= 11)
                 {
                     var str = items[10];
                     if (str != "d")
-                        rsi1 = double.Parse(str);
+                        rsi1_single = double.Parse(str);
                 }
+
+                if (items.Length >= 12)
+                {
+                    var str = items[11];
+                    if (str != "d")
+                        rsi3_single = double.Parse(str);
+                }
+
+                if (items.Length >= 13)
+                {
+                    var str = items[12];
+                    if (str != "d")
+                        rsi1_double1 = double.Parse(str);
+                }
+
+                if (items.Length >= 14)
+                {
+                    var str = items[13];
+                    if (str != "d")
+                        rsi3_double1 = double.Parse(str);
+                }
+                if (items.Length >= 15)
+                {
+                    var str = items[14];
+                    if (str != "d")
+                        rsi1_double2 = double.Parse(str);
+                }
+                if (items.Length >= 16)
+                {
+                    var str = items[15];
+                    if (str != "d")
+                        rsi3_double2 = double.Parse(str);
+                }
+                if (items.Length >= 17)
+                {
+                    var str = items[16];
+                    if (str != "d")
+                        numBars = int.Parse(str);
+                }
+                if (items.Length >= 18)
+                {
+                    var str = items[17];
+                    if (str != "d")
+                        maxDist = int.Parse(str);
+                }
+                if (items.Length >= 19)
+                {
+                    var str = items[18];
+                    if (str != "d")
+                        stopLoss = double.Parse(str);
+                }
+
+                p.NumBars = numBars.Value;
+                p.MaxDist = maxDist.Value;
+                p.StopLoss = stopLoss.Value;
 
                 //////////////////////////////////////////////////////////////////////////////////////
                 if (p.IsBuyFirst)
                 {
-                    p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
-                    p.Rsi1Thd = rsi1.HasValue ? rsi1.Value : 20;
+                    p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;                    
+                    p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 20;
+                    p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 40;
+                    p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 20;
+                    p.Rsi3Thd_D1 = rsi3_double1.HasValue ? rsi3_double1.Value : 40;
+                    p.Rsi1Thd_D2 = rsi1_double2.HasValue ? rsi1_double2.Value : 20;
+                    p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 40;
                 }
                 else
                 {
                     p.PriceOnlySell = price.HasValue ? price.Value : double.MinValue;
-                    p.Rsi1Thd = rsi1.HasValue ? rsi1.Value : 80;
+                    p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 80;
+                    p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 60;
+                    p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 80;
+                    p.Rsi3Thd_D1 = rsi3_double1.HasValue ? rsi3_double1.Value : 60;
+                    p.Rsi1Thd_D2 = rsi1_double2.HasValue ? rsi1_double2.Value : 80;
+                    p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 60;
                 }
             }
             else if (tradeType == EnumType.SpotSwingShoot) 
@@ -192,8 +266,8 @@ namespace CryptoCommon.DataTypes
                 if (p.IsBuyFirst)
                 {
                     p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
-                    p.Rsi1Thd = rsi1.HasValue ? rsi1.Value : 20;
-                    p.Rsi3Thd = rsi3.HasValue ? rsi3.Value : 40;
+                    p.Rsi1Thd_S = rsi1.HasValue ? rsi1.Value : 20;
+                    p.Rsi3Thd_S = rsi3.HasValue ? rsi3.Value : 40;
                     p.Ratio  = ratio.HasValue ? ratio.Value : -3;
                     p.MinChgFromLast = minChgFromLast.HasValue ? minChgFromLast.Value : -0.01;
                     p.MinChgFromMA = minChgFromMa.HasValue ? minChgFromMa.Value : -0.02;
@@ -201,8 +275,8 @@ namespace CryptoCommon.DataTypes
                 else
                 {
                     p.PriceOnlySell = price.HasValue ? price.Value : double.MinValue;
-                    p.Rsi1Thd = rsi1.HasValue ? rsi1.Value : 80;
-                    p.Rsi3Thd = rsi3.HasValue ? rsi3.Value : 60;
+                    p.Rsi1Thd_S = rsi1.HasValue ? rsi1.Value : 80;
+                    p.Rsi3Thd_S = rsi3.HasValue ? rsi3.Value : 60;
                     p.Ratio = ratio.HasValue ? ratio.Value : 3;
                     p.MinChgFromLast = minChgFromLast.HasValue ? minChgFromLast.Value : 0.01;
                     p.MinChgFromMA = minChgFromMa.HasValue ? minChgFromMa.Value : 0.02;
@@ -814,9 +888,29 @@ namespace CryptoCommon.DataTypes
         public bool IsLimitBandRange_OS { get; set; }
         [JsonIgnore]
         public bool IsLimitBandRange_US { get; set; }
+       
         [JsonIgnore]
-        public double Rsi1Thd { get; set; }
-        
+        public double Rsi1Thd_S { get; set; }
+        [JsonIgnore]
+        public double Rsi3Thd_S { get; set; }
+
+        [JsonIgnore]
+        public double Rsi1Thd_D1 { get; set; }
+        [JsonIgnore]
+        public double Rsi3Thd_D1 { get; set; }
+
+        [JsonIgnore]
+        public double Rsi1Thd_D2 { get; set; }
+        [JsonIgnore]
+        public double Rsi3Thd_D2 { get; set; }
+        [JsonIgnore]
+        public int NumBars { get; set; }
+        [JsonIgnore]
+        public int MaxDist { get; set; }
+        [JsonIgnore]
+        public double StopLoss { get; set; }
+
+
         [JsonIgnore]
         public bool IsDetectLargeRatio { get; set; }
         [JsonIgnore]
@@ -828,8 +922,6 @@ namespace CryptoCommon.DataTypes
         public double MinChgFromMA { get; set; }
 
         //used for buy/sell shoot
-        [JsonIgnore]
-        public double Rsi3Thd { get; set; }
         [JsonIgnore]
         public double Ratio { get; set; }
         public double Ratio1_Undershoot { get; set; }
@@ -866,6 +958,8 @@ namespace CryptoCommon.DataTypes
         public bool IsBuyUndershoot { get; set; }
 
         //used for open/close future position
+        //[JsonIgnore]
+        //public bool IsLimitQtyEach{ get; set; }
         [JsonIgnore]
         public bool IsOpenLong { get; set; }
         [JsonIgnore]
@@ -881,7 +975,6 @@ namespace CryptoCommon.DataTypes
         public double Std { get; set; }
         [JsonIgnore]
         public double PriceDelta { get; set; }
-
 
         public string Symbol2 { get; set; }
         public string Symbol1 { get; set; }
@@ -1016,7 +1109,16 @@ namespace CryptoCommon.DataTypes
             this.MinVolumeRatio = other.MinVolumeRatio;
             this.IsLimitBandRange_OS = other.IsLimitBandRange_OS;
             this.IsLimitBandRange_US = other.IsLimitBandRange_US;
-            this.Rsi1Thd = other.Rsi1Thd;
+            this.Rsi1Thd_S = other.Rsi1Thd_S;
+            this.Rsi3Thd_S = other.Rsi3Thd_S;
+
+            this.Rsi1Thd_D1 = other.Rsi1Thd_D1;
+            this.Rsi3Thd_D1 = other.Rsi3Thd_D1;
+            this.Rsi1Thd_D2 = other.Rsi1Thd_D2;
+            this.Rsi3Thd_D2 = other.Rsi3Thd_D2;
+            this.NumBars = other.NumBars;
+            this.MaxDist = other.MaxDist;
+            this.StopLoss = other.StopLoss;
 
             this.IsDetectLargeRatio = other.IsDetectLargeRatio;
             this.LargeRatio_MinRatio = other.LargeRatio_MinRatio;
@@ -1028,7 +1130,6 @@ namespace CryptoCommon.DataTypes
             this.Ratio2_Undershoot = other.Ratio2_Undershoot;
             this.Ratio1_Overshoot = other.Ratio1_Overshoot;
             this.Ratio2_Overshoot = other.Ratio2_Overshoot;
-            this.Rsi3Thd = other.Rsi3Thd;
             this.Ratio = other.Ratio;
 
             this.QtyMaxHold = other.QtyMaxHold;
@@ -1116,7 +1217,7 @@ namespace CryptoCommon.DataTypes
                     this.Ratio2_Undershoot == other.Ratio2_Undershoot &&
                     this.Ratio1_Overshoot == other.Ratio1_Overshoot &&
                     this.Ratio2_Overshoot == other.Ratio2_Overshoot &&
-                    this.Rsi3Thd == other.Rsi3Thd &&
+                    this.Rsi3Thd_S == other.Rsi3Thd_S &&
                     this.Ratio == other.Ratio &&
                     this.MinPotential == other.MinPotential &&
                     this.IsCheckStopLoss == other.IsCheckStopLoss &&
@@ -1126,7 +1227,15 @@ namespace CryptoCommon.DataTypes
                     this.MinVolumeRatio == other.MinVolumeRatio &&
                     this.IsLimitBandRange_OS == other.IsLimitBandRange_OS &&
                     this.IsLimitBandRange_US == other.IsLimitBandRange_US &&
-                    this.Rsi1Thd == other.Rsi1Thd &&
+                    this.Rsi1Thd_S == other.Rsi1Thd_S &&
+                    this.Rsi1Thd_D1 == other.Rsi1Thd_D1 &&
+                    this.Rsi3Thd_D1 == other.Rsi3Thd_D1 &&
+                    this.Rsi1Thd_D2 == other.Rsi1Thd_D2 &&
+                    this.Rsi3Thd_D2 == other.Rsi3Thd_D2 &&
+                    this.NumBars == other.NumBars && 
+                    this.MaxDist == other.MaxDist &&
+                    this.StopLoss == other.StopLoss &&
+                    
                     this.IsDetectLargeRatio == other.IsDetectLargeRatio &&
                     this.IsDetectLargeRatio == other.IsDetectLargeRatio &&
                     this.LargeRatio_MinRatio == other.LargeRatio_MinRatio &&

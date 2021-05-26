@@ -51,6 +51,7 @@ namespace CryptoCommon.Services
 
         //SpotOrder CheckOrderStatus(SpotOrder order);
 
+        string PlaceOrder(SpotOrder order);
         void SubmitOrder(CommandId commandId, SpotOrder order);
         Task Initialize();
         Task StartAsync();

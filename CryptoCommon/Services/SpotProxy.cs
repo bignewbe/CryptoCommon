@@ -402,18 +402,20 @@ namespace CryptoCommon.Services
             return _syncOrderAction[symbol].IsHandlingInProgress(this.GetCurrentTime().GetUnixTimeFromUTC());
         }
 
-        void PlaceOrder(SpotOrder order)
+        public string PlaceOrder(SpotOrder order)
         {
             this.LogDebug($"PlaceOrder: {ConvertOrderToStr(order)}");
-            //if (!_refIdToPrevRefId.ContainsKey(order.RefId))
-            //{
-            //    _refIdToPrevRefId.Add(order.RefId, order.PrevRefId);
-            //    this.SetDumpFile(true);
-            //}
-            //var r = _trade.PlaceOrder(order.Symbol, order.Ordertype, order.Price, order.Amount, order.RefId, order.TriggerPrice);
+
             var r = _trade.PlaceOrder(order);
-            if (!_isSimulationMode) Thread.Sleep(50);
             this.AddRefId(order);
+            if (!_isSimulationMode) Thread.Sleep(50);
+
+            if (order.Ordertype == OrderType.buy_limit || order.Ordertype == OrderType.sell_limit)
+                return r.Data.OrderId;
+            if (order.Ordertype == OrderType.stop_buy || order.Ordertype == OrderType.stop_sell)
+                return r.Data.AlgoId;
+
+            return null;
         }
 
         void CancelOrder(SpotOrder order)

@@ -1,12 +1,15 @@
-﻿using CryptoCommon.Interfaces;
+﻿using CommonCSharpLibary.Model;
+using CryptoCommon.Interfaces;
 using CryptoCommon.Models;
 using Microsoft.Extensions.Configuration;
+using PortableCSharpLib.TechnicalAnalysis;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Timers;
 
 namespace CryptoCommon.Services
 {
@@ -60,5 +63,97 @@ namespace CryptoCommon.Services
             //ZookeeperFactory.ConfigSerilogDefault(config1["logPath"], _servicename);
         }
 
+        //protected void StartQuoteService(ISpotMarket marketSecond)
+        //{
+        //    string hostIp;
+        //    var provider = ZookeeperFactory.CreateProviderDefault(_config, out hostIp);
+        //    var messageClient = ZookeeperFactory.CreateMessageClientDefaul(_config);
+        //    var serviceConsumer = ZookeeperFactory.CreateConsumerDefault(_config);
+
+        //    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //    Policy.Handle<Exception>()
+        //          .WaitAndRetry(5, r => TimeSpan.FromSeconds(5), (ex, ts) => { Log.Information("Error connecting to service keeper. Retrying in 5 sec."); })
+        //          .Execute(() => provider.StartAsync().Wait());
+        //    Policy.Handle<Exception>()
+        //          .WaitAndRetry(5, r => TimeSpan.FromSeconds(5), (ex, ts) => { Log.Information("Error connecting to message keeper. Retrying in 5 sec."); })
+        //          .Execute(() => messageClient.StartAsync().Wait());
+        //    Log.Information("connected");
+
+        //    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //    //register service
+        //    //var marketSecond = new SpotMarketHuobi(_meta);
+        //    var captureService = new SpotCaptureService(marketSecond);
+
+        //    var numTickers = int.Parse(_config["NumTickers"]);
+        //    var numBars = int.Parse(_config["NumBars"]);
+        //    var dataPath = _dataPath;
+        //    var tickStore = new TickerStore();
+        //    var fileStore = new QuoteBasicFileStore(_exchange, dataPath, 100000);
+        //    var qcStore = new QuoteCaptureMemStore(_exchange, numTickers);
+        //    var intervals = _config.GetSection("Intervals").Get<string[]>().Select(s => int.Parse(s)).ToList();
+        //    var qbStore = new QuoteBasicMemStore(_exchange, numBars, intervals);
+
+        //    var quoteService = new CryptoCommon.Services.QuoteService(captureService, tickStore, qcStore, qbStore, fileStore);
+        //    provider.RegisterServices($"{_exchange}QuoteService", hostIp, quoteService);
+        //    Log.Information($"{_exchange}QuoteService registered with ip = {hostIp} and port = {provider.Port}");
+
+        //    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //    ///register message
+        //    quoteService.OnExceptionOccured += (object sender, string exchange, Exception ex) =>
+        //    {
+        //        Log.Error($"{exchange}: {ex.ToString()}");
+        //    };
+
+        //    quoteService.OnQuoteBasicDataAddedOrUpated += (object sender, string exch, IQuoteBasicBase quote, int numAppended) =>
+        //    {
+        //        if (quote.Interval == 60)
+        //        {
+        //            var j = numAppended == 0 ? quote.Count - 1 : quote.Count - numAppended;
+        //            var lst = new List<OHLC>();
+        //            for (int i = j; i < quote.Count; i++)
+        //            {
+        //                var ohlc = new OHLC
+        //                {
+        //                    Symbol = quote.Symbol,
+        //                    Interval = quote.Interval,
+        //                    Time = quote.Time[i],
+        //                    Open = quote.Open[i],
+        //                    Close = quote.Close[i],
+        //                    High = quote.High[i],
+        //                    Low = quote.Low[i],
+        //                    Volume = quote.Volume[i]
+        //                };
+        //                lst.Add(ohlc);
+        //            }
+        //            //if (quote.Symbol == "XUC_USDT")
+        //            var messageId = $"{_exchange}_SpotCandleList"; // MessageId.Okex_Spot_QuoteBasicDataAppended.ToString();
+        //            //Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff")} broadcast {messageId} {quote.QuoteID} at {lst[0].Time} {lst[0].Time.GetUTCFromMiliSeconds()}");
+        //            messageClient.RequestBroadcast(messageId, lst);
+        //        }
+        //    };
+
+        //    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                
+        //    messageClient.OnReceiveBroadcast += (object sender, string id, string data) =>
+        //    {
+        //        if (id == $"{_exchange}SpotCandleList")
+        //        {
+        //            _timestamp = DateTime.UtcNow.GetUnixTimeFromUTC();
+        //            var candles = JsonConvert.DeserializeObject<List<OHLC>>(data);
+        //            quoteService.AddCandleList(candles);
+        //        }
+        //    };
+
+        //    //messageClient.SubscribeBroadcast($"{_exchange}SpotCandleList");
+        //    _timer.Elapsed += (object sender, ElapsedEventArgs e) =>
+        //    {
+        //        var tnow = DateTime.UtcNow.GetUnixTimeFromUTC();
+        //        if (tnow - _timestamp > 60)   // we dont receive data from server for more than 60 seconds
+        //        {
+        //            messageClient.SubscribeBroadcast($"{_exchange}SpotCandleList");
+        //        }
+        //    };
+        //    _timer.Interval = 1000;
+        //    _timer.Start();
+        //}
     }
 }

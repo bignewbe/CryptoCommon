@@ -9,6 +9,7 @@ namespace CryptoCommon.Services
         //ServiceResult<SpotOrder> UpdateLastTimeForOrder(SpotOrder order);
         ServiceResult<SpotOrder> PlaceOrder(SpotOrder order);
         ServiceResult<bool> CancelOrder(SpotOrder order);
+        ServiceResult<string> ModifyOrderPrice(string symbol, string orderId, double newPrice);
 
         ServiceResult<Dictionary<string, SpotBalance>> GetAccountBalance();
         ServiceResult<Dictionary<string, SpotOrder>> GetOpenOrderList();

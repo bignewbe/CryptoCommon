@@ -29,6 +29,7 @@ namespace CryptoCommon.Interfaces
         Task<bool> UpdateLastTimeForClosedOrder(SpotOrder order);
 
         Task<SpotOrder> PlaceOrder(SpotOrder order, int timeout = 5000);
+        Task<string> ModifyOrderPrice(string symbol, string orderId, double newPrice, int timeout = 5000);
         Task<bool> CancelOrder(string symbol, string orderId, bool isStopOrder=false, int timeout = 5000);
         //Task<SpotOrder> CheckOrder(SpotOrder order, int timeout = 5000);
         Task<SpotOrder> CheckOrder(string symbol, string orderId, bool isStopOrder=false, int timeout = 5000);

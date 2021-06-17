@@ -135,7 +135,7 @@ namespace CryptoCommon.DataTypes
 
         public string Id { get { return ParamId; } }
         public string ParamId { get; set; }
-        public string Symbol { get; private set; }
+        public string Symbol { get; set; }
         public string C1 { get; private set; }
         public string C2 { get; private set; }
 
@@ -184,11 +184,11 @@ namespace CryptoCommon.DataTypes
         public void Copy(SpotTradeInfo other)
         {
             if (other == null) return;
+
             this.ParamId = other.ParamId;
             this.Symbol = other.Symbol;
             this.C1 = other.C1;
             this.C2 = other.C2;
-
             this.NetC1 = other.NetC1;
             this.NetC1 = other.NetC1;
             this.NetC2 = other.NetC2;
@@ -217,6 +217,7 @@ namespace CryptoCommon.DataTypes
 
             return (
             this.ParamId == other.ParamId &&
+            this.Symbol == other.Symbol &&
             this.NetC1 == other.NetC1 &&
             this.NetC1 == other.NetC1 &&
             this.NetC2 == other.NetC2 &&

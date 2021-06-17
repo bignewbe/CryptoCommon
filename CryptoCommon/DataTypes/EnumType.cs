@@ -32,21 +32,21 @@ namespace CryptoCommon.DataTypes
         open,
         //closed,
         //partial_closed,
-        cancelled,
-        expired,
-        failed,
+        cancelled,      //closed
+        expired,        //closed
+        failed,         //closed
         //not_exist,
 
         //none,
         //open,
         //failed,
         //cancelled,
-        partial_filled,
-        fully_filled,
+        partial_filled,   //open
+        fully_filled,     //closed 
         summitting,
         cancelling,
-
-        effective //for stop order
+        effective, //for stop order
+        partial_canceled, //closed
     }
 
     //public enum FutureState

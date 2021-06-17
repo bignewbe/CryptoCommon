@@ -9,6 +9,7 @@ namespace CryptoCommon.Services
         //ServiceResult<SpotOrder> UpdateLastTimeForOrder(SpotOrder order);
         ServiceResult<SpotOrder> PlaceOrder(SpotOrder order);
         ServiceResult<bool> CancelOrder(SpotOrder order);
+        ServiceResult<bool> CloseOrder(SpotOrder order);
         ServiceResult<string> ModifyOrderPrice(string symbol, string orderId, double newPrice);
 
         ServiceResult<Dictionary<string, SpotBalance>> GetAccountBalance();
@@ -32,5 +33,6 @@ namespace CryptoCommon.Services
 
         ServiceResult<SpotTradeInfo> GetSpotTradeInfo(string symbol, string paramId);
         ServiceResult<SpotTradeInfo> GetTraderInfoById(string paramId);
+        ServiceResult<List<SpotTradeInfo>> GetAllTraderInfo();
     }
 }

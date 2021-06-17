@@ -834,7 +834,7 @@ namespace CryptoCommon.DataTypes
                 //    return $"{QuoteId}{GivenId}".Replace("-", "").Replace("_", "");
                 //else
                 //    return GivenId;
-                return $"{QuoteId}{GivenId}".Replace("-", "").Replace("_", "");
+                return $"{GivenId}".Replace("-", "").Replace("_", "");
             }
         }  
         public string Exchange { get; set; }

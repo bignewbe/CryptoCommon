@@ -14,6 +14,68 @@ namespace CryptoCommon.DataTypes
         public Dictionary<int, string> IntervalMap { get; set; }
         public Dictionary<EnumType, string> TradeTypeMap { get; set; }
         public Dictionary<EnumType, string> TradeModelMap { get; set; }
+        //var d = config.Digits.ToDictionary(t => t.Symbol, t => t);
+
+        Dictionary<int, string> _IndexToSymbolMap = new Dictionary<int, string>();
+        public Dictionary<int, string> IndexToSymbolMap
+        {
+            get
+            {
+                if (_IndexToSymbolMap.Count > 0)
+                    return _IndexToSymbolMap;
+                if (Digits != null)
+                    _IndexToSymbolMap = this.Digits.ToDictionary(t => t.Index, t => t.Symbol);
+                return _IndexToSymbolMap;
+            }
+        }
+
+        Dictionary<string, int> _ReverseIntervalMap = new Dictionary<string, int>();
+        public Dictionary<string, int> ReverseIntervalMap
+        {
+            get
+            {
+                if (_ReverseIntervalMap.Count > 0)
+                    return _ReverseIntervalMap;
+                if (IntervalMap != null)
+                {
+                    foreach (var k in IntervalMap.Keys)
+                        _ReverseIntervalMap.Add(IntervalMap[k], k);
+                }
+                return _ReverseIntervalMap;
+            }
+        }
+
+        Dictionary<string, EnumType> _ReverseTradeModelMap = new Dictionary<string, EnumType>();
+        public Dictionary<string, EnumType> ReverseTradeModelMap
+        {
+            get
+            {
+                if (_ReverseTradeModelMap.Count > 0)
+                    return _ReverseTradeModelMap;
+                if (TradeModelMap != null)
+                {
+                    foreach (var k in TradeModelMap.Keys)
+                        _ReverseTradeModelMap.Add(TradeModelMap[k], k);
+                }
+                return _ReverseTradeModelMap;
+            }
+        }
+
+        Dictionary<string, EnumType> _ReverseTradeTypeMap = new Dictionary<string, EnumType>();
+        public Dictionary<string, EnumType> ReverseTradeTypeMap
+        {
+            get
+            {
+                if (_ReverseTradeTypeMap.Count > 0)
+                    return _ReverseTradeTypeMap;
+                if (TradeTypeMap != null)
+                {
+                    foreach (var k in TradeTypeMap.Keys)
+                        _ReverseTradeTypeMap.Add(TradeTypeMap[k], k);
+                }
+                return _ReverseTradeTypeMap;
+            }
+        }
     }
 
     public class SymbolDigits

@@ -360,24 +360,6 @@ namespace CryptoCommon.Services
         #endregion
 
         #region order related
-        public void SubmitOrder(CommandId commandId, SpotOrder order)
-        {
-            if (!this.IsStarted) return;
-
-            if (_isSimulationMode)
-            {
-                if (commandId == CommandId.PlaceOrder)
-                    this.PlaceOrder(order);
-                else if (commandId == CommandId.CancelOrder)
-                    this.CancelOrder(order);
-            }
-            else
-            {
-                _ordersToSubmit.Enqueue(new ManualCommand<SpotOrder> { CommandId = commandId, Order = order });
-                this.ProcessOrdersTosubmitQueue();
-            }
-        }
-
         public List<SpotOrder> GetOpenOrders(string symbol)
         {
             var orders = OpenOrders.Values.Where(o => o.Symbol == symbol).ToList();
@@ -402,23 +384,39 @@ namespace CryptoCommon.Services
             return _syncOrderAction[symbol].IsHandlingInProgress(this.GetCurrentTime().GetUnixTimeFromUTC());
         }
 
-        public string PlaceOrder(SpotOrder order)
+        public void SubmitOrder(CommandId commandId, SpotOrder order)
+        {
+            if (!this.IsStarted) return;
+
+            if (_isSimulationMode)
+            {
+                if (commandId == CommandId.PlaceOrder)
+                    this.PlaceOrder(order);
+                else if (commandId == CommandId.CancelOrder)
+                    this.CancelOrder(order);
+            }
+            else
+            {
+                _ordersToSubmit.Enqueue(new ManualCommand<SpotOrder> { CommandId = commandId, Order = order });
+                this.ProcessOrdersTosubmitQueue();
+            }
+        }
+
+        public void PlaceOrder(SpotOrder order)
         {
             this.LogDebug($"PlaceOrder: {ConvertOrderToStr(order)}");
-
             var r = _trade.PlaceOrder(order);
             this.AddRefId(order);
             if (!_isSimulationMode) Thread.Sleep(50);
-
-            if (order.Ordertype == OrderType.buy_limit || order.Ordertype == OrderType.sell_limit)
-                return r.Data.OrderId;
-            if (order.Ordertype == OrderType.stop_buy || order.Ordertype == OrderType.stop_sell)
-                return r.Data.AlgoId;
-
-            return null;
+            
+            //if (order.Ordertype == OrderType.buy_limit || order.Ordertype == OrderType.sell_limit)
+            //    return r.Data.OrderId;
+            //if (order.Ordertype == OrderType.stop_buy || order.Ordertype == OrderType.stop_sell)
+            //    return r.Data.AlgoId;
+            //return null;
         }
 
-        void CancelOrder(SpotOrder order)
+        public void CancelOrder(SpotOrder order)
         {
             this.LogDebug($"CancelOrder: {ConvertOrderToStr(order)}");
             //if (!_refIdToPrevRefId.ContainsKey(order.RefId))
@@ -431,6 +429,13 @@ namespace CryptoCommon.Services
             var r = _trade.CancelOrder(order.Symbol, orderId, isStopOrder);
             if (!_isSimulationMode) Thread.Sleep(50);
             this.AddRefId(order);
+        }
+
+        public void ModifyOrderPrice(string symbol, string orderId, double newPrice)
+        {
+            this.LogDebug($"ModifyOrderPrice: {symbol} orderId = {orderId} newPrice = {newPrice}");
+            var r = _trade.ModifyOrderPrice(symbol, orderId, newPrice);
+            if (!_isSimulationMode) Thread.Sleep(50);
         }
 
         private void AddRefId(SpotOrder order)
@@ -535,9 +540,12 @@ namespace CryptoCommon.Services
                         (!this.ClosedOrders.ContainsKey(o.OrderId)) ||
                         (this.ClosedOrders.ContainsKey(o.OrderId) && this.ClosedOrders[o.OrderId].TimeLast <= this.ClosedOrders[o.OrderId].TimeCreated))
                     {
+                        //if (!this.ClosedOrders.ContainsKey(o.OrderId))
+                        //    this.ClosedOrders.TryAdd(o.OrderId, o);
+
                         var r = _trade.GetLastTimeForOrder(o.OrderId, o.Symbol);
                         if (!_isSimulationMode) Thread.Sleep(50);
-                        if (r.Result && o.TimeLast < r.Data.GetUTCFromUnixTime())
+                        if (r.Result && o.TimeLast <= (r.Data + 10).GetUTCFromUnixTime())
                         {
                             this.LogDebug($"TimeLast updated for closed order: {ConvertOrderToStr(o)}");
                             o.TimeLast = r.Data.GetUTCFromUnixTime();

@@ -34,5 +34,7 @@ namespace CryptoCommon.Services
         ServiceResult<SpotTradeInfo> GetSpotTradeInfo(string symbol, string paramId);
         ServiceResult<SpotTradeInfo> GetTraderInfoById(string paramId);
         ServiceResult<List<SpotTradeInfo>> GetAllTraderInfo();
+        //ServiceResult<GivenIdConfig> GetGivenIdConfig();
+        ServiceResult<List<Dictionary<string, string>>> GetGivenIdConfig();
     }
 }

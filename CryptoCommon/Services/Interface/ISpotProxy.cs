@@ -50,9 +50,12 @@ namespace CryptoCommon.Services
         List<SpotOrder> GetClosedOrders(string symbol);
 
         //SpotOrder CheckOrderStatus(SpotOrder order);
+        //void SubmitOrder(CommandId commandId, SpotOrder order);
 
-        string PlaceOrder(SpotOrder order);
-        void SubmitOrder(CommandId commandId, SpotOrder order);
+        void PlaceOrder(SpotOrder order);
+        void CancelOrder(SpotOrder order);
+        void ModifyOrderPrice(string symbol, string orderId, double newPrice);
+
         Task Initialize();
         Task StartAsync();
         void Stop();

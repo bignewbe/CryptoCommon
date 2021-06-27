@@ -31,6 +31,7 @@ namespace CryptoCommon
         Rsi_singleUndershoot,
         Rsi_doubleBottom,
         Rsi_singleOvershoot,
-        Rsi_doubleTop
+        Rsi_doubleTop,
+        SpotEmaCross
     }
 }

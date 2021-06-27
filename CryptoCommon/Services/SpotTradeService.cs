@@ -98,9 +98,14 @@ namespace CryptoCommon.Services
             return ServiceResult<SpotOrder>.CallAsyncFunction(() => _apiOrder.PlaceOrder(order)).Result;
         }
 
-        public ServiceResult<List<SpotOrder>> GetOpenStopOrder(string symbol)
+        //public ServiceResult<List<SpotOrder>> GetOpenStopOrder(string symbol)
+        //{
+        //    return ServiceResult<List<SpotOrder>>.CallAsyncFunction(() => _apiOrder.GetOpenStopOrder(symbol)).Result;
+        //}
+
+        public ServiceResult<string> ModifyOrderPrice(string symbol, string orderId, double newPrice)
         {
-            return ServiceResult<List<SpotOrder>>.CallAsyncFunction(() => _apiOrder.GetOpenStopOrder(symbol)).Result;
+            return ServiceResult<string>.CallAsyncFunction(() => _apiOrder.ModifyOrderPrice(symbol, orderId, newPrice)).Result;
         }
 
         //public ServiceResult<SpotOrder> PlaceStopOrder(string symbol, OrderType type, double amount, double tpPrice, double slPrice)

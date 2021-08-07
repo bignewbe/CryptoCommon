@@ -1,7 +1,7 @@
-﻿using CommonCSharpLibary.Model;
-using CryptoCommon.DataTypes;
+﻿using CryptoCommon.DataTypes;
 using Newtonsoft.Json;
 using PortableCSharpLib;
+using PortableCSharpLib.Model;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -542,16 +542,15 @@ namespace CryptoCommon.Services
                     {
                         //if (!this.ClosedOrders.ContainsKey(o.OrderId))
                         //    this.ClosedOrders.TryAdd(o.OrderId, o);
-
                         var r = _trade.GetLastTimeForOrder(o.OrderId, o.Symbol);
                         if (!_isSimulationMode) Thread.Sleep(50);
                         if (r.Result && o.TimeLast <= (r.Data + 10).GetUTCFromUnixTime())
                         {
-                            this.LogDebug($"TimeLast updated for closed order: {ConvertOrderToStr(o)}");
                             o.TimeLast = r.Data.GetUTCFromUnixTime();
                             if (this.ClosedOrders.ContainsKey(o.OrderId))
                             {
-                                this.LogDebug("update last time directly");
+                                //this.LogDebug("update last time directly");
+                                this.LogDebug($"TimeLast updated for closed order: {ConvertOrderToStr(o)}");
                                 this.ClosedOrders[o.OrderId].TimeLast = r.Data.GetUTCFromUnixTime();
                                 this.SetDumpFile(true);
                             }
@@ -704,10 +703,10 @@ namespace CryptoCommon.Services
                     this.SetDumpFile(true);
                 }
 
-                if (!isUpdated && !o.IsOrderOpen())
-                {
-                    this.LogDebug($"order not updated: {o.Symbol} {o.Ordertype} isInOpenList = {isExistingOpen}, isInCloseList = {isExistingClose}, isOrderChanged = {isOrderChanged}, isOrderOpen = {isOrderOpen}");
-                }
+                //if (!isUpdated && !o.IsOrderOpen())
+                //{
+                //    this.LogDebug($"order not updated: {o.Symbol} {o.Ordertype} isInOpenList = {isExistingOpen}, isInCloseList = {isExistingClose}, isOrderChanged = {isOrderChanged}, isOrderOpen = {isOrderOpen}");
+                //}
 
                 return isUpdated;
             }

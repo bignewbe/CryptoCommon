@@ -1,16 +1,15 @@
 ﻿using CommonCSharpLibary.Facility;
-using CommonCSharpLibary.Interface;
 using CryptoCommon.DataTypes;
 using CryptoCommon.Interfaces;
 using PortableCSharpLib;
 using PortableCSharpLib.DataType;
 using PortableCSharpLib.TechnicalAnalysis;
-using CryptoCommon.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PortableCSharpLib.Interface;
 //using static CommonCSharpLibary.EventHandlers;
 //using static CryptoCommon.EventHandlers;
 
@@ -45,7 +44,7 @@ namespace CryptoCommon.Services
         public string Exchange { get { return _qbStore.Exchange; } }
         //public virtual bool IsStarted { get { return _consumer.IsConnected; } }
 
-        public event CommonCSharpLibary.EventHandlers.QuoteBasicDataAddedOrUpdatedEventHandler OnQuoteBasicDataAddedOrUpated;
+        public event PortableCSharpLib.EventHandlers.QuoteBasicDataAddedOrUpdatedEventHandler OnQuoteBasicDataAddedOrUpated;
         public event CryptoCommon.EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
 
         public QuoteService(ICryptoCaptureService captureService, ITickerStore tickstore, IQuoteCaptureMemStore qcstore, IQuoteBasicMemStore qbstore, IQuoteBasicFileStore filestore)

@@ -13,13 +13,16 @@ namespace CryptoCommon.Services
         ServiceResult<string> ModifyOrderPrice(string symbol, string orderId, double newPrice);
 
         ServiceResult<Dictionary<string, SpotBalance>> GetAccountBalance();
-        ServiceResult<Dictionary<string, SpotOrder>> GetOpenOrderList();
-        ServiceResult<Dictionary<string, SpotOrder>> GetCloseOrderList();
-        ServiceResult<List<SpotOrder>> GetCloseOrdersByPage(int spage, int epage, int numPerPage = 50);
-        ServiceResult<List<SpotOrder>> GetCloseOrdersByPage(List<int> pages, int numPerPage = 50);
+        ServiceResult<Dictionary<string, SpotOrder>> GetOpenOrders();
+        ServiceResult<Dictionary<string, SpotOrder>> GetCloseOrders();
+
+        ServiceResult<PageResult<SpotOrder>> GetCloseOrdersByPage(int spage, int epage, int numPerPage = 50);
+        ServiceResult<PageResult<SpotOrder>> GetCloseOrdersByPage(List<int> pages, int numPerPage = 50);
+        ServiceResult<PageResult<SpotOrder>> GetCloseOrdersBySymbolAndPage(string symbol, List<int> pages, int numPerPage = 50);
+
+
         ServiceResult<List<SpotOrder>> GetOpenOrderListBySymbol(string symbol);
         ServiceResult<List<SpotOrder>> GetCloseOrderListBySymbol(string symbol);
-        ServiceResult<List<SpotOrder>> GetCloseOrdersBySymbolAndPage(string symbol, List<int> pages, int numPerPage = 50);
 
         ServiceResult<List<SwingParam>> GetTraderParam();
         ServiceResult<List<string>> GetSpotMonitorSymbols();

@@ -24,38 +24,25 @@
 		<None Remove="Properties_Obsolete\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Remove="DataTypes\OHLC.cs" />
-		<Compile Remove="DataTypes\PriceVolumePair.cs" />
-		<Compile Remove="DataTypes\QuoteBasicFileInfo.cs" />
-		<Compile Remove="DataTypes\QuoteCaptureFileInfo.cs" />
-		<Compile Remove="DataTypes\Ticker.cs" />
-		<Compile Remove="Future\DataType\FutureState.cs" />
-		<Compile Remove="Future\DataType\FutureType.cs" />
-		<Compile Remove="Interfaces\ICache.cs" />
-		<Compile Remove="Interfaces\IIdEqualCopy.cs" />
-		<Compile Remove="Interfaces\IQuoteBasicDownloader.cs" />
-		<Compile Remove="Interfaces\IQuoteBasicFileStore.cs" />
-		<Compile Remove="Interfaces\IQuoteBasicMemStore.cs" />
-		<Compile Remove="Interfaces\IQuoteCaptureMemStore.cs" />
-		<Compile Remove="Interfaces\IQuoteCapturer.cs" />
-		<Compile Remove="Interfaces\IQuoteClient.cs" />
-		<Compile Remove="Interfaces\IQuoteLoader.cs" />
-		<Compile Remove="Interfaces\IQuoteQuery.cs" />
-		<Compile Remove="Interfaces\IRateGate.cs" />
-		<Compile Remove="Interfaces\ITraderModel.cs" />
-		<Compile Remove="Interfaces\ITradeSecond.cs" />
-		<Compile Remove="Models\Cache.cs" />
-		<Compile Remove="Models\DownloadQuoteBasic.cs" />
-		<Compile Remove="Models\EqualAndCopyUseReflectionExtension.cs" />
-		<Compile Remove="Models\QuoteBasicFileStore.cs" />
-		<Compile Remove="Models\QuoteBasicMemStore.cs" />
-		<Compile Remove="Models\QuoteCaptureMemStore.cs" />
-		<Compile Remove="Models\QuoteCapturer.cs" />
-		<Compile Remove="Models\QuoteCapturerWithNetwork.cs" />
-		<Compile Remove="Models\QuoteClient.cs" />
-		<Compile Remove="Models\QuoteLoader.cs" />
-		<Compile Remove="Models\QuoteQuery.cs" />
-		<Compile Remove="Models\RateGate.cs" />
+		<Compile Remove="Spot\EnumType.cs" />
+		<Compile Remove="Spot\Interfaces\ICache.cs" />
+		<Compile Remove="Spot\Interfaces\IIdEqualCopy.cs" />
+		<Compile Remove="Spot\Interfaces\ILogger.cs" />
+		<Compile Remove="Spot\Interfaces\IMarket.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteBasicDownloader.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteBasicFileStore.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteBasicMemStore.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteCaptureMemStore.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteCapturer.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteClient.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteLoader.cs" />
+		<Compile Remove="Spot\Interfaces\IQuoteQuery.cs" />
+		<Compile Remove="Spot\Interfaces\IRateGate.cs" />
+		<Compile Remove="Spot\Interfaces\IRealtimeCandle.cs" />
+		<Compile Remove="Spot\Interfaces\IRealtimeTicker.cs" />
+		<Compile Remove="Spot\Interfaces\IStartStop.cs" />
+		<Compile Remove="Spot\Interfaces\ITraderModel.cs" />
+		<Compile Remove="Spot\Interfaces\ITradeSecond.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove=".refsignored" />

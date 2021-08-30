@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CryptoCommon.DataTypes;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CryptoCommon.Future.Interface
@@ -29,19 +30,19 @@ namespace CryptoCommon.Future.Interface
         /// <param name="to">分页游标截至</param>
         /// <param name="limit">分页数据数量，默认100</param>
         /// <returns></returns>
-        //Task<List<FutureOrder>> GetOrderBatchAsync(string instrument_id, FutureState status, int? from, int? to, int? limit);
+        //Task<List<FZOrder>> GetOrderBatchAsync(string instrument_id, FutureState status, int? from, int? to, int? limit);
 
-        Task<List<FutureOrder>> GetOpenOrdersAsync(string instrument_id);   //submmiting + open + cancelling + partial filled
-        Task<List<FutureOrder>> GetClosedOrdersAsync(string instrument_id); //fully filled orders
-        Task<List<FutureOrder>> GetCancelleddOrdersAsync(string instrument_id); //fully filled orders
-        Task<List<FutureOrder>> GetFailedOrdersAsync(string instrument_id); //fully filled orders
+        Task<List<FZOrder>> GetOpenOrdersAsync(string instrument_id);   //submmiting + open + cancelling + partial filled
+        Task<List<FZOrder>> GetClosedOrdersAsync(string instrument_id); //fully filled orders
+        Task<List<FZOrder>> GetCancelleddOrdersAsync(string instrument_id); //fully filled orders
+        Task<List<FZOrder>> GetFailedOrdersAsync(string instrument_id); //fully filled orders
         
         //place order, return new order if sucessful, otherwise return null
-        Task<FutureOrder> PlaceOrderAsync(FutureOrder order);
+        Task<FZOrder> PlaceOrderAsync(FZOrder order);
         //cancel order, return new order if sucessful, otherwise return null
-        Task<FutureOrder> CancelOrderAsync(FutureOrder order);
+        Task<FZOrder> CancelOrderAsync(FZOrder order);
         //check order, return new order if sucessful, otherwise return null
-        Task<FutureOrder> CheckOrderAsync(FutureOrder order);
+        Task<FZOrder> CheckOrderAsync(FZOrder order);
 
 
         ///// <summary>

@@ -3,7 +3,7 @@ using PortableCSharpLib.Interace;
 
 namespace CryptoCommon.Future.DataType
 {
-    public class FutureBalance : IIdEqualCopy<FutureBalance> //EqualAndCopyUseReflection<FutureBalance>
+    public class FutureBalance : IIdEqualCopy<FutureBalance> 
     {
         public FutureBalance()
         {

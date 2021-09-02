@@ -1,4 +1,5 @@
 ﻿using CryptoCommon.DataTypes;
+using CryptoCommon.Future;
 using CryptoCommon.Future.DataType;
 using CryptoCommon.Future.Interface;
 using PortableCSharpLib.TechnicalAnalysis;

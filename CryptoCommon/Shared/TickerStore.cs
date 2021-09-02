@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CryptoCommon.DataTypes;
 using CryptoCommon.Interfaces;
 using System.Collections.Concurrent;
-using CommonCSharpLibary.CustomExtensions;
-using System.Threading.Tasks;
 using PortableCSharpLib.DataType;
 
 namespace CryptoCommon.Models

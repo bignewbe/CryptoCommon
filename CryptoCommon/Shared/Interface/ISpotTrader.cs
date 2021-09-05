@@ -37,7 +37,7 @@ namespace CryptoCommon.Services
 
         string CreateRefId();
 
-        (double netc1, double netc2, double qtyBought, double avgBoughtPrice, double qtySold, double avgSoldPrice, int numOrders, double minC1, double minC2, double avgHoldTime) 
+        (double netc1, double netc2, double qtyBought, double avgBoughtPrice, double qtySold, double avgSoldPrice, int numOrders, double minC1, double minC2, double avgHoldTime, List<FZOrder> openOrders, List<FZOrder> closedOrders) 
             CreateReport(string folder=null, long? stime=null, long? etime=null, double? currentPrice = null, bool isWriteFile = true);
     }
 }

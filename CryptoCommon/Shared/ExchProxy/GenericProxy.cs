@@ -16,8 +16,9 @@ namespace CryptoCommon.Shared.ExchProxy
         ConcurrentDictionary<string, T> Items { get; }
         T GetItemById(string id);
 
-        bool IsStarted { get; }
         void Update(params T[] items);
+
+        bool IsStarted { get; }
         void Start();
         void Stop();
 
@@ -27,6 +28,11 @@ namespace CryptoCommon.Shared.ExchProxy
 
     public class GenericProxy<T>: IGenericProxy<T> where T : class, IIdEqualCopy<T>
     {
+        public static GenericProxy<T> CreateProxyWithoutPoll()
+        {
+            return new GenericProxy<T>(getItem: null, timerInterval: -1, updateInterval: -1);
+        }
+
         Func<List<T>> _funcGetItems;
 
         private bool _isDumpFile => !string.IsNullOrEmpty(_fileNameDump);
@@ -47,29 +53,29 @@ namespace CryptoCommon.Shared.ExchProxy
         }
         public ConcurrentDictionary<string, T> Items { get; private set; } = new ConcurrentDictionary<string, T>();
 
-        private bool _isSimulationMode;  //in simulation mode we does not start timer loop to check order status, alternatviely check order status is triggered externally
-        private double _timerinterval;      //timmer interval
+        private double _timerinterval;     //timmer interval
         private long _lastUpdateTime;
-        private int _updateInterval = 60;   //interval to update data from server
+        private int _updateInterval;       //interval to update data from server
 
         //file
         private bool _isNeedSaveOrders = false;
         private bool _isLoadAndDumpFileBusy = false;
         private string _fileNameDump;
-        private bool _isClearDataWhenInit = false;    //whether to clear data during init
 
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<T> OnItemUpdated;
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<List<T>> OnItemListUpdated;
 
-        public GenericProxy(Func<List<T>> getItem, bool isSimulation, bool isClearDataWhenInit, string dumpFileName = null, int timerInterval = 1000, int updateInterval = 60)
+        public GenericProxy(Func<List<T>> getItem=null, string dumpFileName = null, int timerInterval = -1, int updateInterval = -1)
         {
-            _isClearDataWhenInit = isClearDataWhenInit;
+            if (!string.IsNullOrEmpty(dumpFileName) && timerInterval < 0)
+                throw new Exception($"timer interval cannot be 0 when we need to dump file from time to time");
+
             _fileNameDump = dumpFileName;
             _funcGetItems = getItem;
-            _isSimulationMode = isSimulation;
             _timerinterval = timerInterval;
             _updateInterval = updateInterval;
             _lastUpdateTime = DateTime.UtcNow.GetUnixTimeFromUTC();
+
             if (_isDumpFile)
             {
                 this.OnItemUpdated += (s, t) => this.SetDumpFile(true);
@@ -79,11 +85,14 @@ namespace CryptoCommon.Shared.ExchProxy
 
         private void _timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            var tnow = DateTime.UtcNow.GetUnixTimeFromUTC();
-            if (tnow - _lastUpdateTime > _updateInterval)
+            if (_updateInterval > 0)
             {
-                _lastUpdateTime = tnow;
-                this.UpdateFromServer();
+                var tnow = DateTime.UtcNow.GetUnixTimeFromUTC();
+                if (tnow - _lastUpdateTime > _updateInterval)
+                {
+                    _lastUpdateTime = tnow;
+                    this.UpdateFromServer();
+                }
             }
 
             if (_isDumpFile)
@@ -126,13 +135,16 @@ namespace CryptoCommon.Shared.ExchProxy
                 try
                 {
                     //this.LogDebug("pull balance");
-                    var lst = _funcGetItems();
-                    if (lst != null)
+                    if (_funcGetItems != null)
                     {
-                        Items.Clear();
-                        foreach (var t in lst)
-                            this.Items.TryAdd(t.Id, t);
-                        OnItemListUpdated?.Invoke(this, this.Items.Values.ToList());
+                        var lst = _funcGetItems();
+                        if (lst != null)
+                        {
+                            Items.Clear();
+                            foreach (var t in lst)
+                                this.Items.TryAdd(t.Id, t);
+                            OnItemListUpdated?.Invoke(this, this.Items.Values.ToList());
+                        }
                     }
                 }
                 finally
@@ -150,62 +162,52 @@ namespace CryptoCommon.Shared.ExchProxy
 
         public void Update(params T[] items)
         {
-            foreach (var balance in items)
+            foreach (var t in items)
             {
-                if (!Items.ContainsKey(balance.Id)) Items.TryAdd(balance.Id, default(T));
-                if (!Items[balance.Id].Equals(balance))
+                if (!Items.ContainsKey(t.Id)) Items.TryAdd(t.Id, default(T));
+                if (!Items[t.Id].Equals(t))
                 {
-                    Items[balance.Id].Copy(balance);
-                    OnItemUpdated?.Invoke(this, balance);
+                    Items[t.Id].Copy(t);
+                    OnItemUpdated?.Invoke(this, t);
                 }
             }
         }
 
         public void Start()
         {
-            if (!_isSimulationMode)
+            if (!IsStarted)
             {
-                if (!IsStarted)
+                this.Initialize();
+                if (_timerinterval > 0)
                 {
-                    this.Initialize();
                     _timer1.Interval = _timerinterval;
                     _timer1.Elapsed += _timer1_Elapsed;
                     _timer1.Start();
-                    IsStarted = true;
                 }
+                IsStarted = true;
             }
-            else IsStarted = true;
         }
 
         public void Stop()
         {
-            if (!_isSimulationMode)
+            if (IsStarted)
             {
-                if (IsStarted)
+                if (_timerinterval > 0)
                 {
                     _timer1.Elapsed -= _timer1_Elapsed;
                     _timer1.Stop();
-                    IsStarted = false;
                 }
+                IsStarted = false;
             }
-            else IsStarted = false;
         }
 
         void Initialize()
         {
-            lock (this)
-            {
-                if (_isProcessItemBusy) return;
-                _isProcessItemBusy = true;
-            }
+            if (_isDumpFile)
+                this.LoadFromFile();
 
-            try
+            if (_funcGetItems != null)
             {
-                if (_isDumpFile)
-                    this.LoadFromFile();
-                else if (_isClearDataWhenInit)
-                    this.Items.Clear();
-
                 var lst = _funcGetItems();
                 if (lst != null)
                 {
@@ -213,10 +215,6 @@ namespace CryptoCommon.Shared.ExchProxy
                         this.Items.TryAdd(t.Id, t);
                     OnItemListUpdated?.Invoke(this, this.Items.Values.ToList());
                 }
-            }
-            finally
-            {
-                _isProcessItemBusy = false;
             }
         }
 

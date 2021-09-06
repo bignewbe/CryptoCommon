@@ -26,6 +26,9 @@ namespace CryptoCommon.Shared.ExchProxy
         private bool _isProcessBalanceBusy = false;
         private bool _isProcessPullOrderBusy = false;
 
+        private long _currentTime;
+        protected ConcurrentDictionary<string, SyncStatus> _syncOrderAction = new ConcurrentDictionary<string, SyncStatus>();
+
         private System.Timers.Timer _timer1 = new System.Timers.Timer();
         private bool _IsStarted = false;
         public bool IsStarted
@@ -123,17 +126,6 @@ namespace CryptoCommon.Shared.ExchProxy
             }
         }
 
-        public List<FZOrder> GetOpenOrdersBySymbol(string symbol)
-        {
-            var orders = OpenOrders.Values.Where(o => o.Symbol == symbol).ToList();
-            return orders;
-        }
-
-        public List<FZOrder> GetClosedOrdersBySymbol(string symbol)
-        {
-            var orders = ClosedOrders.Values.Where(o => o.Symbol == symbol).ToList();
-            return orders;
-        }
 
         #region update orders
         public void UpdateOrders(params FZOrder[] orders)
@@ -149,6 +141,7 @@ namespace CryptoCommon.Shared.ExchProxy
                 foreach (var o in orders)
                 {
                     this.LogDebug($"new order received from server: {ConvertOrderToStr(o)}");
+                    this.RemoveRefId(o);
                     _orderToCheck.Enqueue(o);
                 }
                 this.ProcessOrdersToCheckQueue();
@@ -246,13 +239,39 @@ namespace CryptoCommon.Shared.ExchProxy
             }
         }
 
+        public void UpdateTime(long time)
+        {
+            _currentTime = time;
+        }
+
+        public DateTime GetCurrentTime()
+        {
+            return _isSimulationMode ? _currentTime.GetUTCFromUnixTime() : DateTime.UtcNow;
+        }
+
+        protected void AddRefId(FZOrder order)
+        {
+            if (!_syncOrderAction.ContainsKey(order.Symbol))
+            {
+                Func<long> fun = () => this.GetCurrentTime().GetUnixTimeFromUTC();
+                var s = new SyncStatus(300, fun);
+                _syncOrderAction.TryAdd(order.Symbol, s);
+            }
+            _syncOrderAction[order.Symbol].AddRefId(order.RefId);
+        }
+
+        private void RemoveRefId(FZOrder order)
+        {
+            if (_syncOrderAction.ContainsKey(order.Symbol))
+                _syncOrderAction[order.Symbol].RemoveRefId(order.RefId);
+        }
+
         private bool CheckOrderLocal(FZOrder o, bool isTriggerEvent)
         {
             if (o == null) return false;
             lock (this)
             {
-                //this.UpdateTimeCreatedAndTimeLast(o);
-                //_trade.GetLastTimeForOrder()
+                this.RemoveRefId(o);
 
                 var isUpdated = false;
                 var isExistingOpen = OpenOrders.ContainsKey(o.OrderId);

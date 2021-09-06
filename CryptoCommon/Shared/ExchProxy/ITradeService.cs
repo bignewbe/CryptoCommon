@@ -17,7 +17,6 @@ namespace CryptoCommon.Shared.ExchProxy
         ServiceResult<bool> CancelOrder(string symbol, string orderId, bool isStopOrder);
         ServiceResult<FZOrder> PlaceOrder(FZOrder order);
         ServiceResult<string> ModifyOrderPrice(string symbol, string orderId, double newPrice);
-
         //account
         //ServiceResult<Dictionary<string, SpotBalance>> GetAccountBalance();
     }

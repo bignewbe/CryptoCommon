@@ -83,7 +83,7 @@ namespace CryptoCommon.Shared
               {
                   while (_ws.State == WebSocketState.Open)
                   {
-                      byte[] buffer = new byte[1024];
+                      byte[] buffer = new byte[4048];
                       var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                       if (result.MessageType == WebSocketMessageType.Binary)
                       {

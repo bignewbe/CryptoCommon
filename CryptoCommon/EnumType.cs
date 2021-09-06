@@ -20,6 +20,16 @@ namespace CryptoCommon.DataTypes
 
         stop_sell,
         stop_buy,
+
+        buy_fok,
+        sell_fok,
+        buy_ioc,
+        sell_ioc,
+        buy_oli,
+        sell_oli
+//fok: Fill-or-kill order
+//ioc: Immediate-or-cancel order
+//optimal_limit_ioc
     }
 
     public enum OrderState

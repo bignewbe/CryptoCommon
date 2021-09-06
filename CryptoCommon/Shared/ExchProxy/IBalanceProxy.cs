@@ -28,7 +28,7 @@ namespace CryptoCommon.Shared.ExchProxy
         }
     }
 
-    public interface IBalance
+    public interface IBalanceProxy
     {
         ConcurrentDictionary<string, AccountBalance> Balances { get; }
         AccountBalance GetBalance(string crypto);

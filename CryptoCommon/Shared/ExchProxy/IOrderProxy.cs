@@ -18,7 +18,15 @@ namespace CryptoCommon.Shared.ExchProxy
 
         bool IsOrderActionInProgress(string symbol);
         void SubmitOrder(CommandId commandId, FZOrder order);
+
         List<FZOrder> GetOpenOrdersBySymbol(string symbol);
         List<FZOrder> GetClosedOrdersBySymbol(string symbol);
+
+        FZOrder CheckOrder(string symbol, string orderId);
+
+        List<FZOrder> GetOpenOrders();
+        List<FZOrder> GetClosedOrders();
+
+        void UpdateOrders(params FZOrder[] orders);
     }
 }

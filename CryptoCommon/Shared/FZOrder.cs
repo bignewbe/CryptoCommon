@@ -41,6 +41,7 @@ namespace CryptoCommon.DataTypes
         public double TPPrice { get; set; }
         public double SLTriggerPrice { get; set; }
         public double SLPrice { get; set; }
+        public string OrderMode { get; set; }
 
         public ExecutionType ExecutionType { get; set; } = ExecutionType.Standard;
 

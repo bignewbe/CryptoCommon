@@ -15,8 +15,6 @@ namespace CryptoCommon.Shared.ExchProxy
     public class OrderProxy : OrderProxyBase, IOrderProxy
     {
         private ITradeService _trade;
-        private ConcurrentDictionary<string, SyncStatus> _syncOrderAction = new ConcurrentDictionary<string, SyncStatus>();
-        private long _currentTime;
 
         public OrderProxy(ITradeService trade, List<string> symbols, string dumpfile, int timerInterval, bool isSimuationMode, bool isEnableLog) :
             base(trade, symbols, dumpfile, timerInterval, isSimuationMode, isEnableLog)
@@ -63,31 +61,32 @@ namespace CryptoCommon.Shared.ExchProxy
             if (!_isSimulationMode) Thread.Sleep(50);
         }
 
-        public void UpdateTime(long time)
+        public List<FZOrder> GetOpenOrdersBySymbol(string symbol)
         {
-            _currentTime = time;
+            var orders = OpenOrders.Values.Where(o => o.Symbol == symbol).ToList();
+            return orders;
         }
 
-        public DateTime GetCurrentTime()
+        public List<FZOrder> GetClosedOrdersBySymbol(string symbol)
         {
-            return _isSimulationMode ? _currentTime.GetUTCFromUnixTime() : DateTime.UtcNow;
+            var orders = ClosedOrders.Values.Where(o => o.Symbol == symbol).ToList();
+            return orders;
         }
 
-        private void AddRefId(FZOrder order)
+        public List<FZOrder> GetOpenOrders()
         {
-            if (!_syncOrderAction.ContainsKey(order.Symbol))
-            {
-                Func<long> fun = () => this.GetCurrentTime().GetUnixTimeFromUTC();
-                var s = new SyncStatus(300, fun);
-                _syncOrderAction.TryAdd(order.Symbol, s);
-            }
-            _syncOrderAction[order.Symbol].AddRefId(order.RefId);
+            throw new NotImplementedException();
         }
 
-        private void RemoveRefId(FZOrder order)
+        public List<FZOrder> GetClosedOrders()
         {
-            if (_syncOrderAction.ContainsKey(order.Symbol))
-                _syncOrderAction[order.Symbol].RemoveRefId(order.RefId);
+            throw new NotImplementedException();
         }
+
+        public FZOrder CheckOrder(string symbol, string orderId)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

@@ -23,24 +23,22 @@ using System.Threading.Tasks;
 
 namespace CryptoCommon.Future
 {
-    public class FutureExchProxy
-    {
-        IOrderProxy _orderProxy;
-        IGenericProxy<FutureBalance> _futureBalanceProxy;
-        IGenericProxy<FuturePosition> _futurePositionProxy;
-        IGenericProxy<SpotBalance> _spotBalanceProxy;        
-        IMarketProxy _marketProxy;
-        IFutureAccountProxy _futureAccountProxy;
-        ISpotAccountProxy _spotAccountProxy;
-        ISpotWebSocket _socket;
-    }
+    //public class FutureExchProxy
+    //{
+    //    IOrderProxy _orderProxy;
+    //    IGenericProxy<FutureBalance> _futureBalanceProxy;
+    //    IGenericProxy<FuturePosition> _futurePositionProxy;
+    //    IGenericProxy<SpotBalance> _spotBalanceProxy;        
+    //    IMarketProxy _marketProxy;
+    //    ISpotWebSocket _socket;
+    //}
 
-    public class SpotExchProxy
-    {
-        IOrderProxy _orderProxy;
-        IGenericProxy<SpotBalance> _balanceProxy;
-        ISpotWebSocket _socket;
-    }
+    //public class SpotExchProxy
+    //{
+    //    IOrderProxy _orderProxy;
+    //    IGenericProxy<SpotBalance> _balanceProxy;
+    //    ISpotWebSocket _socket;
+    //}
 
     //public class ItemListProxy<T> where T : class, IIdEqualCopy<T>
     //{

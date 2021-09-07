@@ -25,7 +25,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="Shared\ExchProxy\IFutureAccountProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\IFZOrder.cs" />
 		<Compile Remove="Shared\ExchProxy\ISpotAccountProxy.cs" />
 		<Compile Remove="Spot\EnumType.cs" />
 		<Compile Remove="Spot\Interfaces\ICache.cs" />

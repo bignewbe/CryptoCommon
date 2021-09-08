@@ -17,7 +17,7 @@ namespace CryptoCommon.Shared.ExchProxy
 {
     public class OrderProxyBase
     {
-        private ITradeService _trade;
+        private IFZOrder _trade;
 
         private bool _isNeedSaveOrders = false;
         private bool _isLoadAndDumpFileBusy = false;
@@ -65,13 +65,15 @@ namespace CryptoCommon.Shared.ExchProxy
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<FZOrder> OnOrderOpened;
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<FZOrder> OnOrderClosed;
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<FZOrder> OnOrderUpdated;
+        public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<FZOrder> OnOrderCancelled;
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<List<FZOrder>> OnOpenOrderListChanged;
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<List<FZOrder>> OnClosedOrderListChanged;
         public event CryptoCommon.EventHandlers.StateChangedEventHandler OnStateChanged;
+
         //public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<FZOrder> OnOrderCancelled;
         //public event CryptoCommon.EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
 
-        public OrderProxyBase(ITradeService trade, List<string> symbols, string dumpfile, int timerInterval, bool isSimuationMode, bool isEnableLog)
+        public OrderProxyBase(IFZOrder trade, List<string> symbols, string dumpfile, int timerInterval, bool isSimuationMode, bool isEnableLog)
         {
             _trade = trade;
             _isSimulationMode = isSimuationMode;
@@ -158,18 +160,19 @@ namespace CryptoCommon.Shared.ExchProxy
         /// <param name="isTriggerEvent"></param>
         private void UpdteOpenOrdersFromServer(string symbol, bool isTriggerEvent)
         {
-            var r1 = _trade.GetOpenOrdersBySymbol(symbol);
-            if (r1.Result && r1.Data != null)
+            var r1 = _trade.GetOpenOrdersBySymbol(symbol).Result;
+            var orders = r1;
+            //if (r1.Result && r1.Data != null)
             {
-                foreach (var o in r1.Data)
+                foreach (var o in orders)
                     this.CheckOrderLocal(o, isTriggerEvent);
 
-                var d = r1.Data.ToDictionary(o => o.OrderId, o => o);
+                var d = orders.ToDictionary(o => o.OrderId, o => o);
                 var openOrders = this.OpenOrders.Values.Where(o => o.Symbol == symbol);
                 foreach (var o in openOrders)
                 {
                     if (!d.ContainsKey(o.OrderId))
-                        this.UpdateLastTimeAndCheckOrderLocal(o, isTriggerEvent);
+                        this.CheckOrderLocal(o, isTriggerEvent);
                 }
             }
         }
@@ -183,61 +186,20 @@ namespace CryptoCommon.Shared.ExchProxy
         /// <param name="isTriggerEvent"></param>
         private void UpdateCloseOrdersFromServer(string symbol, bool isTriggerEvent)
         {
-            //this.LogDebug($"update closed orders for {symbol}");
-            var count = 0;
-            var r2 = _trade.GetClosedOrdersBySymbol(symbol, false);
-            if (r2.Result && r2.Data != null)
+            var r2 = _trade.GetClosedOrdersBySymbol(symbol, false).Result;
+            var orders = r2;
             {
-                foreach (var o in r2.Data)
+                foreach (var o in orders)
                 {
                     if ((this.OpenOrders.ContainsKey(o.OrderId)) ||
-                        (!this.ClosedOrders.ContainsKey(o.OrderId)) ||
-                        (this.ClosedOrders.ContainsKey(o.OrderId) && this.ClosedOrders[o.OrderId].TimeLast <= this.ClosedOrders[o.OrderId].TimeCreated))
+                        (!this.ClosedOrders.ContainsKey(o.OrderId)))
                     {
-                        //if (!this.ClosedOrders.ContainsKey(o.OrderId))
-                        //    this.ClosedOrders.TryAdd(o.OrderId, o);
-                        var r = _trade.GetLastTimeForOrder(o.OrderId, o.Symbol);
-                        if (!_isSimulationMode) Thread.Sleep(50);
-                        if (r.Result && o.TimeLast <= (r.Data + 10).GetUTCFromUnixTime())
-                        {
-                            o.TimeLast = r.Data.GetUTCFromUnixTime();
-                            if (this.ClosedOrders.ContainsKey(o.OrderId))
-                            {
-                                //this.LogDebug("update last time directly");
-                                //this.LogDebug($"TimeLast updated for closed order: {ConvertOrderToStr(o)}");
-                                this.ClosedOrders[o.OrderId].TimeLast = r.Data.GetUTCFromUnixTime();
-                                this.SetDumpFile(true);
-                            }
-                            this.CheckOrderLocal(o, isTriggerEvent);
-                        }
-
-                        ++count;
-                        if (count > 20)
-                        {
-                            count = 0;
-                            if (!_isSimulationMode) Thread.Sleep(2000);
-                        }
+                        this.CheckOrderLocal(o, isTriggerEvent);
                     }
                 }
             }
         }
 
-        /// <summary>
-        /// for closed order, TimeLast is not correct. trade.CheckOrder will update the TimeLast from server
-        /// </summary>
-        /// <param name="order"></param>
-        /// <param name="isTriggerEvent"></param>
-        private void UpdateLastTimeAndCheckOrderLocal(FZOrder order, bool isTriggerEvent)
-        {
-            if (order != null)
-            {
-                var isStopOrder = order.Ordertype == OrderType.stop_buy || order.Ordertype == OrderType.stop_sell;
-                var r = _trade.CheckOrder(order.Symbol, order.OrderId, isStopOrder);
-                if (!_isSimulationMode) Thread.Sleep(50);
-                if (r.Result && r.Data != null)
-                    this.CheckOrderLocal(r.Data, isTriggerEvent);
-            }
-        }
 
         public void UpdateTime(long time)
         {
@@ -402,21 +364,9 @@ namespace CryptoCommon.Shared.ExchProxy
                 try
                 {
                     FZOrder o;
-                    var count = 0;
                     while (_orderToCheck.TryDequeue(out o))
                     {
-                        if (o.IsOrderOpen())
-                            this.CheckOrderLocal(o, true);
-                        else
-                        {
-                            this.UpdateLastTimeAndCheckOrderLocal(o, true);
-                            ++count;
-                            if (count > 10)
-                            {
-                                if (!_isSimulationMode) Thread.Sleep(2000);
-                                count = 0;
-                            }
-                        }
+                        this.CheckOrderLocal(o, true);
                     }
                 }
                 finally
@@ -512,23 +462,6 @@ namespace CryptoCommon.Shared.ExchProxy
                     Console.WriteLine($"update orders for {s}...");
                     this.UpdteOpenOrdersFromServer(s, false);
                     this.UpdateCloseOrdersFromServer(s, false);
-                }
-
-                var tnow = DateTime.UtcNow;
-                foreach (var o in this.ClosedOrders.Values)
-                {
-                    if (o.State == OrderState.fully_filled && o.TimeCreated >= o.TimeLast && (tnow - o.TimeCreated).TotalSeconds < 86400 * 30)
-                    {
-                        Console.WriteLine($"updating TimeLast for {ConvertOrderToStr(o)}");
-                        var r = _trade.GetLastTimeForOrder(o.OrderId, o.Symbol);
-                        if (!_isSimulationMode) Thread.Sleep(105);
-                        if (r.Result && o.TimeLast < r.Data.GetUTCFromUnixTime())
-                        {
-                            Console.WriteLine("TimeLast updated!");
-                            o.TimeLast = r.Data.GetUTCFromUnixTime();
-                            this.SetDumpFile(true);
-                        }
-                    }
                 }
 
                 if (this.OpenOrders.Count > 0)

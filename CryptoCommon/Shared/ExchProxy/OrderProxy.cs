@@ -14,10 +14,10 @@ namespace CryptoCommon.Shared.ExchProxy
 {
     public class OrderProxy : OrderProxyBase, IOrderProxy
     {
-        private ITradeService _trade;
+        private IFZTrade _trade;
 
-        public OrderProxy(ITradeService trade, List<string> symbols, string dumpfile, int timerInterval, bool isSimuationMode, bool isEnableLog) :
-            base(trade, symbols, dumpfile, timerInterval, isSimuationMode, isEnableLog)
+        public OrderProxy(IFZTrade trade, IFZOrder order, List<string> symbols, string dumpfile, int timerInterval, bool isSimuationMode, bool isEnableLog) :
+            base(order, symbols, dumpfile, timerInterval, isSimuationMode, isEnableLog)
         {
             _trade = trade;
         }
@@ -36,29 +36,30 @@ namespace CryptoCommon.Shared.ExchProxy
                 this.CancelOrder(order);
         }
 
-        public void PlaceOrder(FZOrder order)
+        public FZOrder PlaceOrder(FZOrder order)
         {
             this.LogDebug($"PlaceOrder: {ConvertOrderToStr(order)}");
-            var r = _trade.PlaceOrder(order);
+            var r = _trade.PlaceOrder(order).Result;
             this.AddRefId(order);
             if (!_isSimulationMode) Thread.Sleep(50);
+            return r;
         }
 
-        public void CancelOrder(FZOrder order)
+        public bool CancelOrder(FZOrder order)
         {
             this.LogDebug($"CancelOrder: {ConvertOrderToStr(order)}");
-            var isStopOrder = order.Ordertype == OrderType.stop_buy || order.Ordertype == OrderType.stop_sell;
-            var orderId = isStopOrder ? order.AlgoId : order.OrderId;
-            var r = _trade.CancelOrder(order.Symbol, orderId, isStopOrder);
+            var r = _trade.CancelOrder(order.Symbol, order.OrderId).Result;
             if (!_isSimulationMode) Thread.Sleep(50);
             this.AddRefId(order);
+            return r;
         }
 
-        public void ModifyOrderPrice(string symbol, string orderId, double newPrice)
+        public string ModifyOrderPrice(string symbol, string orderId, double newPrice)
         {
             this.LogDebug($"ModifyOrderPrice: {symbol} orderId = {orderId} newPrice = {newPrice}");
-            var r = _trade.ModifyOrderPrice(symbol, orderId, newPrice);
+            var r = _trade.ModifyOrderPrice(symbol, orderId, newPrice).Result;
             if (!_isSimulationMode) Thread.Sleep(50);
+            return r;
         }
 
         public List<FZOrder> GetOpenOrdersBySymbol(string symbol)
@@ -82,11 +83,5 @@ namespace CryptoCommon.Shared.ExchProxy
         {
             throw new NotImplementedException();
         }
-
-        public FZOrder CheckOrder(string symbol, string orderId)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

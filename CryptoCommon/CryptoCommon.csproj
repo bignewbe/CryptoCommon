@@ -24,8 +24,16 @@
 		<None Remove="Properties_Obsolete\**" />
 	</ItemGroup>
 	<ItemGroup>
+		<Compile Remove="Shared\ExchProxy\GenericProxy.cs" />
+		<Compile Remove="Shared\ExchProxy\IBalanceProxy.cs" />
 		<Compile Remove="Shared\ExchProxy\IFutureAccountProxy.cs" />
+		<Compile Remove="Shared\ExchProxy\IMarketProxy.cs" />
+		<Compile Remove="Shared\ExchProxy\IOrderProxy.cs" />
+		<Compile Remove="Shared\ExchProxy\IPositionProxy.cs" />
 		<Compile Remove="Shared\ExchProxy\ISpotAccountProxy.cs" />
+		<Compile Remove="Shared\ExchProxy\OrderProxy.cs" />
+		<Compile Remove="Shared\ExchProxy\OrderProxyBase.cs" />
+		<Compile Remove="Shared\ExchProxy\ProxyBase.cs" />
 		<Compile Remove="Spot\EnumType.cs" />
 		<Compile Remove="Spot\Interfaces\ICache.cs" />
 		<Compile Remove="Spot\Interfaces\IIdEqualCopy.cs" />

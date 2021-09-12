@@ -195,6 +195,11 @@ namespace CryptoCommon.Shared
                     _cts.Cancel();
                 }
             }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine("reconnecting...");
+            }
             finally
             {
                 _isTimerBusy = !_isTimerBusy;

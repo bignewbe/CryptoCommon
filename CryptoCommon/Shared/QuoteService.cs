@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PortableCSharpLib.Interface;
+using System.Threading;
 //using static CommonCSharpLibary.EventHandlers;
 //using static CryptoCommon.EventHandlers;
 
@@ -29,6 +30,8 @@ namespace CryptoCommon.Services
         ConcurrentQueue<string> _symbolQueue = new ConcurrentQueue<string>();
         ConcurrentDictionary<string, OHLC> _candles = new ConcurrentDictionary<string, OHLC>();
 
+        private System.Timers.Timer _timerSaveQuote = new System.Timers.Timer(2000);
+
         //HashSet<string> _symbols;
         protected IQuoteBasicFileStore _fileStore;
         protected ITickerStore _tickStore;
@@ -38,10 +41,13 @@ namespace CryptoCommon.Services
 
         protected HashSet<string> _symbolsInitialized = new HashSet<string>();
         protected HashSet<string> _quoteIdInitialized = new HashSet<string>();
+
+        private int _saveInterval = 300;
+        private Random _random = new Random();
         private bool _isSaveQuoteBasicOngoing = false;
         private bool _isProcessTickerListOngoing = false;
         private bool _isProcessCandleListOngoing = false;
-        private int _saveInterval = 300;
+
         //private bool _isCandleSubscribed = false;
         //private bool _isTickerSubscribed = false;
 
@@ -59,14 +65,40 @@ namespace CryptoCommon.Services
             _qcStore = qcstore;
             _qbStore = qbstore;
             _fileStore = filestore;
-            _fileStore.OnQuoteSaved += (object sender, string exchange, string filename) => Console.WriteLine($"quote saved to {filename}");
             _download = captureService;
 
+            _fileStore.OnQuoteSaved += (object sender, string exchange, string filename)
+                => Console.WriteLine($"quote saved to {filename}");
             _tickStore.OnTickerUpdated += _tickStore_OnTickerUpdated;
             _qcStore.OnQuoteCaptureDataAdded += _qcStore_OnQuoteCaptureDataAdded;
             _qbStore.OnQuoteBasicDataAddedOrUpdated += _qbStore_OnQuoteBasicDataAddedOrUpdated;
+
+            _timerSaveQuote.Elapsed += _timer_Elapsed;
+            _timerSaveQuote.Start();
             //_consumer = consumer;
             //_consumer.OnReceiveBroadcast += _consumer_OnReceiveBroadcast;
+        }
+
+        private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            lock(this)
+            {
+                if (_isSaveQuoteBasicOngoing) return;
+                _isSaveQuoteBasicOngoing = !_isSaveQuoteBasicOngoing;
+            }
+
+            try
+            {
+                string quoteId;
+                if (_quoteIdToSave.TryDequeue(out quoteId))
+                {
+                    _fileStore.Save(_qbStore.Quotes[quoteId]);
+                }
+            }
+            finally
+            {
+                _isSaveQuoteBasicOngoing = !_isSaveQuoteBasicOngoing;
+            }
         }
 
         //private void _consumer_OnReceiveBroadcast(object sender, string id, object data)
@@ -92,7 +124,7 @@ namespace CryptoCommon.Services
         //    }
         //}
 
-        public void AddCandleList(List<OHLC> candles)
+        public void AddCandleList(params OHLC[] candles)
         {
             lock (this)
             {
@@ -112,11 +144,11 @@ namespace CryptoCommon.Services
             }
         }
 
-        public void AddTickerList(List<Ticker> tickers)
+        public void AddTickerList(params Ticker[] tickers)
         {
             lock (this)
             {
-                _tickStore.AddTickers(Exchange, tickers);
+                _tickStore.AddTickers(Exchange, tickers.ToList());
                 //_tickerQueue.Enqueue(tickers);
                 //Task.Run(() => this.ProcessTickerListQueue());
             }
@@ -176,12 +208,21 @@ namespace CryptoCommon.Services
             //OnCandleListReceived?.Invoke(this, this.Exchange, lst);
 
             // save quote
+            if (!_quoteIdToSave.Contains(quote.QuoteID))
+                _quoteIdToSave.Enqueue(quote.QuoteID);
+
             //var utcnow = DateTime.UtcNow.GetUnixTimeFromUTC();
             //if (!_lastSaveTime.ContainsKey(quote.QuoteID))
-            //    _lastSaveTime.TryAdd(quote.QuoteID, 0);
+            //{
+            //    var t = quote.Interval <= 900 ? utcnow + _random.Next(900) : 0;
+            //    _lastSaveTime.TryAdd(quote.QuoteID, t);
+            //}
 
-            //if (quote.Interval == 60 && utcnow - _lastSaveTime[quote.QuoteID] > _saveInterval)
+            //if (utcnow - _lastSaveTime[quote.QuoteID] > _saveInterval)
+            //{
             //    _quoteIdToSave.Enqueue(quote.QuoteID);
+            //    _lastSaveTime[quote.QuoteID] = utcnow;
+            //}
 
             //if (_quoteIdToSave.Count > 0)
             //    this.ProcessSaveQuoteBasicQueue();
@@ -199,21 +240,27 @@ namespace CryptoCommon.Services
                     {
                         try
                         {
-                            //if (symbol.Contains("BCH") && interval >= 7200)
-                            //    Console.WriteLine();
                             var q = _fileStore.Load(symbol, interval, null, 2000);
                             if (q != null)
                                 _qbStore.AddQuoteBasic(q, false);
 
-                            //var q = _qbStore.GetQuoteBasic(symbol, interval);
-                            //var missingNum = 1000;
                             var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
-                            var r = _download.Download(symbol, interval, missingNum);
-                            if (r.Result)
+                            if (missingNum > 0)
                             {
-                                var qb = r.Data;
-                                _qbStore.AddQuoteBasic(qb, false);
-                                _fileStore.Save(qb);
+                                var retry = 0;
+                                while (retry++ < 2)
+                                {
+                                    var r = _download.Download(symbol, interval, missingNum);
+                                    if (r.Result)
+                                    {
+                                        var qb = r.Data;
+                                        _qbStore.AddQuoteBasic(qb, false);
+                                        _fileStore.Save(qb);
+                                        break;
+                                    }
+                                    Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
+                                    Thread.Sleep(1000);
+                                }
                             }
 
                             q = _qbStore.GetQuoteBasic(symbol, interval);
@@ -226,6 +273,7 @@ namespace CryptoCommon.Services
                         }
                     }
                 }
+
                 _symbolsInitialized.Add(symbol);
                 Console.WriteLine($"{symbol} initialized");
             }
@@ -306,9 +354,8 @@ namespace CryptoCommon.Services
         //            string quoteId;
         //            while (_quoteIdToSave.TryDequeue(out quoteId))
         //            {
-        //                Console.WriteLine($"saving {quoteId}...");
+        //                //Console.WriteLine($"saving {quoteId}...");
         //                _fileStore.Save(_qbStore.Quotes[quoteId]);
-        //                _lastSaveTime[quoteId] = DateTime.UtcNow.GetUnixTimeFromUTC();
         //            }
         //        }
         //        catch (Exception ex)
@@ -353,10 +400,12 @@ namespace CryptoCommon.Services
         {
             try
             {
-                //var q = _qbStore.GetQuoteBasic(symbol, interval);
-                var q = _fileStore.Load(symbol, interval, stime, num);
-                if (q != null) return new ServiceResult<QuoteBasicBase> { Result = true, Data = q };
-                else return new ServiceResult<QuoteBasicBase> { Result = false };
+                var q = new QuoteBasicBase(symbol, interval);
+                var q1 = _fileStore.Load(symbol, interval, stime, num);
+                var q2 = _qbStore.GetQuoteBasic(symbol, interval);
+                if (q1 != null) q.Append(q1, false);
+                if (q2 != null) q.Append(q2, false);
+                return new ServiceResult<QuoteBasicBase> { Result = true, Data = q };
             }
             catch(Exception ex)
             {

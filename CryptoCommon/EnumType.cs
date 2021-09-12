@@ -147,7 +147,8 @@ namespace CryptoCommon.DataTypes
         SwapDepth,
         SwapDepth5,
         SwapDepth200,
-        SwapTrade
+        SwapTrade,
+        SwapFundingRate
     }
 
     public enum EnumType

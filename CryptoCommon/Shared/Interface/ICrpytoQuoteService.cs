@@ -5,7 +5,12 @@ using System.Collections.Generic;
 
 namespace CryptoCommon.Services
 {
-    public interface ICrpytoQuoteService
+    public interface IGetInMemoryQuoteBasic
+    {
+        ServiceResult<QuoteBasicBase> GetInMemoryQuoteBasic(string symbol, int interval);
+    }
+
+    public interface ICrpytoQuoteService : IGetInMemoryQuoteBasic
     {
         //ServiceResult<string> GetExchange();
         void AddCandleList(params OHLC[] candles);
@@ -14,7 +19,7 @@ namespace CryptoCommon.Services
         ServiceResult<List<string>> GetAvaliableSymbols();
         ServiceResult<List<string>> GetAvaliableQuoteIds();
         ServiceResult<QuoteCapture> GetInMemoryQuoteCapture(string symbol);
-        ServiceResult<QuoteBasicBase> GetInMemoryQuoteBasic(string symbol, int interval);
+        //ServiceResult<QuoteBasicBase> GetInMemoryQuoteBasic(string symbol, int interval);
         ServiceResult<QuoteBasicBase> GetQuoteBasic(string symbol, int interval, long stime, int num);
     }
 }

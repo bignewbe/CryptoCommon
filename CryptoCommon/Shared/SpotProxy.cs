@@ -618,7 +618,7 @@ namespace CryptoCommon.Services
                 {
                     this.LogDebug($"existing open order updated: {ConvertOrderToStr(o)}");
                     this.OpenOrders[o.OrderId].Copy(o);
-                    if (isTriggerEvent) OnOrderUpdated(this, o);
+                    if (isTriggerEvent) OnOrderUpdated?.Invoke(this, o);
                     isUpdated = true;
                     this.SetDumpFile(true);
                 }
@@ -627,7 +627,7 @@ namespace CryptoCommon.Services
                     //if (o.RefId == "SWPHAUSDT36001048eabx4")
                     //    this.LogDebug($"existing open order closed: {ConvertOrderToStr(o)}");
                     this.OpenOrders[o.OrderId].Copy(o);
-                    if (isTriggerEvent) OnOrderClosed(this, o);
+                    if (isTriggerEvent) OnOrderClosed?.Invoke(this, o);
 
                     FZOrder order;
                     if (OpenOrders.TryRemove(o.OrderId, out order))
@@ -672,7 +672,7 @@ namespace CryptoCommon.Services
                 {
                     this.LogDebug($"existing closed order updated: {ConvertOrderToStr(o)}");
                     this.ClosedOrders[o.OrderId].Copy(o);
-                    if (isTriggerEvent) OnOrderUpdated(this, o);
+                    if (isTriggerEvent) OnOrderUpdated?.Invoke(this, o);
                     isUpdated = true;
                     this.SetDumpFile(true);
                 }
@@ -692,7 +692,7 @@ namespace CryptoCommon.Services
                 else if (!isExistingOpen && !isExistingClose && !isOrderOpen)
                 {
                     this.LogDebug($"missed order closed: {ConvertOrderToStr(o)}");
-                    if (isTriggerEvent) OnOrderClosed(this, o);
+                    if (isTriggerEvent) OnOrderClosed?.Invoke(this, o);
 
                     if (ClosedOrders.TryAdd(o.OrderId, o))
                     {

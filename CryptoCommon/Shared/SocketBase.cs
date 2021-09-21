@@ -31,7 +31,7 @@ namespace CryptoCommon.Shared
         public bool IsStartRequested { get; private set; }  //has user pressed "start"
         public WebSocketState State { get; private set; } = WebSocketState.None;
 
-        public SocketBase(string url, int receiveOvertimeSeconds = 30)
+        public SocketBase(string url, int receiveOvertimeSeconds = 10)
         {
             _url = url;
             _receiveOvertimeSeconds = receiveOvertimeSeconds;
@@ -148,28 +148,32 @@ namespace CryptoCommon.Shared
             {
                 if (_ws != null && _ws.State != this.State)
                 {
-                    State = _ws.State;
+                    this.State = _ws.State;
                     OnConnectionChanged?.Invoke(this, State);
                 }
 
                 if (this.IsStartRequested && _ws.State != WebSocketState.Open)                //reconnect
                 {
-                    if (_ws.State != WebSocketState.Aborted && _ws.State != WebSocketState.Closed)
-                    {
-                        await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
-                    }
+                    await this.CloseSocket();
+
+                    Console.WriteLine($"socket state = {_ws.State} trying to reconnect ...");
+
                     //cancel the receive thread loop
                     if (_cts.Token.CanBeCanceled)
                     {
                         _cts.Cancel();
                         _cts = new CancellationTokenSource();
                     }
+
+                    _ws.Abort();
                     _ws.Dispose();
                     _ws = null;
                     _ws = new ClientWebSocket();
-
                     await _ws.ConnectAsync(new Uri(_url), _cts.Token);
-                    this.receive();          //start a new thread to receive data
+                    this.receive();                                                          //start a new thread to receive data
+
+                    Thread.Sleep(10000);
+                    Console.WriteLine($"socket state = {_ws.State}");
                 }
                 else if (this.IsStartRequested && _ws.State == WebSocketState.Open)          //send pending channel
                 {
@@ -198,11 +202,30 @@ namespace CryptoCommon.Shared
             catch(Exception ex)
             {
                 Console.WriteLine(ex);
-                Console.WriteLine("reconnecting...");
+                Console.WriteLine("reconnecting after 10 seconds...");
+                Thread.Sleep(10000);
             }
             finally
             {
                 _isTimerBusy = !_isTimerBusy;
+            }
+        }
+
+        private async Task CloseSocket()
+        {
+            if (_ws.State != WebSocketState.Aborted && _ws.State != WebSocketState.Closed)
+            {
+                try
+                {
+                    Console.WriteLine($"\n trying to close socket with State = {_ws.State}");
+                    await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    Console.WriteLine("error while closing socket. sleep for 10 seconds....");
+                    Thread.Sleep(10000);
+                }
             }
         }
 

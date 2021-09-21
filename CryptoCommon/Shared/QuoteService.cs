@@ -228,6 +228,78 @@ namespace CryptoCommon.Services
             //    this.ProcessSaveQuoteBasicQueue();
         }
 
+        private void InitQuoteBasic2(string symbol)
+        {
+            Console.WriteLine($"initializing {symbol}...");
+            if (!_symbolsInitialized.Contains(symbol))
+            {
+                try
+                {
+                    var minInterval = 60;
+                    var interval = minInterval;
+                    var q = _fileStore.Load(symbol, interval, null, 2000);
+                    if (q != null)
+                        _qbStore.AddQuoteBasic(q, false);
+
+                    var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
+                    if (missingNum > 0)
+                    {
+                        var retry = 0;
+                        while (retry++ < 2)
+                        {
+                            var r = _download.Download(symbol, interval, missingNum);
+                            if (r.Result)
+                            {
+                                var qb = r.Data;
+                                _qbStore.AddQuoteBasic(qb, false);
+                                _fileStore.Save(qb);
+                                break;
+                            }
+                            Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
+                            Thread.Sleep(1000);
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    /// initialize other intervals without making request to server
+                    q = _qbStore.GetQuoteBasic(symbol, interval);
+                    if (q != null && q.Count > 0)
+                    {
+                        _quoteIdInitialized.Add($"{symbol}_{interval}");
+
+                        var q60 = new QuoteBasicBase(symbol, interval);
+                        var q2 = _fileStore.Load(symbol, interval, null, 3000);
+                        if (q2 != null)
+                            q60.Append(q2);
+                        q60.Append(q);
+
+                        foreach (var intv in _qbStore.Intervals)
+                        {
+                            if (intv <= interval || intv % interval != 0)
+                                continue;
+
+                            var qb = new QuoteBasicBase(symbol, intv);
+                            var q1 = _fileStore.Load(symbol, intv, null, 500);
+                            if (q1 != null)
+                                qb.Append(q1);
+                            qb.Append(q60);
+
+                            _qbStore.AddQuoteBasic(qb, false);
+                            _fileStore.Save(qb);
+                            _quoteIdInitialized.Add($"{symbol}_{intv}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    OnExceptionOccured?.Invoke(this, this.Exchange, ex);
+                }
+
+                _symbolsInitialized.Add(symbol);
+                Console.WriteLine($"{symbol} initialized");
+            }
+        }
+
         private void InitQuoteBasic(string symbol)
         {
             Console.WriteLine($"initializing {symbol}...");
@@ -298,7 +370,7 @@ namespace CryptoCommon.Services
                         if (_symbolsInitialized.Contains(symbol))
                             _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true);
                         else
-                            this.InitQuoteBasic(symbol);
+                            this.InitQuoteBasic2(symbol);
                     }
                 }
                 catch (Exception ex)

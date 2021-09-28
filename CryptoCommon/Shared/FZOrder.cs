@@ -21,13 +21,13 @@ namespace CryptoCommon.DataTypes
         public DateTime LocalTime { get { return TimeCreated.ToLocalTime(); } }
         public string Id { get { return OrderId; } }
         public string Exchange { get; set; }
+        public string OrderId { get; set; }
         public DateTime TimeCreated { get; set; }
         public DateTime TimeLast { get; set; }
         public string Symbol { get; set; }
         public double Amount { get; set; }
-        public double AvgPrice { get; set; }
         public double DealAmount { get; set; }
-        public string OrderId { get; set; }
+        public double AvgPrice { get; set; }
         public double Price { get; set; }
         public double TriggerPrice { get; set; }
         public double CommissionPaid { get; set; }
@@ -41,6 +41,8 @@ namespace CryptoCommon.DataTypes
         public double TPPrice { get; set; }
         public double SLTriggerPrice { get; set; }
         public double SLPrice { get; set; }
+        public double MinSz { get; set; } = 1;
+        public double TickSz { get; set; }
 
         public string OrderMode { get; set; }
         public bool IsMarginOrder { get; set; }
@@ -56,7 +58,7 @@ namespace CryptoCommon.DataTypes
             this.Copy(other);
         }
 
-        public FZOrder(string exchange, string instrument_id, int amount, double price, OrderType type, string refId)
+        public FZOrder(string exchange, string instrument_id, double amount, double price, OrderType type, string refId)
         {
             this.Exchange = exchange;
             this.TimeCreated = DateTime.UtcNow;

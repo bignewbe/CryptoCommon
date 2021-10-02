@@ -23,11 +23,14 @@ namespace CryptoCommon.Services
 
     public class QuoteService : ICrpytoQuoteService
     {
+        CancellationTokenSource _cts = new CancellationTokenSource();
         ConcurrentDictionary<string, long> _lastSaveTime = new ConcurrentDictionary<string, long>();
         ConcurrentQueue<string> _quoteIdToSave = new ConcurrentQueue<string>();
         ConcurrentQueue<List<Ticker>> _tickerQueue = new ConcurrentQueue<List<Ticker>>();
         //ConcurrentQueue<List<OHLC>> _ohlcQueue = new ConcurrentQueue<List<OHLC>>();
-        ConcurrentQueue<string> _symbolQueue = new ConcurrentQueue<string>();
+        ConcurrentQueue<string> _symbolToUpdate = new ConcurrentQueue<string>();
+        ConcurrentQueue<string> _symbolToInitQueue1 = new ConcurrentQueue<string>();
+        ConcurrentQueue<string> _symbolToInitQueue2 = new ConcurrentQueue<string>();
         ConcurrentDictionary<string, OHLC> _candles = new ConcurrentDictionary<string, OHLC>();
 
         private System.Timers.Timer _timerSaveQuote = new System.Timers.Timer(2000);
@@ -47,6 +50,8 @@ namespace CryptoCommon.Services
         private bool _isSaveQuoteBasicOngoing = false;
         private bool _isProcessTickerListOngoing = false;
         private bool _isProcessCandleListOngoing = false;
+        private bool _isFillGap = false;
+        private int _numBarsFillGap;
 
         //private bool _isCandleSubscribed = false;
         //private bool _isTickerSubscribed = false;
@@ -58,9 +63,12 @@ namespace CryptoCommon.Services
         public event PortableCSharpLib.EventHandlers.QuoteBasicDataAddedOrUpdatedEventHandler OnQuoteBasicDataAddedOrUpated;
         public event CryptoCommon.EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
 
-        public QuoteService(IDownLoadService captureService, ITickerStore tickstore, IQuoteCaptureMemStore qcstore, IQuoteBasicMemStore qbstore, IQuoteBasicFileStore filestore)
+        public QuoteService(IDownLoadService captureService, ITickerStore tickstore, IQuoteCaptureMemStore qcstore, IQuoteBasicMemStore qbstore, IQuoteBasicFileStore filestore,
+            bool isFillGap = false, int numBarsFillGap = 1400)
         {
             //_symbols = new HashSet<string>(symbols);
+            _isFillGap = isFillGap;
+            _numBarsFillGap = numBarsFillGap;
             _tickStore = tickstore;
             _qcStore = qcstore;
             _qbStore = qbstore;
@@ -73,15 +81,20 @@ namespace CryptoCommon.Services
             _qcStore.OnQuoteCaptureDataAdded += _qcStore_OnQuoteCaptureDataAdded;
             _qbStore.OnQuoteBasicDataAddedOrUpdated += _qbStore_OnQuoteBasicDataAddedOrUpdated;
 
+            _timerSaveQuote.Interval = 1000;
             _timerSaveQuote.Elapsed += _timer_Elapsed;
             _timerSaveQuote.Start();
+
+            this.ProcessInit();
+            this.ProcessUpdate();
+
             //_consumer = consumer;
             //_consumer.OnReceiveBroadcast += _consumer_OnReceiveBroadcast;
         }
 
         private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            lock(this)
+            lock (this)
             {
                 if (_isSaveQuoteBasicOngoing) return;
                 _isSaveQuoteBasicOngoing = !_isSaveQuoteBasicOngoing;
@@ -124,38 +137,39 @@ namespace CryptoCommon.Services
         //    }
         //}
 
+        public ServiceResult<bool> InitSymbol(string symbol)
+        {
+            if (!_symbolsInitialized.Contains(symbol))
+            {
+                _symbolToInitQueue1.Enqueue(symbol);
+                return new ServiceResult<bool> { Result = true, Message = "symbol queued for init" };
+            }
+            return new ServiceResult<bool> { Result = true, Message = "symbol already initialized" };
+        }
+
         public void AddCandleList(params OHLC[] candles)
         {
-            lock (this)
-            {
-                //if (!_symbols.Contains(candles[0].Symbol)) return;
-                var c = candles[0];
-                if (!_candles.ContainsKey(c.Symbol)) 
-                    _candles.TryAdd(c.Symbol, new OHLC());
+            //if (!_symbols.Contains(candles[0].Symbol)) return;
+            var c = candles[0];
+            if (!_candles.ContainsKey(c.Symbol))
+                _candles.TryAdd(c.Symbol, new OHLC());
 
-                if (!_candles[c.Symbol].Equals(c))
-                    _candles[c.Symbol].Copy(c);
+            if (!_candles[c.Symbol].Equals(c))
+                _candles[c.Symbol].Copy(c);
 
-                if (!_symbolQueue.Contains(c.Symbol))
-                    _symbolQueue.Enqueue(c.Symbol);
-
-                if (_symbolQueue.Count > 0)
-                    this.ProcessCandleListQueue();
-            }
+            if (!_symbolToUpdate.Contains(c.Symbol))
+                _symbolToUpdate.Enqueue(c.Symbol);
         }
 
         public void AddTickerList(params Ticker[] tickers)
         {
-            lock (this)
-            {
-                _tickStore.AddTickers(Exchange, tickers.ToList());
-                //_tickerQueue.Enqueue(tickers);
-                //Task.Run(() => this.ProcessTickerListQueue());
-            }
+            _tickStore.AddTickers(Exchange, tickers.ToList());
+            //_tickerQueue.Enqueue(tickers);
+            //Task.Run(() => this.ProcessTickerListQueue());
         }
 
         protected void client_OnExceptionOccured(object sender, string exchange, Exception ex)
-        {            
+        {
             OnExceptionOccured?.Invoke(sender, exchange, ex);
         }
 
@@ -171,7 +185,7 @@ namespace CryptoCommon.Services
                 var symbol = quote.Symbol;
                 if (_symbolsInitialized.Contains(symbol))
                 {
-                    _qbStore.AddQuoteCapture(quote);
+                    _qbStore.AddQuoteCapture(quote, true);
                 }
                 else   //initialize IQuoteBasicBase
                 {
@@ -230,16 +244,109 @@ namespace CryptoCommon.Services
 
         private void InitQuoteBasic2(string symbol)
         {
+            if (_symbolsInitialized.Contains(symbol)) return;
+
             Console.WriteLine($"initializing {symbol}...");
-            if (!_symbolsInitialized.Contains(symbol))
+
+            var minInterval = 60;
+            var interval = minInterval;
+            var q = _fileStore.Load(symbol, interval, null, 2000);
+
+            if (q != null)
             {
-                try
+                for (int i = q.Count - 1; i >= Math.Max(1, q.Count - _numBarsFillGap); i--)
                 {
-                    var minInterval = 60;
-                    var interval = minInterval;
+                    if (q.Time[i] - q.Time[i - 1] > q.Interval)
+                    {
+                        q.Clear(i, q.Count - 1);
+                        break;
+                    }
+                }
+                _qbStore.AddQuoteBasic(q, false, false);
+            }
+
+            var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
+            if (missingNum > 0)
+            {
+                var retry = 0;
+                while (retry++ < 2)
+                {
+                    var r = _download.Download(symbol, interval, missingNum);
+                    if (r.Result)
+                    {
+                        var qb = r.Data;
+                        _qbStore.AddQuoteBasic(qb, false, true);
+                        _fileStore.Save(qb, _numBarsFillGap);
+                        break;
+                    }
+                    Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
+                    Thread.Sleep(1000);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            /// initialize other intervals without making request to server
+            q = _qbStore.GetQuoteBasic(symbol, interval);
+            if (q != null && q.Count > 0)
+            {
+                _quoteIdInitialized.Add($"{symbol}_{interval}");
+
+                var q60 = new QuoteBasicBase(symbol, interval);
+                var q2 = _fileStore.Load(symbol, interval, null, 3000);
+                if (q2 != null)
+                    q60.Append(q2);
+                q60.Append(q);
+
+                foreach (var intv in _qbStore.Intervals)
+                {
+                    if (intv <= interval || intv % interval != 0)
+                        continue;
+
+                    var qb = new QuoteBasicBase(symbol, intv);
+                    var q1 = _fileStore.Load(symbol, intv, null, 500);
+                    if (q1 != null)
+                        qb.Append(q1);
+                    qb.Append(q60);
+
+                    _qbStore.AddQuoteBasic(qb, false, true);
+                    _fileStore.Save(qb, _numBarsFillGap);
+                    _quoteIdInitialized.Add($"{symbol}_{intv}");
+                }
+            }
+
+            _symbolsInitialized.Add(symbol);
+            Console.WriteLine($"{symbol} initialized");
+        }
+
+        private void InitQuoteBasic(string symbol)
+        {
+            if (_symbolsInitialized.Contains(symbol)) return;
+
+            Console.WriteLine($"initializing {symbol}...");
+
+            var minInterval = 60;
+            foreach (var interval in _qbStore.Intervals)
+            {
+                if (interval >= minInterval)
+                {
+                    Console.WriteLine($"interval = {interval}");
                     var q = _fileStore.Load(symbol, interval, null, 2000);
                     if (q != null)
-                        _qbStore.AddQuoteBasic(q, false);
+                    {
+                        if (_isFillGap)
+                        {
+                            for (int i = Math.Max(0, q.Count - _numBarsFillGap); i < q.Count - 1; i++)
+                            {
+                                if (q.Time[i + 1] - q.Time[i] > q.Interval)
+                                {
+                                    q.Clear(i + 1, q.Count - 1);
+                                    Console.WriteLine("gap found");
+                                    break;
+                                }
+                            }
+                        }
+                        _qbStore.AddQuoteBasic(q, false, true);
+                    }
 
                     var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
                     if (missingNum > 0)
@@ -251,8 +358,8 @@ namespace CryptoCommon.Services
                             if (r.Result)
                             {
                                 var qb = r.Data;
-                                _qbStore.AddQuoteBasic(qb, false);
-                                _fileStore.Save(qb);
+                                _qbStore.AddQuoteBasic(qb, false, true);
+                                _fileStore.Save(qb, _numBarsFillGap);
                                 break;
                             }
                             Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
@@ -260,129 +367,108 @@ namespace CryptoCommon.Services
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
-                    /// initialize other intervals without making request to server
                     q = _qbStore.GetQuoteBasic(symbol, interval);
                     if (q != null && q.Count > 0)
-                    {
                         _quoteIdInitialized.Add($"{symbol}_{interval}");
-
-                        var q60 = new QuoteBasicBase(symbol, interval);
-                        var q2 = _fileStore.Load(symbol, interval, null, 3000);
-                        if (q2 != null)
-                            q60.Append(q2);
-                        q60.Append(q);
-
-                        foreach (var intv in _qbStore.Intervals)
-                        {
-                            if (intv <= interval || intv % interval != 0)
-                                continue;
-
-                            var qb = new QuoteBasicBase(symbol, intv);
-                            var q1 = _fileStore.Load(symbol, intv, null, 500);
-                            if (q1 != null)
-                                qb.Append(q1);
-                            qb.Append(q60);
-
-                            _qbStore.AddQuoteBasic(qb, false);
-                            _fileStore.Save(qb);
-                            _quoteIdInitialized.Add($"{symbol}_{intv}");
-                        }
-                    }
                 }
-                catch (Exception ex)
-                {
-                    OnExceptionOccured?.Invoke(this, this.Exchange, ex);
-                }
-
-                _symbolsInitialized.Add(symbol);
-                Console.WriteLine($"{symbol} initialized");
             }
+
+            _symbolsInitialized.Add(symbol);
+            Console.WriteLine($"{symbol} initialized");
         }
 
-        private void InitQuoteBasic(string symbol)
+        private void ProcessInit()
         {
-            Console.WriteLine($"initializing {symbol}...");
-            if (!_symbolsInitialized.Contains(symbol))
+            Task.Factory.StartNew(() =>
             {
-                var minInterval = 60;
-                foreach (var interval in _qbStore.Intervals)
+                while (!_cts.Token.IsCancellationRequested)
                 {
-                    if (interval >= minInterval)
+                    string symbol;
+                    if (_symbolToInitQueue1.TryDequeue(out symbol) || _symbolToInitQueue2.TryDequeue(out symbol))
                     {
                         try
                         {
-                            var q = _fileStore.Load(symbol, interval, null, 2000);
-                            if (q != null)
-                                _qbStore.AddQuoteBasic(q, false);
-
-                            var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
-                            if (missingNum > 0)
-                            {
-                                var retry = 0;
-                                while (retry++ < 2)
-                                {
-                                    var r = _download.Download(symbol, interval, missingNum);
-                                    if (r.Result)
-                                    {
-                                        var qb = r.Data;
-                                        _qbStore.AddQuoteBasic(qb, false);
-                                        _fileStore.Save(qb);
-                                        break;
-                                    }
-                                    Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
-                                    Thread.Sleep(1000);
-                                }
-                            }
-
-                            q = _qbStore.GetQuoteBasic(symbol, interval);
-                            if (q != null && q.Count > 0)
-                                _quoteIdInitialized.Add($"{symbol}_{interval}");
+                            if (_isFillGap)
+                                this.InitQuoteBasic(symbol);
+                            else
+                                this.InitQuoteBasic2(symbol);
                         }
                         catch (Exception ex)
                         {
-                            OnExceptionOccured?.Invoke(this, this.Exchange, ex);
+                            OnExceptionOccured?.Invoke(this, Exchange, ex);
                         }
                     }
                 }
-
-                _symbolsInitialized.Add(symbol);
-                Console.WriteLine($"{symbol} initialized");
-            }
+            }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        public void ProcessCandleListQueue()
+        private void ProcessUpdate()
         {
-            lock (this)
+            Task.Factory.StartNew(() =>
             {
-                if (_isProcessCandleListOngoing) return;
-                _isProcessCandleListOngoing = true;
-            }
-
-            Task.Run(() =>
-            {
-                try
-                {
+                while (!_cts.Token.IsCancellationRequested)
+                {                   
                     string symbol;
-                    while (_symbolQueue.TryDequeue(out symbol))
+                    if (_symbolToUpdate.TryDequeue(out symbol))
                     {
-                        var d = _candles[symbol];
-                        if (_symbolsInitialized.Contains(symbol))
-                            _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true);
-                        else
-                            this.InitQuoteBasic2(symbol);
+                        try
+                        {
+                            var d = _candles[symbol];
+                            if (_symbolsInitialized.Contains(symbol))
+                                _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true, true);
+                            else
+                                _symbolToInitQueue2.Enqueue(symbol);
+                        }
+                        catch (Exception ex)
+                        {
+                            OnExceptionOccured?.Invoke(this, Exchange, ex);
+                        }
+                        finally
+                        {
+                            _isProcessCandleListOngoing = false;
+                        }
                     }
                 }
-                catch (Exception ex)
-                {
-                    OnExceptionOccured?.Invoke(this, Exchange, ex);
-                }
-                finally
-                {
-                    _isProcessCandleListOngoing = false;
-                }
-            });
+            }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
+
+        //public void ProcessCandleListQueue()
+        //{
+        //    lock (this)
+        //    {
+        //        if (_isProcessCandleListOngoing) return;
+        //        _isProcessCandleListOngoing = true;
+        //    }
+
+        //    Task.Run(() =>
+        //    {
+        //        try
+        //        {
+        //            string symbol;
+        //            while (_symbolToUpdate.TryDequeue(out symbol))
+        //            {
+        //                var d = _candles[symbol];
+        //                if (_symbolsInitialized.Contains(symbol))
+        //                    _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true);
+        //                else
+        //                {
+        //                    if (_isFillGap)
+        //                        this.InitQuoteBasic(symbol);
+        //                    else
+        //                        this.InitQuoteBasic2(symbol);
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            OnExceptionOccured?.Invoke(this, Exchange, ex);
+        //        }
+        //        finally
+        //        {
+        //            _isProcessCandleListOngoing = false;
+        //        }
+        //    });
+        //}
 
         //private void ProcessTickerListQueue()
         //{

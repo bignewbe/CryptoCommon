@@ -81,33 +81,36 @@ namespace CryptoCommon.Shared
             Task.Factory.StartNew(
               async () =>
               {
-                  while (_ws.State == WebSocketState.Open)
+                  while (!_cts.Token.IsCancellationRequested)
                   {
-                      byte[] buffer = new byte[200000];
-                      var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                      if (result.MessageType == WebSocketMessageType.Binary)
+                      if (_ws.State == WebSocketState.Open)
                       {
-                          _lastReceiveTime = DateTime.UtcNow.GetUnixTimeFromUTC();
-                          var resultStr = Decompress(buffer);
-                          OnMsgReceived?.Invoke(this, resultStr);
-                      }
-                      else if (result.MessageType == WebSocketMessageType.Text)
-                      {
-                          _lastReceiveTime = DateTime.UtcNow.GetUnixTimeFromUTC();
-                          var resultStr = System.Text.Encoding.UTF8.GetString(buffer);
-                          OnMsgReceived?.Invoke(this, resultStr);
-                      }
-                      else if (result.MessageType == WebSocketMessageType.Close)
-                      {
-                          try
+                          byte[] buffer = new byte[200000];
+                          var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                          if (result.MessageType == WebSocketMessageType.Binary)
                           {
-                              await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+                              _lastReceiveTime = DateTime.UtcNow.GetUnixTimeFromUTC();
+                              var resultStr = Decompress(buffer);
+                              OnMsgReceived?.Invoke(this, resultStr);
                           }
-                          catch (Exception)
+                          else if (result.MessageType == WebSocketMessageType.Text)
                           {
+                              _lastReceiveTime = DateTime.UtcNow.GetUnixTimeFromUTC();
+                              var resultStr = System.Text.Encoding.UTF8.GetString(buffer);
+                              OnMsgReceived?.Invoke(this, resultStr);
+                          }
+                          else if (result.MessageType == WebSocketMessageType.Close)
+                          {
+                              try
+                              {
+                                  await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+                              }
+                              catch (Exception)
+                              {
+                                  break;
+                              }
                               break;
                           }
-                          break;
                       }
                   }
               }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);

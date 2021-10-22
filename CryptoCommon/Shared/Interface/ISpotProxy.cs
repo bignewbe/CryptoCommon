@@ -57,6 +57,8 @@ namespace CryptoCommon.Services
         FZOrder PlaceOrder(FZOrder order);
         bool CancelOrder(FZOrder order);
         void ModifyOrderPrice(string symbol, string orderId, double newPrice);
+        void UpdateBalance(params SpotBalance[] balances);
+        void UpdateOrders(params FZOrder[] orders);
 
         Task Initialize();
         Task StartAsync();

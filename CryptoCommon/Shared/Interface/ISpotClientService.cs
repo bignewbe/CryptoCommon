@@ -27,9 +27,10 @@ namespace CryptoCommon.Services
         ServiceResult<List<SwingParam>> GetTraderParam();
         ServiceResult<List<string>> GetSpotMonitorSymbols();
 
-        ServiceResult<bool> Subscribe();
-        ServiceResult<bool> StartAllTraders();
-        ServiceResult<bool> StopAllTraders();
+        //ServiceResult<bool> Subscribe();
+        //ServiceResult<bool> StartAllTraders();
+        //ServiceResult<bool> StopAllTraders();
+
         ServiceResult<bool> StartTraderByParamId(string paramId);
         ServiceResult<bool> StopTraderByParamId(string paramId);
         ServiceResult<Dictionary<string, bool>> GetTraderStatus();

@@ -4,6 +4,17 @@ using System.Text;
 
 namespace CryptoCommon.DataTypes
 {
+    public enum InstrumentType
+    {
+        SPOT,
+        SWAP,
+        FUTURES,
+        OPTION,
+        MARGIN,
+        NONE,
+        ANY
+    }
+
     public enum OrderType
     {
         none,

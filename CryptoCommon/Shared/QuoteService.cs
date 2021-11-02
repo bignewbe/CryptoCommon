@@ -52,6 +52,7 @@ namespace CryptoCommon.Services
         private bool _isProcessCandleListOngoing = false;
         private bool _isFillGap = false;
         private int _numBarsFillGap;
+        private int _limit;
 
         //private bool _isCandleSubscribed = false;
         //private bool _isTickerSubscribed = false;
@@ -64,11 +65,12 @@ namespace CryptoCommon.Services
         public event CryptoCommon.EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
 
         public QuoteService(IDownLoadService captureService, ITickerStore tickstore, IQuoteCaptureMemStore qcstore, IQuoteBasicMemStore qbstore, IQuoteBasicFileStore filestore,
-            bool isFillGap = false, int numBarsFillGap = 1400)
-        {
+            bool isFillGap = false, int numBarsFillGap = 500, int limit=500)
+        { 
             //_symbols = new HashSet<string>(symbols);
-            _isFillGap = isFillGap;
+            _isFillGap = isFillGap;            
             _numBarsFillGap = numBarsFillGap;
+            _limit = limit;
             _tickStore = tickstore;
             _qcStore = qcstore;
             _qbStore = qbstore;
@@ -250,7 +252,7 @@ namespace CryptoCommon.Services
 
             var minInterval = 60;
             var interval = minInterval;
-            var q = _fileStore.Load(symbol, interval, null, 2000);
+            var q = _fileStore.Load(symbol, interval, null, _limit);
 
             if (q != null)
             {
@@ -265,7 +267,7 @@ namespace CryptoCommon.Services
                 _qbStore.AddQuoteBasic(q, false, false);
             }
 
-            var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
+            var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
             if (missingNum > 0)
             {
                 var retry = 0;
@@ -330,7 +332,7 @@ namespace CryptoCommon.Services
                 if (interval >= minInterval)
                 {
                     Console.WriteLine($"interval = {interval}");
-                    var q = _fileStore.Load(symbol, interval, null, 2000);
+                    var q = _fileStore.Load(symbol, interval, null, _limit);
                     if (q != null)
                     {
                         if (_isFillGap)
@@ -348,7 +350,7 @@ namespace CryptoCommon.Services
                         _qbStore.AddQuoteBasic(q, false, true);
                     }
 
-                    var missingNum = q == null ? 2000 : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, 2000);
+                    var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
                     if (missingNum > 0)
                     {
                         var retry = 0;

@@ -32,7 +32,7 @@ namespace CryptoCommon.Shared.ExchProxy
         public double Quota { get; set; }
         public double Rate { get; set; }
         public string Ccy { get; set; }
-        public string Id { get; }
+        public string Id => Ccy;
     }
 
     public class Instrument

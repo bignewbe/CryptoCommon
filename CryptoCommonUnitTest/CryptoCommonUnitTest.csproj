@@ -62,19 +62,19 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">
-		<Reference Include="CommonCSharpLibary">
-			<HintPath>lib\CommonCSharpLibary\Release\1.0.0\CommonCSharpLibary.dll</HintPath>
-		</Reference>
 		<Reference Include="PortableCSharpLib">
 			<HintPath>lib\PortableCSharpLib\Release\1.0.0\PortableCSharpLib.dll</HintPath>
 		</Reference>
+		<Reference Include="CommonCSharpLibary">
+			<HintPath>lib\CommonCSharpLibary\Release\1.0.0\CommonCSharpLibary.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
-		<Reference Include="CommonCSharpLibary">
-			<HintPath>lib\CommonCSharpLibary\Debug\1.0.0\CommonCSharpLibary.dll</HintPath>
-		</Reference>
 		<Reference Include="PortableCSharpLib">
 			<HintPath>lib\PortableCSharpLib\Debug\1.0.0\PortableCSharpLib.dll</HintPath>
+		</Reference>
+		<Reference Include="CommonCSharpLibary">
+			<HintPath>lib\CommonCSharpLibary\Debug\1.0.0\CommonCSharpLibary.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>

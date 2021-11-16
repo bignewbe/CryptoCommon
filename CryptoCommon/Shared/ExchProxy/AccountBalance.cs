@@ -12,6 +12,8 @@ namespace CryptoCommon.Shared.ExchProxy
     {
         public string Id { get { return Currency; } }
         public double Balance { get { return Available + Hold; } }
+        public double Borrowed { get; set; }
+        public double Interest { get; set; }
         public string Currency { get; set; }
         public double Available { get; set; }
         public double Hold { get; set; }

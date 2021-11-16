@@ -1015,14 +1015,20 @@ namespace CryptoCommon.Services
                         var str = File.ReadAllText(this._fileNameDump);
                         var items = Regex.Split(str, delimiter);
 
-                        this.OpenOrders = JsonConvert.DeserializeObject<ConcurrentDictionary<string, FZOrder>>(items[0]);
-                        this.ClosedOrders = JsonConvert.DeserializeObject<ConcurrentDictionary<string, FZOrder>>(items[1]);
+                        var r1 = JsonConvert.DeserializeObject<ConcurrentDictionary<string, FZOrder>>(items[0]);
+                        var r2 = JsonConvert.DeserializeObject<ConcurrentDictionary<string, FZOrder>>(items[1]);
 
-                        var orders = this.ClosedOrders.Values.Where(o => o.DealAmount > 0 || o.State != OrderState.cancelled).ToList();
-                        this.ClosedOrders = new ConcurrentDictionary<string, FZOrder>(orders.ToDictionary(o => o.OrderId, o => o));
+                        if (r1 != null)
+                            this.OpenOrders = r1;
+                        
+                        if (r2 != null)
+                        {
+                            this.ClosedOrders = r2;
+                            var orders = this.ClosedOrders.Values.Where(o => o.DealAmount > 0 || o.State != OrderState.cancelled).ToList();
+                            this.ClosedOrders = new ConcurrentDictionary<string, FZOrder>(orders.ToDictionary(o => o.OrderId, o => o));
+                        }
                         //var s = this.GetOrderAndBalanceStatusForSymbol("LTC_ETH", "LTCETH36001000");
                         //s = this.GetOrderAndBalanceStatusForSymbol("MCO_ETH", "MCOETH3600090");
-
                         //_refIdToPrevRefId = JsonConvert.DeserializeObject<Dictionary<string, string>>(items[2]);
                         //_orderIdToTimeLast = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(items[3]);
                         //_orderIdToTimeCreated = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(items[4]);

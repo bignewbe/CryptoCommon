@@ -27,6 +27,7 @@ namespace CryptoCommon.Services
 
         protected static void Init(string servcieName)
         {
+            Console.WriteLine($"\nload config for {servcieName}........");
             Console.Title = _servicename = servcieName;
 
             _env = Environment.GetEnvironmentVariable("ENV");
@@ -46,6 +47,8 @@ namespace CryptoCommon.Services
 
             ////////////////////////////////////////////////////////
             _exchange = _config["Exchange"];
+            Console.WriteLine($"exchange = {_exchange}");
+
             var config1 = _appConfig.GetSection("Path");
             _dataPath = Path.Combine(config1["dataPath"], _exchange);
             _logPath = Path.Combine(_dataPath, "logs");

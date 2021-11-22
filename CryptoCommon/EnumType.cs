@@ -4,6 +4,24 @@ using System.Text;
 
 namespace CryptoCommon.DataTypes
 {
+    public enum ExecutionType
+    {
+        None,
+        Standard,
+        UseMatchPrice,
+        FillOrKill,
+        ImmediateAndCancel,
+        MakerOnly
+    }
+
+    //public enum TimeInForceType
+    //{
+    //    NONE,
+    //    GTC, 
+    //    IOC, 
+    //    FOK
+    //}
+
     public enum InstrumentType
     {
         SPOT,

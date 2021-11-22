@@ -33,6 +33,7 @@ namespace CryptoCommon.DataTypes
         public double CommissionPaid { get; set; }
         public OrderState State { get; set; }
         public OrderType Ordertype { get; set; }
+        //public TimeInForceType TimeInForce { get; set; }
         public string PrevRefId { get; set; }
         public string RefId { get; set; }
 
@@ -93,6 +94,7 @@ namespace CryptoCommon.DataTypes
                 this.TPTriggerPrice == other.TPTriggerPrice &&
                 this.TPPrice == other.TPPrice &&
                 this.SLTriggerPrice == other.SLTriggerPrice &&
+                //this.TimeInForce == other.TimeInForce &&
                 this.SLPrice == other.SLPrice);
         }
 
@@ -120,6 +122,7 @@ namespace CryptoCommon.DataTypes
                 this.TPPrice = other.TPPrice;
                 this.SLTriggerPrice = other.SLTriggerPrice;
                 this.SLPrice = other.SLPrice;
+                //this.TimeInForce = other.TimeInForce;
             }
         }
     }

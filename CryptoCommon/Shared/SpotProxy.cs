@@ -930,7 +930,7 @@ namespace CryptoCommon.Services
                 var tnow = DateTime.UtcNow;
                 foreach (var o in this.ClosedOrders.Values)
                 {
-                    if (o.State == OrderState.fully_filled && o.TimeCreated >= o.TimeLast && (tnow - o.TimeCreated).TotalSeconds < 86400 * 30)
+                    if (o.State == OrderState.fully_filled && o.TimeCreated >= o.TimeLast && (tnow - o.TimeCreated).TotalSeconds < 86400 * 2)
                     {
                         Console.WriteLine($"updating TimeLast for {ConvertOrderToStr(o)}");
                         var r = _trade.GetLastTimeForOrder(o.OrderId, o.Symbol);

@@ -48,6 +48,9 @@ namespace CryptoCommon.DataTypes
         public string OrderMode { get; set; }
         public bool IsMarginOrder { get; set; }
 
+        public string PxFormat { get; set; }
+        public string AmtFormat { get; set; }
+
         public ExecutionType ExecutionType { get; set; } = ExecutionType.Standard;
 
         public FZOrder()
@@ -94,6 +97,8 @@ namespace CryptoCommon.DataTypes
                 this.TPTriggerPrice == other.TPTriggerPrice &&
                 this.TPPrice == other.TPPrice &&
                 this.SLTriggerPrice == other.SLTriggerPrice &&
+                this.PxFormat == other.PxFormat &&
+                this.AmtFormat == other.AmtFormat &&
                 //this.TimeInForce == other.TimeInForce &&
                 this.SLPrice == other.SLPrice);
         }
@@ -122,6 +127,8 @@ namespace CryptoCommon.DataTypes
                 this.TPPrice = other.TPPrice;
                 this.SLTriggerPrice = other.SLTriggerPrice;
                 this.SLPrice = other.SLPrice;
+                this.PxFormat = other.PxFormat;
+                this.AmtFormat = other.AmtFormat;
                 //this.TimeInForce = other.TimeInForce;
             }
         }

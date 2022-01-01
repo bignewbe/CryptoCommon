@@ -105,6 +105,15 @@ namespace CryptoCommon.DataTypes
         /// <returns></returns>
         public static SwingParam CreateSwingParamFromInputStr(string exchange, string inputStr, EnumType tradeType, EnumType tradeModel, GivenIdConfig givenIdConfig)
         {
+            if (tradeType == EnumType.SpotTrader3)
+                return CreateParamSpotTrader3(exchange, inputStr, tradeModel, givenIdConfig);
+            return null;
+        }
+
+        private static SwingParam CreateParamSpotTrader3(string exchange, string inputStr, EnumType tradeModel, GivenIdConfig givenIdConfig)
+        {
+            var tradeType = EnumType.SpotTrader3;
+
             var items = inputStr.Split(':');
             var symbol = items[0];
             var interval = int.Parse(items[1]);
@@ -262,7 +271,7 @@ namespace CryptoCommon.DataTypes
                 //////////////////////////////////////////////////////////////////////////////////////
                 if (p.IsBuyFirst)
                 {
-                    p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;                    
+                    p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
                     p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 20;
                     p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 40;
                     p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 20;
@@ -281,7 +290,7 @@ namespace CryptoCommon.DataTypes
                     p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 60;
                 }
             }
-            else if (tradeType == EnumType.SpotSwingShoot) 
+            else if (tradeType == EnumType.SpotSwingShoot)
             {
                 double? rsi1 = null;
                 double? rsi3 = null;
@@ -300,7 +309,7 @@ namespace CryptoCommon.DataTypes
                 {
                     var str = items[10];
                     if (str != "d")
-                        rsi3 = double.Parse(str); 
+                        rsi3 = double.Parse(str);
                 }
 
                 if (items.Length >= 12)
@@ -330,7 +339,7 @@ namespace CryptoCommon.DataTypes
                     p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
                     p.Rsi1Thd_S = rsi1.HasValue ? rsi1.Value : 20;
                     p.Rsi3Thd_S = rsi3.HasValue ? rsi3.Value : 40;
-                    p.Ratio  = ratio.HasValue ? ratio.Value : -3;
+                    p.Ratio = ratio.HasValue ? ratio.Value : -3;
                     p.MinChgFromLast = minChgFromLast.HasValue ? minChgFromLast.Value : -0.01;
                     p.MinChgFromMA = minChgFromMa.HasValue ? minChgFromMa.Value : -0.02;
                 }
@@ -345,7 +354,7 @@ namespace CryptoCommon.DataTypes
                 }
             }
             return p;
-       }
+        }
 
         //public static SwingParam CreateSwingParam(GivenIdConfig config, string symbol, int interval, EnumType tradeType, EnumType tradeModel, 
         //    double qtyEach, double minProfit, double percent, double? price=null, bool isCompound = true)

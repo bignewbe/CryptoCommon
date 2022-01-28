@@ -337,15 +337,19 @@ namespace CryptoCommon.Services
                     {
                         if (_isFillGap)
                         {
+                            var gaps = new List<int>();
                             for (int i = Math.Max(0, q.Count - _numBarsFillGap); i < q.Count - 1; i++)
                             {
                                 if (q.Time[i + 1] - q.Time[i] > q.Interval)
                                 {
                                     q.Clear(i + 1, q.Count - 1);
-                                    Console.WriteLine("gap found");
+                                    Console.WriteLine($"gap found: {i} {q.Time[i].GetUTCFromUnixTime()}");
                                     break;
+                                    //gaps.Add(i);
                                 }
                             }
+                            //if (gaps.Count > 0)
+                            //    q.Clear(0, gaps.Last());
                         }
                         _qbStore.AddQuoteBasic(q, false, true);
                     }

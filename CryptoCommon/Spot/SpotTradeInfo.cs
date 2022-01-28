@@ -174,11 +174,11 @@ namespace CryptoCommon.DataTypes
         {
             this.ParamId = paramId;
             this.Symbol = symbol;
-            if (!this.Symbol.Contains("CON"))
-            {
-                C1 = Symbol.Split('_')[0];
-                C2 = Symbol.Split('_')[1];
-            }
+
+            var s = this.Symbol.Contains("_") ? "_" : "-";
+            var items = Symbol.Split(s);
+            this.C1 = items[0];
+            this.C2 = items[1];
         }
 
         public void Copy(SpotTradeInfo other)

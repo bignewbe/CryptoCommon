@@ -39,6 +39,6 @@ namespace CryptoCommon.Services
         List<FZOrder> GetClosedOrders();
 
         void UpdateOrders(params FZOrder[] orders);
-        double GetMinSz(string symbol);
+        //double GetMinSz(string symbol);
     }
 }

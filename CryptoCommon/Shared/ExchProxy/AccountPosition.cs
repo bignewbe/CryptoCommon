@@ -10,7 +10,7 @@ namespace CryptoCommon.Shared.ExchProxy
 {
     public class AccountPosition : EqualAndCopyUseReflection<AccountPosition>, IIdEqualCopy<AccountPosition>
     {
-        public string Id => Symbol;
+        public string Id => $"{Symbol}x{PosSide}";
 
         public string InstType { get; set; }
         public string Symbol { get; set; }

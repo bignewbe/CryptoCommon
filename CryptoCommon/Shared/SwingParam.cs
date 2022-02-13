@@ -105,15 +105,12 @@ namespace CryptoCommon.DataTypes
         /// <returns></returns>
         public static SwingParam CreateSwingParamFromInputStr(string exchange, string inputStr, EnumType tradeType, EnumType tradeModel, GivenIdConfig givenIdConfig)
         {
-            if (tradeType == EnumType.SpotTrader3)
-                return CreateParamSpotTrader3(exchange, inputStr, tradeModel, givenIdConfig);
-            return null;
-        }
-
-        private static SwingParam CreateParamSpotTrader3(string exchange, string inputStr, EnumType tradeModel, GivenIdConfig givenIdConfig)
-        {
-            var tradeType = EnumType.SpotTrader3;
-
+        //    var p = CreateParamSpotTrader3(exchange, inputStr, tradeModel, givenIdConfig);
+        //    p.Tradertype = tradeType;
+        //    return p;
+        //}
+        //private static SwingParam CreateParamSpotTrader3(string exchange, string inputStr, EnumType tradeModel, GivenIdConfig givenIdConfig)
+        //{
             var items = inputStr.Split(':');
             var symbol = items[0];
             var interval = int.Parse(items[1]);
@@ -174,7 +171,7 @@ namespace CryptoCommon.DataTypes
                 IsCloseOrder = isCloseOrder
             };
 
-            if (tradeType == EnumType.SpotTrader3)
+            if (tradeType == EnumType.TraderTurn)
             {
                 double minPotential = interval switch
                 {
@@ -290,7 +287,7 @@ namespace CryptoCommon.DataTypes
                     p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 60;
                 }
             }
-            else if (tradeType == EnumType.SpotSwingShoot)
+            else if (tradeType == EnumType.TraderShoot)
             {
                 double? rsi1 = null;
                 double? rsi3 = null;
@@ -1009,7 +1006,7 @@ namespace CryptoCommon.DataTypes
         public double NetC2Adj { get; set; }
 
         //for fixed ratio trader
-        public bool IsSellFirst { get { return TradeModel == EnumType.SellFirst1 || TradeModel == EnumType.SellFirst2 || TradeModel == EnumType.SellFirst3; } }
+        public bool IsSellFirst { get { return TradeModel == EnumType.SellFirst; } }
         public bool IsBuyFirst { get { return !IsSellFirst; } }
         public double QtyMin { get; set; }       
 

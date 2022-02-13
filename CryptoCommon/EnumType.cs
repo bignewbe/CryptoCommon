@@ -198,16 +198,21 @@ namespace CryptoCommon.DataTypes
         bid_ask,
 
         SpotSwingBidAsk,
-        BuyFirst1,
-        BuyFirst2,
-        SellFirst1,
-        SellFirst2,
-        SellFirst3,
-        BuyFirst3,
+        BuyFirst,
+        //BuyFirst1,
+        //BuyFirst2,
+        SellFirst,
+        //SellFirst1,
+        //SellFirst2,
+        //SellFirst3,
+        //BuyFirst3,
         Rsi_singleUndershoot,
         Rsi_doubleBottom,
         Rsi_singleOvershoot,
         Rsi_doubleTop,
-        SpotEmaCross
+        SpotEmaCross,
+        TraderShoot,
+        TraderTurn,
+        TraderGrid
     }
 }

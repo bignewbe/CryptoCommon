@@ -32,7 +32,7 @@ namespace CryptoCommon.Services
         void AddAdjustmentOrder(string symbol, OrderType t, OrderState s, double price, double qty);
         void RemoveAdjustmentOrder(string symbol, string refIdStr);
         List<FZOrder> SubmitOrders(OrderType type, double quantity, double min, double max, int numTrades, string refIdPre = null);
-        bool CancelOverTimeOrders(OrderType orderType, long utcNow, double allowTimeInSeconds);
+        bool CancelOverTimeOrders(OrderType orderType, long utcNow, double allowTimeInSeconds, bool isAllowSameIntervalOnly);
         SpotTradeInfo GetTraderInfo(long? startTime = null);
 
         string CreateRefId();

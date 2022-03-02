@@ -26,6 +26,9 @@ namespace CryptoCommon.Services
 
         FZOrder PlaceOrder(FZOrder order);
         bool CancelOrder(FZOrder order);
+        FZOrder ModifyOrderSzAndPx(FZOrder order);
+        FZOrder ModifyOrderSz(FZOrder order);
+        FZOrder ModifyOrderPx(FZOrder order);
         void ModifyOrderPrice(string symbol, string orderId, double newPrice);
 
         //void PlaceOrder(FZOrder order);

@@ -213,6 +213,7 @@ namespace CryptoCommon.DataTypes
         SpotEmaCross,
         TraderShoot,
         TraderTurn,
-        TraderGrid
+        TraderGrid,
+        TestType
     }
 }

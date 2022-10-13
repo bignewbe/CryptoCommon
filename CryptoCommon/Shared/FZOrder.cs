@@ -1,5 +1,5 @@
 ﻿using CryptoCommon.Future.DataType;
-using PortableCSharpLib.Interace;
+using PortableCSharpLib.Interface;
 using System;
 
 namespace CryptoCommon.DataTypes

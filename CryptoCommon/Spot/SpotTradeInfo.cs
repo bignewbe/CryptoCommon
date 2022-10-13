@@ -1,5 +1,5 @@
 ﻿using PortableCSharpLib;
-using PortableCSharpLib.Interace;
+using PortableCSharpLib.Interface;
 using System;
 using System.Collections.Generic;
 using System.Text;

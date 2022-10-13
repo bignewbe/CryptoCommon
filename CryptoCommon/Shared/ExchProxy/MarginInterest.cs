@@ -1,5 +1,5 @@
 ﻿using CryptoCommon.DataTypes;
-using PortableCSharpLib.Interace;
+using PortableCSharpLib.Interface;
 using PortableCSharpLib.Util;
 using System;
 using System.Collections.Generic;

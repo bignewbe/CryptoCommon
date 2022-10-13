@@ -1,4 +1,4 @@
-﻿using PortableCSharpLib.Interace;
+﻿using PortableCSharpLib.Interface;
 
 namespace CryptoCommon.DataTypes
 {

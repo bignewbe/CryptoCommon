@@ -29,37 +29,35 @@ namespace CryptoCommon.Services
         ConcurrentQueue<List<Ticker>> _tickerQueue = new ConcurrentQueue<List<Ticker>>();
         //ConcurrentQueue<List<OHLC>> _ohlcQueue = new ConcurrentQueue<List<OHLC>>();
         ConcurrentQueue<string> _symbolToUpdate = new ConcurrentQueue<string>();
-        ConcurrentQueue<string> _symbolToInitQueue1 = new ConcurrentQueue<string>();
-        ConcurrentQueue<string> _symbolToInitQueue2 = new ConcurrentQueue<string>();
+        ConcurrentQueue<string> _symbolToInitQueue = new ConcurrentQueue<string>();
         ConcurrentDictionary<string, OHLC> _candles = new ConcurrentDictionary<string, OHLC>();
 
         private System.Timers.Timer _timerSaveQuote = new System.Timers.Timer(2000);
 
         //HashSet<string> _symbols;
         protected IQuoteBasicFileStore _fileStore;
-        protected ITickerStore _tickStore;
-        protected IQuoteCaptureMemStore _qcStore;
+
+        //protected ITickerStore _tickStore;
+        //protected IQuoteCaptureMemStore _qcStore;
+        //private bool _isProcessTickerListOngoing = false;        
+        //private bool _isProcessCandleListOngoing = false;
+
         protected IQuoteBasicMemStore _qbStore;
         protected IDownLoadService _download;
 
         protected HashSet<string> _symbolsInitialized = new HashSet<string>();
         protected HashSet<string> _quoteIdInitialized = new HashSet<string>();
 
-        private int _saveInterval = 300;
+        //private int _saveInterval = 300;
         private Random _random = new Random();
         private bool _isSaveQuoteBasicOngoing = false;
-        private bool _isProcessTickerListOngoing = false;
-        private bool _isProcessCandleListOngoing = false;
         private bool _isFillGap = false;
         private int _numBarsFillGap;
         private int _limit;
 
-        //private bool _isCandleSubscribed = false;
-        //private bool _isTickerSubscribed = false;
 
         public List<string> AvailableSymbols { get { return new List<string>(_symbolsInitialized); } }
         public string Exchange { get { return _qbStore.Exchange; } }
-        //public virtual bool IsStarted { get { return _consumer.IsConnected; } }
 
         public event PortableCSharpLib.EventHandlers.QuoteBasicDataAddedOrUpdatedEventHandler OnQuoteBasicDataAddedOrUpated;
         public event CryptoCommon.EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
@@ -67,31 +65,28 @@ namespace CryptoCommon.Services
         public QuoteService(IDownLoadService captureService, ITickerStore tickstore, IQuoteCaptureMemStore qcstore, IQuoteBasicMemStore qbstore, IQuoteBasicFileStore filestore,
             bool isFillGap = false, int numBarsFillGap = 500, int limit=500)
         { 
-            //_symbols = new HashSet<string>(symbols);
             _isFillGap = isFillGap;            
             _numBarsFillGap = numBarsFillGap;
             _limit = limit;
-            _tickStore = tickstore;
-            _qcStore = qcstore;
+            //_tickStore = tickstore;
+            //_qcStore = qcstore;
             _qbStore = qbstore;
             _fileStore = filestore;
             _download = captureService;
 
             _fileStore.OnQuoteSaved += (object sender, string exchange, string filename)
                 => Console.WriteLine($"quote saved to {filename}");
-            _tickStore.OnTickerUpdated += _tickStore_OnTickerUpdated;
-            _qcStore.OnQuoteCaptureDataAdded += _qcStore_OnQuoteCaptureDataAdded;
-            _qbStore.OnQuoteBasicDataAddedOrUpdated += _qbStore_OnQuoteBasicDataAddedOrUpdated;
 
+            //_tickStore.OnTickerUpdated += _tickStore_OnTickerUpdated;
+            //_qcStore.OnQuoteCaptureDataAdded += _qcStore_OnQuoteCaptureDataAdded;
+
+            _qbStore.OnQuoteBasicDataAddedOrUpdated += _qbStore_OnQuoteBasicDataAddedOrUpdated;
             _timerSaveQuote.Interval = 1000;
             _timerSaveQuote.Elapsed += _timer_Elapsed;
             _timerSaveQuote.Start();
 
             this.ProcessInit();
             this.ProcessUpdate();
-
-            //_consumer = consumer;
-            //_consumer.OnReceiveBroadcast += _consumer_OnReceiveBroadcast;
         }
 
         private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -116,34 +111,11 @@ namespace CryptoCommon.Services
             }
         }
 
-        //private void _consumer_OnReceiveBroadcast(object sender, string id, object data)
-        //{
-        //    Console.WriteLine(id);
-
-        //    if (id == $"{this.Exchange}_OnCandleListRecevied")
-        //    {
-        //        var candles = data as List<OHLC>;
-        //        _ohlcQueue.Enqueue(candles);
-        //        Task.Run(() => this.ProcessCandleListQueue());
-        //    }
-        //    else if (id == $"{this.Exchange}_OnTickerListReceived")
-        //    {
-        //        var tickers = data as List<Ticker>;
-        //        if (!_isCandleSubscribed)                                                  //use tickerlist only when no candlelist is subscribed
-        //        {
-        //            _tickerQueue.Enqueue(data as List<Ticker>);
-        //            Task.Run(() => this.ProcessTickerListQueue());
-        //        }
-        //        //if (_symbolsInitialized.Contains(tickers[0].Symbol))
-        //        //    OnTickerListReceived?.Invoke(this, this.Exchange, tickers);
-        //    }
-        //}
-
         public ServiceResult<bool> InitSymbol(string symbol)
         {
             if (!_symbolsInitialized.Contains(symbol))
             {
-                _symbolToInitQueue1.Enqueue(symbol);
+                _symbolToInitQueue.Enqueue(symbol);
                 return new ServiceResult<bool> { Result = true, Message = "symbol queued for init" };
             }
             return new ServiceResult<bool> { Result = true, Message = "symbol already initialized" };
@@ -163,41 +135,16 @@ namespace CryptoCommon.Services
                 _symbolToUpdate.Enqueue(c.Symbol);
         }
 
-        public void AddTickerList(params Ticker[] tickers)
-        {
-            _tickStore.AddTickers(Exchange, tickers.ToList());
-            //_tickerQueue.Enqueue(tickers);
-            //Task.Run(() => this.ProcessTickerListQueue());
-        }
+        //public void AddTickerList(params Ticker[] tickers)
+        //{
+        //    _tickStore.AddTickers(Exchange, tickers.ToList());
+        //    //_tickerQueue.Enqueue(tickers);
+        //    //Task.Run(() => this.ProcessTickerListQueue());
+        //}
 
         protected void client_OnExceptionOccured(object sender, string exchange, Exception ex)
         {
             OnExceptionOccured?.Invoke(sender, exchange, ex);
-        }
-
-        private void _tickStore_OnTickerUpdated(object sender, string exchange, Ticker ticker, double volume)
-        {
-            _qcStore.Add(ticker.Symbol, ticker.Timestamp, (ticker.Bid + ticker.Ask) / 2, volume);
-        }
-
-        private async void _qcStore_OnQuoteCaptureDataAdded(object sender, string exchange, IQuoteCapture quote, int numAppended)
-        {
-            try
-            {
-                var symbol = quote.Symbol;
-                if (_symbolsInitialized.Contains(symbol))
-                {
-                    _qbStore.AddQuoteCapture(quote, true);
-                }
-                else   //initialize IQuoteBasicBase
-                {
-                    this.InitQuoteBasic(symbol);
-                }
-            }
-            catch (Exception ex)
-            {
-                OnExceptionOccured?.Invoke(this, this.Exchange, ex);
-            }
         }
 
         private void _qbStore_OnQuoteBasicDataAddedOrUpdated(object sender, string exchange, IQuoteBasicBase quote, int numAppended)
@@ -390,7 +337,7 @@ namespace CryptoCommon.Services
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     string symbol;
-                    if (_symbolToInitQueue1.TryDequeue(out symbol) || _symbolToInitQueue2.TryDequeue(out symbol))
+                    if (_symbolToInitQueue.TryDequeue(out symbol))
                     {
                         try
                         {
@@ -423,120 +370,15 @@ namespace CryptoCommon.Services
                             if (_symbolsInitialized.Contains(symbol))
                                 _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true, true);
                             else
-                                _symbolToInitQueue2.Enqueue(symbol);
+                                _symbolToInitQueue.Enqueue(symbol);
                         }
                         catch (Exception ex)
                         {
                             OnExceptionOccured?.Invoke(this, Exchange, ex);
                         }
-                        finally
-                        {
-                            _isProcessCandleListOngoing = false;
-                        }
                     }
                 }
             }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        }
-
-        //public void ProcessCandleListQueue()
-        //{
-        //    lock (this)
-        //    {
-        //        if (_isProcessCandleListOngoing) return;
-        //        _isProcessCandleListOngoing = true;
-        //    }
-
-        //    Task.Run(() =>
-        //    {
-        //        try
-        //        {
-        //            string symbol;
-        //            while (_symbolToUpdate.TryDequeue(out symbol))
-        //            {
-        //                var d = _candles[symbol];
-        //                if (_symbolsInitialized.Contains(symbol))
-        //                    _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true);
-        //                else
-        //                {
-        //                    if (_isFillGap)
-        //                        this.InitQuoteBasic(symbol);
-        //                    else
-        //                        this.InitQuoteBasic2(symbol);
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            OnExceptionOccured?.Invoke(this, Exchange, ex);
-        //        }
-        //        finally
-        //        {
-        //            _isProcessCandleListOngoing = false;
-        //        }
-        //    });
-        //}
-
-        //private void ProcessTickerListQueue()
-        //{
-        //    lock (this)
-        //    {
-        //        if (_isProcessTickerListOngoing) return;
-        //        _isProcessTickerListOngoing = true;
-        //    }
-
-        //    try
-        //    {
-        //        List<Ticker> ticker;
-        //        while (_tickerQueue.TryDequeue(out ticker))
-        //        {
-        //            foreach (var t in ticker)
-        //                _tickStore.AddTickers(this.Exchange, t);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        OnExceptionOccured?.Invoke(this, this.Exchange, ex);
-        //    }
-        //    finally
-        //    {
-        //        _isProcessTickerListOngoing = false;
-        //    }
-        //}
-
-        //private void ProcessSaveQuoteBasicQueue()
-        //{
-        //    lock (this)
-        //    {
-        //        if (_isSaveQuoteBasicOngoing) return;
-        //        _isSaveQuoteBasicOngoing = true;
-        //    }
-
-        //    Task.Run(() =>
-        //    {
-        //        try
-        //        {
-        //            string quoteId;
-        //            while (_quoteIdToSave.TryDequeue(out quoteId))
-        //            {
-        //                //Console.WriteLine($"saving {quoteId}...");
-        //                _fileStore.Save(_qbStore.Quotes[quoteId]);
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine(ex.ToString());
-        //            OnExceptionOccured?.Invoke(this, this.Exchange, ex);
-        //        }
-        //        finally
-        //        {
-        //            _isSaveQuoteBasicOngoing = false;
-        //        }
-        //    });
-        //}
-
-        public ServiceResult<QuoteCapture> GetInMemoryQuoteCapture(string symbol)
-        {
-            return ServiceResult<QuoteCapture>.CallAsyncFunction(() => Task.Run(() => (QuoteCapture) _qcStore.GetInMemoryQuoteCapture(symbol))).Result;
         }
 
         public ServiceResult<QuoteBasicBase> GetInMemoryQuoteBasic(string symbol, int interval)
@@ -578,3 +420,105 @@ namespace CryptoCommon.Services
         }
     }
 }
+
+
+//public void ProcessCandleListQueue()
+//{
+//    lock (this)
+//    {
+//        if (_isProcessCandleListOngoing) return;
+//        _isProcessCandleListOngoing = true;
+//    }
+
+//    Task.Run(() =>
+//    {
+//        try
+//        {
+//            string symbol;
+//            while (_symbolToUpdate.TryDequeue(out symbol))
+//            {
+//                var d = _candles[symbol];
+//                if (_symbolsInitialized.Contains(symbol))
+//                    _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true);
+//                else
+//                {
+//                    if (_isFillGap)
+//                        this.InitQuoteBasic(symbol);
+//                    else
+//                        this.InitQuoteBasic2(symbol);
+//                }
+//            }
+//        }
+//        catch (Exception ex)
+//        {
+//            OnExceptionOccured?.Invoke(this, Exchange, ex);
+//        }
+//        finally
+//        {
+//            _isProcessCandleListOngoing = false;
+//        }
+//    });
+//}
+
+//private void ProcessTickerListQueue()
+//{
+//    lock (this)
+//    {
+//        if (_isProcessTickerListOngoing) return;
+//        _isProcessTickerListOngoing = true;
+//    }
+
+//    try
+//    {
+//        List<Ticker> ticker;
+//        while (_tickerQueue.TryDequeue(out ticker))
+//        {
+//            foreach (var t in ticker)
+//                _tickStore.AddTickers(this.Exchange, t);
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        OnExceptionOccured?.Invoke(this, this.Exchange, ex);
+//    }
+//    finally
+//    {
+//        _isProcessTickerListOngoing = false;
+//    }
+//}
+
+//private void ProcessSaveQuoteBasicQueue()
+//{
+//    lock (this)
+//    {
+//        if (_isSaveQuoteBasicOngoing) return;
+//        _isSaveQuoteBasicOngoing = true;
+//    }
+
+//    Task.Run(() =>
+//    {
+//        try
+//        {
+//            string quoteId;
+//            while (_quoteIdToSave.TryDequeue(out quoteId))
+//            {
+//                //Console.WriteLine($"saving {quoteId}...");
+//                _fileStore.Save(_qbStore.Quotes[quoteId]);
+//            }
+//        }
+//        catch (Exception ex)
+//        {
+//            Console.WriteLine(ex.ToString());
+//            OnExceptionOccured?.Invoke(this, this.Exchange, ex);
+//        }
+//        finally
+//        {
+//            _isSaveQuoteBasicOngoing = false;
+//        }
+//    });
+//}
+
+//public ServiceResult<QuoteCapture> GetInMemoryQuoteCapture(string symbol)
+//{
+//    return ServiceResult<QuoteCapture>.CallAsyncFunction(() => Task.Run(() => (QuoteCapture) _qcStore.GetInMemoryQuoteCapture(symbol))).Result;
+//}

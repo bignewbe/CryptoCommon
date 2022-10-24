@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace CryptoCommon.DataBase.Interface
 {
-    public interface IRepo<T> : IDisposable where T : class, IIdAndName<T>
+    public interface IRepo<T>  where T : class, IIdAndName<T>
     {
+        //string ConnectionStr { get; }
         Task<T> GetByIdAsync(int id, bool isEager = false);
         Task DeleteByIdAsync(int id);
+        Task DeleteByIdsAsync(params int[] ids);
         Task AddAsync(T item);
         Task UpdateAsync(T item);
         Task<List<T>> GetAllAsync(Expression<Func<T, object>> navigationPropertyPath = null, Expression<Func<T, bool>> predicate = null);

@@ -1,10 +1,11 @@
-﻿using CryptoCommon.Future.DataType;
+﻿using CryptoCommon.DataBase.Interface;
+using CryptoCommon.Future.DataType;
 using PortableCSharpLib.Interface;
 using System;
 
 namespace CryptoCommon.DataTypes
 {
-    public class FZOrder:  IIdEqualCopy<FZOrder>
+    public class FZOrder:IIdEqualCopy<FZOrder> // IIdAndName<FZOrder>, 
     {
         public static double ConvertStrToDouble(string str)
         {
@@ -17,6 +18,9 @@ namespace CryptoCommon.DataTypes
             if (string.IsNullOrEmpty(str)) return 0;
             return int.Parse(str);
         }
+
+        //int IIdAndName<FZOrder>.Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //public string Name { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public DateTime LocalTime { get { return TimeCreated.ToLocalTime(); } }
         public string Id { get { return OrderId; } }

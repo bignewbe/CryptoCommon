@@ -16,7 +16,7 @@ namespace CryptoCommon.Shared.ExchProxy
         public string Symbol { get; set; }
         public string Ccy { get; set; }
 
-        public double Pos { get; set; }
+        //public double Pos { get; set; }
         public string PosSide { get; set; }
         public double AvailPos { get; set; }
         public double AvgPrice { get; set; }

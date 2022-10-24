@@ -19,11 +19,11 @@ namespace CryptoCommon.Services
         //ServiceResult<string> GetExchange();
         //void InitSymbol(string symbol);
         void AddCandleList(params OHLC[] candles);
-        void AddTickerList(params Ticker[] tickers);
+        //void AddTickerList(params Ticker[] tickers);
+        //ServiceResult<QuoteCapture> GetInMemoryQuoteCapture(string symbol);
 
         ServiceResult<List<string>> GetAvaliableSymbols();
         ServiceResult<List<string>> GetAvaliableQuoteIds();
-        ServiceResult<QuoteCapture> GetInMemoryQuoteCapture(string symbol);
         ServiceResult<QuoteBasicBase> GetQuoteBasic(string symbol, int interval, long stime, int num);
     }
 }

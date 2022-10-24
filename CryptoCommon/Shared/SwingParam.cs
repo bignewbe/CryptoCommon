@@ -8,91 +8,161 @@ using System.Text;
 
 namespace CryptoCommon.DataTypes
 {
-    public class GivenIdConfig
-    {
-        public List<SymbolDigits> Digits { get; set; }
-        public Dictionary<int, string> IntervalMap { get; set; }
-        public Dictionary<EnumType, string> TradeTypeMap { get; set; }
-        public Dictionary<EnumType, string> TradeModelMap { get; set; }
-        //var d = config.Digits.ToDictionary(t => t.Symbol, t => t);
+    //public class GivenIdConfig
+    //{
+    //    //public List<SymbolDigits> Digits { get; set; }
+    //    public Dictionary<int, string> IntervalMap { get; set; }
+    //    public Dictionary<EnumType, string> TradeTypeMap { get; set; }
+    //    public Dictionary<EnumType, string> TradeModelMap { get; set; }
+    //    //var d = config.Digits.ToDictionary(t => t.Symbol, t => t);
 
-        Dictionary<int, string> _IndexToSymbolMap = new Dictionary<int, string>();
-        public Dictionary<int, string> IndexToSymbolMap
-        {
-            get
-            {
-                if (_IndexToSymbolMap.Count > 0)
-                    return _IndexToSymbolMap;
-                if (Digits != null)
-                    _IndexToSymbolMap = this.Digits.ToDictionary(t => t.Index, t => t.Symbol);
-                return _IndexToSymbolMap;
-            }
-        }
+    //    //Dictionary<int, string> _IndexToSymbolMap = new Dictionary<int, string>();
+    //    //public Dictionary<int, string> IndexToSymbolMap
+    //    //{
+    //    //    get
+    //    //    {
+    //    //        if (_IndexToSymbolMap.Count > 0)
+    //    //            return _IndexToSymbolMap;
+    //    //        if (Digits != null)
+    //    //            _IndexToSymbolMap = this.Digits.ToDictionary(t => t.Index, t => t.Symbol);
+    //    //        return _IndexToSymbolMap;
+    //    //    }
+    //    //}
 
-        Dictionary<string, int> _ReverseIntervalMap = new Dictionary<string, int>();
-        public Dictionary<string, int> ReverseIntervalMap
-        {
-            get
-            {
-                if (_ReverseIntervalMap.Count > 0)
-                    return _ReverseIntervalMap;
-                if (IntervalMap != null)
-                {
-                    foreach (var k in IntervalMap.Keys)
-                        _ReverseIntervalMap.Add(IntervalMap[k], k);
-                }
-                return _ReverseIntervalMap;
-            }
-        }
+    //    Dictionary<string, int> _ReverseIntervalMap = new Dictionary<string, int>();
+    //    public Dictionary<string, int> ReverseIntervalMap
+    //    {
+    //        get
+    //        {
+    //            if (_ReverseIntervalMap.Count > 0)
+    //                return _ReverseIntervalMap;
+    //            if (IntervalMap != null)
+    //            {
+    //                foreach (var k in IntervalMap.Keys)
+    //                    _ReverseIntervalMap.Add(IntervalMap[k], k);
+    //            }
+    //            return _ReverseIntervalMap;
+    //        }
+    //    }
 
-        Dictionary<string, EnumType> _ReverseTradeModelMap = new Dictionary<string, EnumType>();
-        public Dictionary<string, EnumType> ReverseTradeModelMap
-        {
-            get
-            {
-                if (_ReverseTradeModelMap.Count > 0)
-                    return _ReverseTradeModelMap;
-                if (TradeModelMap != null)
-                {
-                    foreach (var k in TradeModelMap.Keys)
-                        _ReverseTradeModelMap.Add(TradeModelMap[k], k);
-                }
-                return _ReverseTradeModelMap;
-            }
-        }
+    //    Dictionary<string, EnumType> _ReverseTradeModelMap = new Dictionary<string, EnumType>();
+    //    public Dictionary<string, EnumType> ReverseTradeModelMap
+    //    {
+    //        get
+    //        {
+    //            if (_ReverseTradeModelMap.Count > 0)
+    //                return _ReverseTradeModelMap;
+    //            if (TradeModelMap != null)
+    //            {
+    //                foreach (var k in TradeModelMap.Keys)
+    //                    _ReverseTradeModelMap.Add(TradeModelMap[k], k);
+    //            }
+    //            return _ReverseTradeModelMap;
+    //        }
+    //    }
 
-        Dictionary<string, EnumType> _ReverseTradeTypeMap = new Dictionary<string, EnumType>();
-        public Dictionary<string, EnumType> ReverseTradeTypeMap
-        {
-            get
-            {
-                if (_ReverseTradeTypeMap.Count > 0)
-                    return _ReverseTradeTypeMap;
-                if (TradeTypeMap != null)
-                {
-                    foreach (var k in TradeTypeMap.Keys)
-                        _ReverseTradeTypeMap.Add(TradeTypeMap[k], k);
-                }
-                return _ReverseTradeTypeMap;
-            }
-        }
-    }
+    //    Dictionary<string, EnumType> _ReverseTradeTypeMap = new Dictionary<string, EnumType>();
+    //    public Dictionary<string, EnumType> ReverseTradeTypeMap
+    //    {
+    //        get
+    //        {
+    //            if (_ReverseTradeTypeMap.Count > 0)
+    //                return _ReverseTradeTypeMap;
+    //            if (TradeTypeMap != null)
+    //            {
+    //                foreach (var k in TradeTypeMap.Keys)
+    //                    _ReverseTradeTypeMap.Add(TradeTypeMap[k], k);
+    //            }
+    //            return _ReverseTradeTypeMap;
+    //        }
+    //    }
+    //}
 
-    public class SymbolDigits
-    {
-        public string Symbol { get; set; }
-        public int Digits { get; set; }
-        public int Index { get; set; }
-        public SymbolDigits(string symbol, int digits, int index)
-        {
-            this.Symbol = symbol;
-            this.Digits = digits;
-            this.Index = index;
-        }
-    }
+    //public class SymbolDigits
+    //{
+    //    public string Symbol { get; set; }
+    //    public int Digits { get; set; }
+    //    public int Index { get; set; }
+    //    public SymbolDigits(string symbol, int digits, int index)
+    //    {
+    //        this.Symbol = symbol;
+    //        this.Digits = digits;
+    //        this.Index = index;
+    //    }
+    //}
 
     public class SwingParam : IIdEqualCopy<SwingParam> //EqualAndCopyUseReflection<SwingParam>, 
     {
+        public static (string c1, string c2) GetCryptoFromSymbol(string symbol)
+        {
+            var sp = symbol.Contains("SWAP") ? "-" : "_";
+            var c1 = symbol.Split(sp)[0];
+            var c2 = symbol.Split(sp)[1];
+            return (c1, c2);
+        }
+
+        public static InstrumentType GetInstTypeFromSymbol(string symbol)
+        {
+            if (symbol.Contains("SWAP"))
+                return InstrumentType.SWAP;
+
+            if (symbol.Split('_').Length == 3 || symbol.Split('-').Length == 3)
+                return InstrumentType.FUTURES;
+
+            return InstrumentType.SPOT;
+        }
+
+        public static string CreateRefId(string symbol, int interval, EnumType tradeType, EnumType tradeMode)
+        {
+            //if (symbol.Contains("YFII"))
+            //    Console.WriteLine();
+
+            var instType = GetInstTypeFromSymbol(symbol);
+            var r = GetCryptoFromSymbol(symbol);
+
+            var instTypeStr = instType == InstrumentType.SPOT ? "p" : "m";
+            var baseCcyStr = r.c1.ToLower();
+            if (baseCcyStr.Length > 3)
+                baseCcyStr = baseCcyStr.Substring(0, 3);
+
+            var quoteCcyStr = r.c2 switch
+            {
+                "USDT" => "u",
+                "BNB" => "b",
+                "HT" => "h",
+                _ => "x"
+            };
+            var intervalStr = interval switch
+            {
+                60 => "a",
+                180 => "b",
+                300 => "c",
+                900 => "d",
+                1800 => "i",
+                3600 => "e",
+                7200 => "f",
+                14400 => "g",
+                86400 => "h",
+                _ => "x",
+            };
+            var tradeTypeStr = tradeType switch
+            {
+                EnumType.TraderShoot => "a",
+                EnumType.TraderTurn => "b",
+                EnumType.TraderGrid => "c",
+                _ => "x",
+            };
+            var tradeModeStr = tradeMode switch
+            {
+                EnumType.BuyFirst => "a",
+                EnumType.SellFirst => "b",
+                _ => "x",
+            };
+
+            var id = $"{baseCcyStr}{quoteCcyStr}{tradeTypeStr}{tradeModeStr}{intervalStr}";
+            return id;
+        }
+
         /// <summary>
         /// symbol:interval:qtyEach:minProfit:percent:price:isCompound:isCloseOrder:isCheckStopLoss:potential:rsi1:rsi3                              => SpotTrade3
         /// symbol:interval:qtyEach:minProfit:percent:price:isCompound:isCloseOrder:isCheckStopLoss:rsi1:rsi3:ratio:minChgFromLast:minChgFromMa      => SpotSwingShoot
@@ -103,7 +173,7 @@ namespace CryptoCommon.DataTypes
         /// <param name="tradeModel"></param>
         /// <param name="givenIdConfig"></param>
         /// <returns></returns>
-        public static SwingParam CreateSwingParamFromInputStr(string exchange, string inputStr, EnumType tradeType, EnumType tradeModel, GivenIdConfig givenIdConfig)
+        public static SwingParam CreateSwingParamFromInputStr(string exchange, string inputStr, EnumType tradeType, EnumType tradeModel)
         {
         //    var p = CreateParamSpotTrader3(exchange, inputStr, tradeModel, givenIdConfig);
         //    p.Tradertype = tradeType;
@@ -149,15 +219,15 @@ namespace CryptoCommon.DataTypes
                     isCheckStopLoss = false;
             }
 
-            var config = givenIdConfig;
-            var d = config.Digits.ToDictionary(t => t.Symbol, t => t);
+            //var config = givenIdConfig;
+            //var d = config.Digits.ToDictionary(t => t.Symbol, t => t);
 
-            var givenId = $"{d[symbol].Index}{config.IntervalMap[interval]}{config.TradeTypeMap[tradeType]}{config.TradeModelMap[tradeModel]}";
+            var givenId = CreateRefId(symbol, interval, tradeType, tradeModel);
             var p = new SwingParam
             {
                 Symbol = symbol,
                 Interval = interval,
-                NumDigits = d[symbol].Digits,
+                //NumDigits = d[symbol].Digits,
                 GivenId = givenId,
                 Tradertype = tradeType,
                 TradeModel = tradeModel,
@@ -894,22 +964,13 @@ namespace CryptoCommon.DataTypes
         [JsonIgnore]
         public string Id { get { return ParamId; } }
         [JsonIgnore]
-        public string ParamId
-        {
-            get
-            {
-                //if (Tradertype == EnumType.SpotSwingBand || Tradertype == EnumType.SpotTrader3)
-                //    return $"{QuoteId}{GivenId}".Replace("-", "").Replace("_", "");
-                //else
-                //    return GivenId;
-                return $"{GivenId}".Replace("-", "").Replace("_", "");
-            }
-        }  
+        public string ParamId => $"{GivenId}".Replace("-", "").Replace("_", "");
+        [JsonIgnore]
+        public string QuoteId { get { return $"{Symbol}_{Interval}"; } }
+
         public string Exchange { get; set; }
         public string Symbol { get; set; }
         public string GivenId { get; set; }
-        [JsonIgnore]
-        public string QuoteId { get { return $"{Symbol}_{Interval}"; } }
         
         //params for future grid trading
         [JsonIgnore]

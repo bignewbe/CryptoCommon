@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CryptoCommon.DataBase.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -10,21 +11,30 @@ using PortableCSharpLib;
 
 namespace CryptoCommon.DataBase
 {
-
-    public class Repo<T> : IRepo<T>, IDisposable where T : class, IIdAndName<T>, new()
+    public class Repo<T> : IRepo<T> where T : class, IIdAndName<T>, new()
     {
         //private ApplicationDbContext _dbContext;
-        //private string _connectionStr;
         //private DbContextOptions _options;
-        private DbContext _dbContext;
-
+        //private DbContext _dbContext;
         //private string _tableName;
         //private DbSet<T> _table;
         //public Repo(ApplicationDbContext applicationDbContext)
-        public Repo(DbContext dbContext)
-        {
-            _dbContext = dbContext;
 
+        //public string ConnectionStr { get; private set; }
+        private Func<DbContext> _funcCreateDbContext;
+        public Repo(Func<DbContext> funcCreateDbContext)
+        {
+            //this.ConnectionStr = connectionStr;
+            _funcCreateDbContext = funcCreateDbContext;
+
+            ////make sure database created
+            //using (var dbContext = _funcCreateDbContext(ConnectionStr))
+            //{
+            //    dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            //    dbContext.Database.EnsureCreated();
+            //}
+
+            //_dbContext = dbContext;
             //_connectionStr = connectionStr;
             //_options = new DbContextOptionsBuilder().UseSqlServer(_connectionStr).Options;
             //_dbContext = new ApplicationDbContext(_options);
@@ -39,6 +49,28 @@ namespace CryptoCommon.DataBase
             //    throw new Exception($"{tableName} is not supported");
         }
 
+        //public bool CheckDbContextValid()
+        //{
+        //    using (var _dbContext = _funcCreateDbContext())
+        //    {
+        //        var count = 0;
+        //        var isValid = false;
+        //        while (!isValid && count++ < 20)
+        //        {
+        //            try
+        //            {
+        //                isValid = _dbContext.Database.EnsureCreated();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Console.WriteLine(DateTime.Now);
+        //                Thread.Sleep(1000);
+        //            }
+        //        };
+        //        return isValid;
+        //    }
+        //}
+
         /// <summary>
         /// no id should be specifed for both parent and child entity. otherwise, exception will be raised.
         /// </summary>
@@ -51,7 +83,7 @@ namespace CryptoCommon.DataBase
             if (item.Id > 0)
                 throw new MyException("ApiStatusCode.IdAlreadyExistError", "cannot add entity when id already exist");
 
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var _table = _dbContext.Set<T>();
                 await _table.AddAsync(item);
@@ -84,7 +116,7 @@ namespace CryptoCommon.DataBase
             if (item.Id <= 0)
                 throw new MyException("ApiStatusCode.IdNotGivenWhenUpdateEntity", "cannot update entity if id not given");
 
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 _dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 var _table = _dbContext.Set<T>();
@@ -98,7 +130,7 @@ namespace CryptoCommon.DataBase
 
         public async Task DeleteByIdAsync(int id)
         {
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var _table = _dbContext.Set<T>();
                 var c = await _table.FindAsync(id);
@@ -107,9 +139,23 @@ namespace CryptoCommon.DataBase
             }
         }
 
+        public async Task DeleteByIdsAsync(params int[] ids)
+        {
+            using (var _dbContext = _funcCreateDbContext())
+            {
+                var _table = _dbContext.Set<T>();
+                foreach (var id in ids)
+                {
+                    var c = await _table.FindAsync(id);
+                    _table.Remove(c);
+                }
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
         public async Task<List<T>> GetAllAsync(Expression<Func<T, object>> navigationPropertyPath = null, Expression<Func<T, bool>> predicate = null)
         {
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var _table = _dbContext.Set<T>();
 
@@ -133,7 +179,7 @@ namespace CryptoCommon.DataBase
 
         public async Task<List<T>> GetAllAsync(bool isEager)
         {
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var query = Query(_dbContext, isEager);
                 return await query.ToListAsync();
@@ -142,15 +188,14 @@ namespace CryptoCommon.DataBase
 
         public async Task<List<int>> GetAllIdsAsync()
         {
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var _table = _dbContext.Set<T>();
                 return await _table.Select(c => c.Id).ToListAsync();
             }
         }
 
-
-        public IQueryable<T> Query(DbContext _dbContext, bool eager = false)
+        private IQueryable<T> Query(DbContext _dbContext, bool eager = false)
         {
             var query = _dbContext.Set<T>().AsQueryable();
             if (eager)
@@ -168,16 +213,17 @@ namespace CryptoCommon.DataBase
 
         public async Task<T> GetByIdAsync(int id, bool isEager = false)
         {
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var query = Query(_dbContext, isEager);
                 return await query.SingleOrDefaultAsync(t => t.Id == id);
             }
         }
 
+        //navigationPropertyPath indicates whether to include related object
         public async Task<T> GetByNameAsync(string name, Expression<Func<T, object>> navigationPropertyPath = null)
         {
-            //using (var _dbContext = new ApplicationDbContext(_options))
+            using (var _dbContext = _funcCreateDbContext())
             {
                 var _table = _dbContext.Set<T>();
 
@@ -186,10 +232,6 @@ namespace CryptoCommon.DataBase
                 else
                     return await _table.Include(navigationPropertyPath).SingleOrDefaultAsync(o => o.Name.Equals(name));
             }
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

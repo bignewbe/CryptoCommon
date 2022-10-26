@@ -24,6 +24,8 @@ namespace CryptoCommon.Services
 
         bool IsOrderActionInProgress(string symbol);
 
+        void Start();
+        void Stop();
         FZOrder PlaceOrder(FZOrder order);
         bool CancelOrder(FZOrder order);
         FZOrder ModifyOrderSzAndPx(FZOrder order);

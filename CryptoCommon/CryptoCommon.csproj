@@ -11,55 +11,34 @@
 	<ItemGroup>
 		<Compile Remove="Chart\**" />
 		<Compile Remove="ClientInterface\**" />
+		<Compile Remove="Deprecate\**" />
 		<Compile Remove="Facility\**" />
+		<Compile Remove="Future\**" />
 		<Compile Remove="Http\**" />
 		<Compile Remove="lib\**" />
 		<Compile Remove="Properties_Obsolete\**" />
 		<Compile Remove="Proto\**" />
 		<EmbeddedResource Remove="Chart\**" />
 		<EmbeddedResource Remove="ClientInterface\**" />
+		<EmbeddedResource Remove="Deprecate\**" />
 		<EmbeddedResource Remove="Facility\**" />
+		<EmbeddedResource Remove="Future\**" />
 		<EmbeddedResource Remove="Http\**" />
 		<EmbeddedResource Remove="lib\**" />
 		<EmbeddedResource Remove="Properties_Obsolete\**" />
 		<EmbeddedResource Remove="Proto\**" />
 		<None Remove="Chart\**" />
 		<None Remove="ClientInterface\**" />
+		<None Remove="Deprecate\**" />
 		<None Remove="Facility\**" />
+		<None Remove="Future\**" />
 		<None Remove="Http\**" />
 		<None Remove="lib\**" />
 		<None Remove="Properties_Obsolete\**" />
 	</ItemGroup>
+		
 	<ItemGroup>
-		<Compile Remove="Shared\ExchProxy\GenericProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\IBalanceProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\IFutureAccountProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\IMarketProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\IOrderProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\IPositionProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\ISpotAccountProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\OrderProxy.cs" />
-		<Compile Remove="Shared\ExchProxy\OrderProxyBase.cs" />
-		<Compile Remove="Shared\ExchProxy\ProxyBase.cs" />
-		<Compile Remove="Spot\EnumType.cs" />
-		<Compile Remove="Spot\Interfaces\ICache.cs" />
-		<Compile Remove="Spot\Interfaces\IIdEqualCopy.cs" />
-		<Compile Remove="Spot\Interfaces\ILogger.cs" />
-		<Compile Remove="Spot\Interfaces\IMarket.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteBasicDownloader.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteBasicFileStore.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteBasicMemStore.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteCaptureMemStore.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteCapturer.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteClient.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteLoader.cs" />
-		<Compile Remove="Spot\Interfaces\IQuoteQuery.cs" />
-		<Compile Remove="Spot\Interfaces\IRateGate.cs" />
-		<Compile Remove="Spot\Interfaces\IRealtimeCandle.cs" />
-		<Compile Remove="Spot\Interfaces\IRealtimeTicker.cs" />
-		<Compile Remove="Spot\Interfaces\IStartStop.cs" />
-		<Compile Remove="Spot\Interfaces\ITraderModel.cs" />
-		<Compile Remove="Spot\Interfaces\ITradeSecond.cs" />
+	  <Compile Remove="Interface\ICryptoCaptureService.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove=".refsignored" />

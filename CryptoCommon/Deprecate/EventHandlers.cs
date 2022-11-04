@@ -85,6 +85,6 @@ namespace CryptoCommon
         public delegate void FuturePositionReceivedEventHandler(object sender, FuturePosition position);
 
         public delegate void SpotOrderReceivedEventHandler(object sender, List<FZOrder> orders);
-        public delegate void SpotBalanceReceivedEventHandler(object sender, List<SpotBalance> balances);
+        //public delegate void SpotBalanceReceivedEventHandler(object sender, List<SpotBalance> balances);
     }
 }

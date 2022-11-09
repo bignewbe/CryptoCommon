@@ -105,6 +105,10 @@ namespace CryptoCommon.Services
                     _fileStore.Save(_qbStore.Quotes[quoteId]);
                 }
             }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             finally
             {
                 _isSaveQuoteBasicOngoing = !_isSaveQuoteBasicOngoing;
@@ -129,10 +133,12 @@ namespace CryptoCommon.Services
                 _candles.TryAdd(c.Symbol, new OHLC());
 
             if (!_candles[c.Symbol].Equals(c))
+            {
                 _candles[c.Symbol].Copy(c);
 
-            if (!_symbolToUpdate.Contains(c.Symbol))
-                _symbolToUpdate.Enqueue(c.Symbol);
+                if (!_symbolToUpdate.Contains(c.Symbol))
+                    _symbolToUpdate.Enqueue(c.Symbol);
+            }
         }
 
         //public void AddTickerList(params Ticker[] tickers)
@@ -351,6 +357,7 @@ namespace CryptoCommon.Services
                             OnExceptionOccured?.Invoke(this, Exchange, ex);
                         }
                     }
+                    //Thread.Sleep(500);
                 }
             }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
@@ -377,6 +384,7 @@ namespace CryptoCommon.Services
                             OnExceptionOccured?.Invoke(this, Exchange, ex);
                         }
                     }
+                    //Thread.Sleep(500);
                 }
             }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

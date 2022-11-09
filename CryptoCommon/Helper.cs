@@ -44,5 +44,16 @@ namespace CryptoCommon
             };
             return it;
         }
+
+        public static double ComputeBuyStrength(Orderbook book, double priceChg)
+        {
+            var price = (book.Asks[0].Price + book.Bids[0].Price) / 2;
+            var uppper = price * (1 + priceChg);
+            var lower = price * (1 - priceChg);
+            var v1 = book.Asks.Where(x => x.Price <= uppper).Sum(x => x.Volume);
+            var v2 = book.Bids.Where(x => x.Price >= lower).Sum(x => x.Volume);
+            var buyStrength = v2 / v1;
+            return buyStrength;
+        }
     }
 }

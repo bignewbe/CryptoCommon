@@ -157,31 +157,9 @@ namespace CryptoCommon.Shared
                     OnConnectionChanged?.Invoke(this, State);
                 }
 
-                if (this.IsStartRequested && _ws.State != WebSocketState.Open)                //reconnect
-                {
-                    await this.CloseSocket();
-
-                    Console.WriteLine($"socket state = {_ws.State} trying to reconnect ...");
-
-                    //cancel the receive thread loop
-                    if (_cts.Token.CanBeCanceled)
-                    {
-                        _cts.Cancel();
-                        _cts = new CancellationTokenSource();
-                    }
-
-                    _ws.Abort();
-                    _ws.Dispose();
-                    _ws = null;
-                    _ws = new ClientWebSocket();
-                    await _ws.ConnectAsync(new Uri(_url), _cts.Token);
-                    while (_ws.State != WebSocketState.Open)
-                        Thread.Sleep(50);
-
-                    this.receive();                                                          //start a new thread to receive data
-
-                    Thread.Sleep(10000);
-                    Console.WriteLine($"socket state = {_ws.State}");
+                if (this.IsStartRequested && _ws.State != WebSocketState.Open)               //reconnect
+                {     
+                    await Reconnect();
                 }
                 else if (this.IsStartRequested && _ws.State == WebSocketState.Open)          //send pending channel
                 {
@@ -219,23 +197,65 @@ namespace CryptoCommon.Shared
             }
         }
 
-        private async Task CloseSocket()
+        public async Task Reconnect()
         {
-            if (_ws.State != WebSocketState.Aborted && _ws.State != WebSocketState.Closed)
+            try
             {
-                try
-                {
-                    Console.WriteLine($"\n trying to close socket with State = {_ws.State}");
-                    await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    Console.WriteLine("error while closing socket. sleep for 10 seconds....");
-                    Thread.Sleep(10000);
-                }
+                Console.WriteLine($"\n trying to close socket with State = {_ws.State}");
+                await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine("error while closing socket. sleep for 10 seconds....");
+                Thread.Sleep(10000);
+            }
+
+            Console.WriteLine($"socket state = {_ws.State} trying to reconnect ...");
+
+            //cancel the receive thread loop
+            if (_cts.Token.CanBeCanceled)
+            {
+                _cts.Cancel();
+                _cts = new CancellationTokenSource();
+            }
+
+            _closeCheckTimer.Stop();
+            _ws.Abort();
+            _ws.Dispose();
+            _ws = null;
+            _ws = new ClientWebSocket();
+            this.State = _ws.State;
+
+            await _ws.ConnectAsync(new Uri(_url), _cts.Token);
+            while (_ws.State != WebSocketState.Open)
+                Thread.Sleep(50);
+
+            Thread.Sleep(1000);
+            this.receive();                                                          
+            _closeCheckTimer.Start();
+
+            Thread.Sleep(10000);
+            Console.WriteLine($"socket state = {_ws.State}");
         }
+
+        //private async Task CloseSocket()
+        //{
+        //    if (_ws.State != WebSocketState.Aborted && _ws.State != WebSocketState.Closed)
+        //    {
+        //        try
+        //        {
+        //            Console.WriteLine($"\n trying to close socket with State = {_ws.State}");
+        //            await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine(ex);
+        //            Console.WriteLine("error while closing socket. sleep for 10 seconds....");
+        //            Thread.Sleep(10000);
+        //        }
+        //    }
+        //}
 
         protected async Task SendAsync(string msg)
         {

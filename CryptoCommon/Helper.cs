@@ -9,6 +9,11 @@ namespace CryptoCommon
 {
     public class Helper
     {
+        public static string ToDoubleToStr(double value)
+        {
+            return string.Format("{0,0.00}", value);
+        }
+
         public static double ConvertStrToDouble(string str)
         {
             if (string.IsNullOrEmpty(str)) return 0;

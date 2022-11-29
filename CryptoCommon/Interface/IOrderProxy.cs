@@ -10,6 +10,9 @@ namespace CryptoCommon.Services
 {
     public interface IOrderProxy
     {
+        ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolBuyFirst { get; }
+        ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolSellFirst { get; }
+
         bool IsStarted { get; }
         DateTime GetCurrentTime();
         ConcurrentDictionary<string, FZOrder> OpenOrders { get; }

@@ -1,5 +1,4 @@
-﻿using CommonCSharpLibary.Facility;
-using CryptoCommon.DataTypes;
+﻿using CryptoCommon.DataTypes;
 using CryptoCommon.Interfaces;
 using PortableCSharpLib;
 using PortableCSharpLib.DataType;
@@ -51,7 +50,7 @@ namespace CryptoCommon.Services
         //private int _saveInterval = 300;
         private Random _random = new Random();
         private bool _isSaveQuoteBasicOngoing = false;
-        private bool _isFillGap = false;
+        private bool _isFillGap = true;
         private int _numBarsFillGap;
         private int _limit;
 
@@ -63,9 +62,8 @@ namespace CryptoCommon.Services
         public event CryptoCommon.EventHandlers.ExceptionOccuredEventHandler OnExceptionOccured;
 
         public QuoteService(IDownLoadService captureService, ITickerStore tickstore, IQuoteCaptureMemStore qcstore, IQuoteBasicMemStore qbstore, IQuoteBasicFileStore filestore,
-            bool isFillGap = false, int numBarsFillGap = 500, int limit=500)
+            int numBarsFillGap = 500, int limit=500)
         { 
-            _isFillGap = isFillGap;            
             _numBarsFillGap = numBarsFillGap;
             _limit = limit;
             //_tickStore = tickstore;
@@ -197,81 +195,81 @@ namespace CryptoCommon.Services
             //    this.ProcessSaveQuoteBasicQueue();
         }
 
-        private void InitQuoteBasic2(string symbol)
-        {
-            if (_symbolsInitialized.Contains(symbol)) return;
+        //private void InitQuoteBasic2(string symbol)
+        //{
+        //    if (_symbolsInitialized.Contains(symbol)) return;
 
-            Console.WriteLine($"initializing {symbol}...");
+        //    Console.WriteLine($"initializing {symbol}...");
 
-            var minInterval = 60;
-            var interval = minInterval;
-            var q = _fileStore.Load(symbol, interval, null, _limit);
+        //    var minInterval = 60;
+        //    var interval = minInterval;
+        //    var q = _fileStore.Load(symbol, interval, null, _limit);
 
-            if (q != null)
-            {
-                for (int i = q.Count - 1; i >= Math.Max(1, q.Count - _numBarsFillGap); i--)
-                {
-                    if (q.Time[i] - q.Time[i - 1] > q.Interval)
-                    {
-                        q.Clear(i, q.Count - 1);
-                        break;
-                    }
-                }
-                _qbStore.AddQuoteBasic(q, false, false);
-            }
+        //    if (q != null)
+        //    {
+        //        for (int i = q.Count - 1; i >= Math.Max(1, q.Count - _numBarsFillGap); i--)
+        //        {
+        //            if (q.Time[i] - q.Time[i - 1] > q.Interval)
+        //            {
+        //                q.Clear(i, q.Count - 1);
+        //                break;
+        //            }
+        //        }
+        //        _qbStore.AddQuoteBasic(q, false, false);
+        //    }
 
-            var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
-            if (missingNum > 0)
-            {
-                var retry = 0;
-                while (retry++ < 2)
-                {
-                    var r = _download.Download(symbol, interval, missingNum);
-                    if (r.Result)
-                    {
-                        var qb = r.Data;
-                        _qbStore.AddQuoteBasic(qb, false, true);
-                        _fileStore.Save(qb, _numBarsFillGap);
-                        break;
-                    }
-                    Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
-                    Thread.Sleep(1000);
-                }
-            }
+        //    var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
+        //    if (missingNum > 0)
+        //    {
+        //        var retry = 0;
+        //        while (retry++ < 2)
+        //        {
+        //            var r = _download.Download(symbol, interval, missingNum);
+        //            if (r.Result)
+        //            {
+        //                var qb = r.Data;
+        //                _qbStore.AddQuoteBasic(qb, false, true);
+        //                _fileStore.Save(qb, _numBarsFillGap);
+        //                break;
+        //            }
+        //            Console.WriteLine($"\ntried count: {retry}, waiting to retry download {symbol} {interval}");
+        //            Thread.Sleep(1000);
+        //        }
+        //    }
 
-            //////////////////////////////////////////////////////////////////////////
-            /// initialize other intervals without making request to server
-            q = _qbStore.GetQuoteBasic(symbol, interval);
-            if (q != null && q.Count > 0)
-            {
-                _quoteIdInitialized.Add($"{symbol}_{interval}");
+        //    //////////////////////////////////////////////////////////////////////////
+        //    /// initialize other intervals without making request to server
+        //    q = _qbStore.GetQuoteBasic(symbol, interval);
+        //    if (q != null && q.Count > 0)
+        //    {
+        //        _quoteIdInitialized.Add($"{symbol}_{interval}");
 
-                var q60 = new QuoteBasicBase(symbol, interval);
-                var q2 = _fileStore.Load(symbol, interval, null, 3000);
-                if (q2 != null)
-                    q60.Append(q2);
-                q60.Append(q);
+        //        var q60 = new QuoteBasicBase(symbol, interval);
+        //        var q2 = _fileStore.Load(symbol, interval, null, 3000);
+        //        if (q2 != null)
+        //            q60.Append(q2);
+        //        q60.Append(q);
 
-                foreach (var intv in _qbStore.Intervals)
-                {
-                    if (intv <= interval || intv % interval != 0)
-                        continue;
+        //        foreach (var intv in _qbStore.Intervals)
+        //        {
+        //            if (intv <= interval || intv % interval != 0)
+        //                continue;
 
-                    var qb = new QuoteBasicBase(symbol, intv);
-                    var q1 = _fileStore.Load(symbol, intv, null, 500);
-                    if (q1 != null)
-                        qb.Append(q1);
-                    qb.Append(q60);
+        //            var qb = new QuoteBasicBase(symbol, intv);
+        //            var q1 = _fileStore.Load(symbol, intv, null, 500);
+        //            if (q1 != null)
+        //                qb.Append(q1);
+        //            qb.Append(q60);
 
-                    _qbStore.AddQuoteBasic(qb, false, true);
-                    _fileStore.Save(qb, _numBarsFillGap);
-                    _quoteIdInitialized.Add($"{symbol}_{intv}");
-                }
-            }
+        //            _qbStore.AddQuoteBasic(qb, false, true);
+        //            _fileStore.Save(qb, _numBarsFillGap);
+        //            _quoteIdInitialized.Add($"{symbol}_{intv}");
+        //        }
+        //    }
 
-            _symbolsInitialized.Add(symbol);
-            Console.WriteLine($"{symbol} initialized");
-        }
+        //    _symbolsInitialized.Add(symbol);
+        //    Console.WriteLine($"{symbol} initialized");
+        //}
 
         private void InitQuoteBasic(string symbol)
         {
@@ -307,14 +305,15 @@ namespace CryptoCommon.Services
                         _qbStore.AddQuoteBasic(q, false, true);
                     }
 
-                    var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
-                    if (missingNum > 0)
+                    //var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
+                    if (q == null || (q != null && q.LastTime/q.Interval != DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval))
                     {
+                        var missingNum = q == null? _limit : (int)(DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval - q.LastTime / q.Interval) + 10;
                         var retry = 0;
                         while (retry++ < 2)
                         {
                             var r = _download.Download(symbol, interval, missingNum);
-                            if (r.Result)
+                            if (r.Result && r.Data.Count>0)
                             {
                                 var qb = r.Data;
                                 _qbStore.AddQuoteBasic(qb, false, true);
@@ -347,10 +346,11 @@ namespace CryptoCommon.Services
                     {
                         try
                         {
-                            if (_isFillGap)
-                                this.InitQuoteBasic(symbol);
-                            else
-                                this.InitQuoteBasic2(symbol);
+                            this.InitQuoteBasic(symbol);
+                            //if (_isFillGap)
+                            //    this.InitQuoteBasic(symbol);
+                            //else
+                            //    this.InitQuoteBasic2(symbol);
                         }
                         catch (Exception ex)
                         {

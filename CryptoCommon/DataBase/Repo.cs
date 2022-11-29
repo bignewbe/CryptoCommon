@@ -6,12 +6,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CryptoCommon.DataBase.Interface;
+using LogInterface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using PortableCSharpLib;
 
 namespace CryptoCommon.DataBase
 {
-    public class Repo<T> : IRepo<T> where T : class, IIdAndName<T>, new()
+    public class Repo<T1, T2> : IRepo<T1> where T1 : class, IIdAndName<T1>, new() where T2: DbContext
     {
         //private ApplicationDbContext _dbContext;
         //private DbContextOptions _options;
@@ -22,31 +24,68 @@ namespace CryptoCommon.DataBase
 
         //public string ConnectionStr { get; private set; }
         private Func<DbContext> _funcCreateDbContext;
-        public Repo(Func<DbContext> funcCreateDbContext)
+        //public Repo(Func<DbContext> funcCreateDbContext)
+        //{
+        //    //this.ConnectionStr = connectionStr;
+        //    _funcCreateDbContext = funcCreateDbContext;
+
+        //    ////make sure database created
+        //    //using (var dbContext = _funcCreateDbContext(ConnectionStr))
+        //    //{
+        //    //    dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        //    //    dbContext.Database.EnsureCreated();
+        //    //}
+
+        //    //_dbContext = dbContext;
+        //    //_connectionStr = connectionStr;
+        //    //_options = new DbContextOptionsBuilder().UseSqlServer(_connectionStr).Options;
+        //    //_dbContext = new ApplicationDbContext(_options);
+        //    //_table = _dbContext.Set<T>();
+
+        //    //_dbContext = applicationDbContext;
+        //    //if (tableName == "Cameras")
+        //    //    _table = _dbContext.Set<Camera>();
+        //    ////_table = (DbSet<T>)Convert.ChangeType(_dbContext.Cameras, typeof(DbSet<T>));
+        //    ////_table = (DbSet<T>)Convert.ChangeType(_dbContext.Cameras, typeof(DbSet<T>));
+        //    //else
+        //    //    throw new Exception($"{tableName} is not supported");
+        //}
+
+        public Repo(string connectionStr)
         {
-            //this.ConnectionStr = connectionStr;
-            _funcCreateDbContext = funcCreateDbContext;
+            _funcCreateDbContext = () =>
+            {
+                var options = new DbContextOptionsBuilder().UseSqlServer(connectionStr).Options;
+                var dbContext = Activator.CreateInstance(typeof(T2), options) as DbContext;
+                return dbContext;
+            };
 
-            ////make sure database created
-            //using (var dbContext = _funcCreateDbContext(ConnectionStr))
-            //{
-            //    dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            //    dbContext.Database.EnsureCreated();
-            //}
-
-            //_dbContext = dbContext;
-            //_connectionStr = connectionStr;
-            //_options = new DbContextOptionsBuilder().UseSqlServer(_connectionStr).Options;
-            //_dbContext = new ApplicationDbContext(_options);
-            //_table = _dbContext.Set<T>();
-
-            //_dbContext = applicationDbContext;
-            //if (tableName == "Cameras")
-            //    _table = _dbContext.Set<Camera>();
-            ////_table = (DbSet<T>)Convert.ChangeType(_dbContext.Cameras, typeof(DbSet<T>));
-            ////_table = (DbSet<T>)Convert.ChangeType(_dbContext.Cameras, typeof(DbSet<T>));
-            //else
-            //    throw new Exception($"{tableName} is not supported");
+            //check dbContext
+            using (var dbContext = _funcCreateDbContext())
+            {
+                //Log.Information("=== check DbContext ===");
+                var count = 0;
+                var isValid = false;
+                while (count++ < 20)
+                {
+                    try
+                    {
+                        dbContext.Database.EnsureCreated();
+                        isValid = true;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Thread.Sleep(1000);
+                    }
+                };
+                if (!isValid)
+                {
+                    //Log.Information("=== DbContext check failed ===");
+                    throw new MyException("dbError", "failed to connect to dababase after 20 seconds");
+                }
+                //Log.Information("=== DbContext check succeeded ===");
+            };
         }
 
         //public bool CheckDbContextValid()
@@ -76,7 +115,7 @@ namespace CryptoCommon.DataBase
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public async Task AddAsync(T item)
+        public async Task AddAsync(T1 item)
         {
             if (item == null)
                 throw new MyException("ApiStatusCode.ARGUMENT_NULL_ERROR", "error");
@@ -85,8 +124,21 @@ namespace CryptoCommon.DataBase
 
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T>();
+                var _table = _dbContext.Set<T1>();
                 await _table.AddAsync(item);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task AddItemsAsync(params T1[] items)
+        {
+            if (items == null || items.Length == 0) return;
+                    
+            using (var _dbContext = _funcCreateDbContext())
+            {
+                var _table = _dbContext.Set<T1>();
+                foreach(var item in items)
+                    await _table.AddAsync(item);
                 await _dbContext.SaveChangesAsync();
             }
         }
@@ -108,7 +160,7 @@ namespace CryptoCommon.DataBase
         /// <param name="item"></param>
         /// <returns>
         /// </returns>
-        public async Task UpdateAsync(T item)
+        public async Task UpdateAsync(T1 item)
         {
             if (item == null)
                 throw new MyException("ApiStatusCode.ARGUMENT_NULL_ERROR", "error");
@@ -119,7 +171,7 @@ namespace CryptoCommon.DataBase
             using (var _dbContext = _funcCreateDbContext())
             {
                 _dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                var _table = _dbContext.Set<T>();
+                var _table = _dbContext.Set<T1>();
                 var c = await _table.FindAsync(item.Id);
                 if (c == null)
                     throw new MyException("ApiStatusCode.Error_EntityNotExist", "cannot update entity if entity not in table");
@@ -128,36 +180,67 @@ namespace CryptoCommon.DataBase
             }
         }
 
-        public async Task DeleteByIdAsync(int id)
+        public async Task UpdateByIdAsync(int id, Expression<Func<SetPropertyCalls<T1>, SetPropertyCalls<T1>>> setPropertyCalls)
         {
+            if (id <= 0)
+                throw new MyException("UpdateByIdAsync", "cannot update entity if id not given");
+
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T>();
-                var c = await _table.FindAsync(id);
-                _table.Remove(c);
-                await _dbContext.SaveChangesAsync();
+                var _table = _dbContext.Set<T1>();
+                await _table.Where(x => x.Id == id).ExecuteUpdateAsync(setPropertyCalls);
+            }
+        }
+        public async Task UpdateByNameAsync(string name, Expression<Func<SetPropertyCalls<T1>, SetPropertyCalls<T1>>> setPropertyCalls)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new MyException("UpdateByNameAsync", "name cannot be null");
+
+            using (var _dbContext = _funcCreateDbContext())
+            {
+                var _table = _dbContext.Set<T1>();
+                await _table.Where(x => x.Name == name).ExecuteUpdateAsync(setPropertyCalls);
             }
         }
 
-        public async Task DeleteByIdsAsync(params int[] ids)
+        public async Task<int> DeleteByIdAsync(int id) => await this.DeleteByIdAsync(id);
+
+        public async Task<int> DeleteByIdsAsync(params int[] ids)
         {
+            if (ids.Length == 0) 
+                return 0;
+
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T>();
-                foreach (var id in ids)
-                {
-                    var c = await _table.FindAsync(id);
-                    _table.Remove(c);
-                }
-                await _dbContext.SaveChangesAsync();
+                var _table = _dbContext.Set<T1>();
+                var rows = _table.Where(x => ids.Contains(x.Id)).ExecuteDelete();
+                return await Task.FromResult(rows);
+                //foreach (var id in ids)
+                //{
+                //    var c = await _table.FindAsync(id);
+                //    _table.Remove(c);
+                //}
+                //await _dbContext.SaveChangesAsync();
+            }
+        }
+        public async Task<int> DeleteByNamesAsync(params string[] names)
+        {
+            if (names.Length == 0)
+                return 0;
+
+            using (var _dbContext = _funcCreateDbContext())
+            {
+                var _table = _dbContext.Set<T1>();
+                var rows = _table.Where(x => names.Contains(x.Name)).ExecuteDelete();
+                return await Task.FromResult(rows);
             }
         }
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, object>> navigationPropertyPath = null, Expression<Func<T, bool>> predicate = null)
+        public async Task<List<T1>> GetAllAsync(Expression<Func<T1, object>> navigationPropertyPath = null, Expression<Func<T1, bool>> predicate = null)
         {
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T>();
+                var _table = _dbContext.Set<T1>();
 
                 if (navigationPropertyPath == null)
                 {
@@ -177,7 +260,7 @@ namespace CryptoCommon.DataBase
             }
         }
 
-        public async Task<List<T>> GetAllAsync(bool isEager)
+        public async Task<List<T1>> GetAllAsync(bool isEager)
         {
             using (var _dbContext = _funcCreateDbContext())
             {
@@ -190,17 +273,17 @@ namespace CryptoCommon.DataBase
         {
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T>();
+                var _table = _dbContext.Set<T1>();
                 return await _table.Select(c => c.Id).ToListAsync();
             }
         }
 
-        private IQueryable<T> Query(DbContext _dbContext, bool eager = false)
+        private IQueryable<T1> Query(DbContext _dbContext, bool eager = false)
         {
-            var query = _dbContext.Set<T>().AsQueryable();
+            var query = _dbContext.Set<T1>().AsQueryable();
             if (eager)
             {
-                var navigations = _dbContext.Model.FindEntityType(typeof(T))
+                var navigations = _dbContext.Model.FindEntityType(typeof(T1))
                     .GetDerivedTypesInclusive()
                     .SelectMany(type => type.GetNavigations())
                     .Distinct();
@@ -211,7 +294,7 @@ namespace CryptoCommon.DataBase
             return query;
         }
 
-        public async Task<T> GetByIdAsync(int id, bool isEager = false)
+        public async Task<T1> GetByIdAsync(int id, bool isEager = false)
         {
             using (var _dbContext = _funcCreateDbContext())
             {
@@ -221,11 +304,11 @@ namespace CryptoCommon.DataBase
         }
 
         //navigationPropertyPath indicates whether to include related object
-        public async Task<T> GetByNameAsync(string name, Expression<Func<T, object>> navigationPropertyPath = null)
+        public async Task<T1> GetByNameAsync(string name, Expression<Func<T1, object>> navigationPropertyPath = null)
         {
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T>();
+                var _table = _dbContext.Set<T1>();
 
                 if (navigationPropertyPath == null)
                     return await _table.SingleOrDefaultAsync(o => o.Name.Equals(name));

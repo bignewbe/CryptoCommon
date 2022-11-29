@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CryptoCommon.DataBase.Interface
 {
-    public interface IIdAndName<T> : IEquatable<T> where T : class
+    public interface IIdAndName<T> : IEquatable<T> 
     {
         int Id { get; set; }
         string Name { get; set; }

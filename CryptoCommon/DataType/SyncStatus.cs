@@ -26,32 +26,32 @@ namespace CryptoCommon.Shared
 
         public void AddRefId(string refId)
         {
-            if (string.IsNullOrEmpty(refId)) return;
-
-            lock (this)
+            if (!string.IsNullOrEmpty(refId))
             {
-                if (!_refIds.Contains(refId)) _refIds.Add(refId);
-                this.SetTimestamp();
+                if (!_refIds.Contains(refId))
+                {
+                    _refIds.Add(refId);
+                    this.SetTimestamp();
+                }
             }
         }
         public void RemoveRefId(string refId)
         {
-            if (string.IsNullOrEmpty(refId)) return;
-            lock (this)
+            if (!string.IsNullOrEmpty(refId))
             {
-                if (_refIds.Contains(refId)) _refIds.Remove(refId);
-                this.SetTimestamp();
+                if (_refIds.Contains(refId))
+                {
+                    _refIds.Remove(refId);
+                    this.SetTimestamp();
+                }
             }
         }
+
         public bool IsHandlingInProgress(long tnow)
         {
-            lock (this)
-            {
-                if (tnow - _timestamp > _secondsToWait)
-                    _refIds.Clear();
-
-                return (_refIds.Count > 0);
-            }
+            if (tnow - _timestamp > _secondsToWait)
+                _refIds.Clear();
+            return (_refIds.Count > 0);
         }
     }
 

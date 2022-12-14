@@ -17,6 +17,8 @@ namespace CryptoCommon.Shared.ExchProxy
         public string Currency { get; set; }
         public double Available { get; set; }
         public double Hold { get; set; }
+        public double Price { get; set; }
+        public double UsdtVal => Balance * Price;
 
         public AccountBalance()
         {

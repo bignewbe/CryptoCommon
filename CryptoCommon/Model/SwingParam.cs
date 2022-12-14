@@ -1003,7 +1003,7 @@ namespace CryptoCommon.DataTypes
         [JsonIgnore]
         public bool IsCheckStopLoss { get; set; }
         [JsonIgnore]
-        public bool IsCheckChange_US { get; set; }
+        public bool IsGuranteeProfit { get; set; }
         public double MinPotential { get; set; }
 
         [JsonIgnore]
@@ -1230,7 +1230,7 @@ namespace CryptoCommon.DataTypes
             this.IsDetectUndershoot = other.IsDetectUndershoot;
 
             this.IsCheckStopLoss = other.IsCheckStopLoss;
-            this.IsCheckChange_US = other.IsCheckChange_US;
+            this.IsGuranteeProfit = other.IsGuranteeProfit;
             this.MinRatio = other.MinRatio;
             this.MinPotential = other.MinPotential;
             this.IsCheckVolumeRatio_OS = other.IsCheckVolumeRatio_OS;
@@ -1350,7 +1350,7 @@ namespace CryptoCommon.DataTypes
                     this.Ratio == other.Ratio &&
                     this.MinPotential == other.MinPotential &&
                     this.IsCheckStopLoss == other.IsCheckStopLoss &&
-                    this.IsCheckChange_US == other.IsCheckChange_US &&
+                    this.IsGuranteeProfit == other.IsGuranteeProfit &&
                     this.IsCheckVolumeRatio_OS == other.IsCheckVolumeRatio_OS &&
                     this.IsCheckVolumeRatio_US == other.IsCheckVolumeRatio_US &&
                     this.MinVolumeRatio == other.MinVolumeRatio &&

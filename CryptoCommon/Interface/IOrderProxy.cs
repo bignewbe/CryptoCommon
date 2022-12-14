@@ -10,9 +10,14 @@ namespace CryptoCommon.Services
 {
     public interface IOrderProxy
     {
-        ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolBuyFirst { get; }
-        ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolSellFirst { get; }
-
+        //ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolBuyFirst { get; }
+        //ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolSellFirst { get; }
+        long GetPlaceOrderTimeGlobal(bool isBuyFirst);
+        void SetPlaceOrderTime(string symbol, long tnow, bool isBuyFirst);
+        long GetPlaceOrderTime(string symbol, bool isBuyFirst);
+        void SetPrevPrice(string symbol, double price, bool isBuyFirst);
+        double GetPrevPrice(string symbol, bool isBuyFirst);
+        
         bool IsStarted { get; }
         DateTime GetCurrentTime();
         ConcurrentDictionary<string, FZOrder> OpenOrders { get; }
@@ -34,7 +39,7 @@ namespace CryptoCommon.Services
         FZOrder ModifyOrderSzAndPx(FZOrder order);
         FZOrder ModifyOrderPx(FZOrder order);
 
-        void ModifyOrderPrice(string symbol, string orderId, double newPrice);
+        //void ModifyOrderPrice(string symbol, string orderId, double newPrice);
         //FZOrder ModifyOrderSz(FZOrder order);
 
         //void PlaceOrder(FZOrder order);

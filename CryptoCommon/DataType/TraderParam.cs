@@ -25,7 +25,7 @@ namespace CryptoCommon.Shared.ExchProxy
         public int Interval { get; set; }
         public double QtyEach { get; set; }
         public CryptoCommon.DataTypes.EnumType TradeModel { get; set; }
-
+        public double MinChgFromLast { get; set; }
         public TraderParam()
         {
         }
@@ -44,6 +44,7 @@ namespace CryptoCommon.Shared.ExchProxy
             Interval = other.Interval;
             QtyEach = other.QtyEach;
             TradeModel = other.TradeModel;
+            MinChgFromLast= other.MinChgFromLast;
         }
     }
 }

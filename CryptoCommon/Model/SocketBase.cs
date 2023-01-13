@@ -1,4 +1,6 @@
-﻿using PortableCSharpLib;
+﻿using CryptoCommon.Interface;
+using Newtonsoft.Json;
+using PortableCSharpLib;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -8,14 +10,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CryptoCommon.Shared
+namespace CryptoCommon.Model
 {
-    public class SocketBase : IDisposable
+    public class SocketBase : ISocketBase, IDisposable
     {
         string _url;
         int _receiveOvertimeSeconds;
-        ClientWebSocket _ws = null;
-        CancellationTokenSource _cts = new CancellationTokenSource();
+        ClientWebSocket _ws;
+        CancellationTokenSource _cts;
 
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<WebSocketState> OnConnectionChanged;
         public event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<int> OnReceiveOverTime;
@@ -35,57 +37,57 @@ namespace CryptoCommon.Shared
         {
             _url = url;
             _receiveOvertimeSeconds = receiveOvertimeSeconds;
-
-            _ws = new ClientWebSocket();
             _closeCheckTimer.Interval = 100;
             _closeCheckTimer.Elapsed += CloseCheckTimer_Elapsed;
         }
 
         public async Task StartAsync()
         {
-            this.IsStartRequested = true;
-
-            if (_ws.State != WebSocketState.Open)
+            if (!this.IsStartRequested)
             {
+                this.IsStartRequested = true;
+
+                _cts = new CancellationTokenSource();
+                _ws = new ClientWebSocket();
+                this.State = _ws.State;
                 await _ws.ConnectAsync(new Uri(_url), _cts.Token);
-                while (_ws.State != WebSocketState.Open) 
-                    Thread.Sleep(50);
-                this.receive();                                       //start a new thread to receive data
-            }
+                while (_ws.State != WebSocketState.Open) Thread.Sleep(50);
+                _lastReceiveTime = DateTime.UtcNow.GetUnixTimeFromUTC();
 
-            if (!_closeCheckTimer.Enabled)
+                //refresh state
+                this.CloseCheckTimer_Elapsed(this, null);
+
+                this.Receive();                                       //start a new thread to receive data
                 _closeCheckTimer.Start();
-
-            //if (!this.IsConnected)
-            //{
-            //    await _ws.ConnectAsync(new Uri(_url), _cts.Token);
-            //    this.receive();          //start a new thread to receive data
-            //    _closeCheckTimer.Start();
-            //}
+                //Thread.Sleep((int)_closeCheckTimer.Interval*2);
+            }
         }
 
         public async Task StopAsync()
         {
-            this.IsStartRequested = false;
-            if (_closeCheckTimer.Enabled)
+            if (this.IsStartRequested)
+            {
+                this.IsStartRequested = false;
+                
+                _cts.Cancel();                
                 _closeCheckTimer.Stop();
 
-            if (_ws.State == WebSocketState.Open)
-            {
-                _closeCheckTimer.Stop();
-                await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
-                _cts.Cancel();
+                _ws.Abort(); //.CloseAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+                while (_ws.State == WebSocketState.Open) Thread.Sleep(50);
+
+                //refresh state
+                this.CloseCheckTimer_Elapsed(this, null);
             }
         }
 
-        private void receive()
+        private void Receive()
         {
             Task.Factory.StartNew(
               async () =>
               {
                   while (!_cts.Token.IsCancellationRequested)
                   {
-                      if (_ws.State == WebSocketState.Open)
+                      if (_ws != null && _ws.State == WebSocketState.Open)
                       {
                           byte[] buffer = new byte[200000];
                           var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
@@ -151,15 +153,32 @@ namespace CryptoCommon.Shared
 
             try
             {
-                if (_ws != null && _ws.State != this.State)
+                await this.TimerFunction();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Thread.Sleep(10000);
+            }
+            finally
+            {
+                _isTimerBusy = !_isTimerBusy;
+            }
+        }
+
+        protected virtual async Task TimerFunction()
+        {
+            if (_ws != null)
+            {
+                if (_ws.State != this.State)
                 {
                     this.State = _ws.State;
                     OnConnectionChanged?.Invoke(this, State);
                 }
 
                 if (this.IsStartRequested && _ws.State != WebSocketState.Open)               //reconnect
-                {     
-                    await Reconnect();
+                {
+                    await this.Reconnect();
                 }
                 else if (this.IsStartRequested && _ws.State == WebSocketState.Open)          //send pending channel
                 {
@@ -185,24 +204,55 @@ namespace CryptoCommon.Shared
                     _cts.Cancel();
                 }
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-                Console.WriteLine("reconnecting after 10 seconds...");
-                Thread.Sleep(10000);
-            }
-            finally
-            {
-                _isTimerBusy = !_isTimerBusy;
-            }
         }
 
+        /// <summary>
+        /// - reconnect only when started
+        /// - 
+        /// </summary>
+        /// <returns></returns>
         public async Task Reconnect()
         {
+            //await this.StopAsync();
+            //await this.StartAsync();
+
+            lock (this)
+            {
+                if (!this.IsStartRequested) return;
+                while (_isTimerBusy) Thread.Sleep(57);
+                _isTimerBusy = !_isTimerBusy;
+            }
+
             try
             {
+                //cancel the receive thread loop
+                if (_cts.Token.CanBeCanceled)
+                    _cts.Cancel();
+
+                //shut down timer to prevent events from firing
+                _closeCheckTimer.Stop();
+
+                ////////////////////////////////////////////////////////////////////
                 Console.WriteLine($"\n trying to close socket with State = {_ws.State}");
-                await _ws.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+                _ws.Abort(); //.CloseOutputAsync(WebSocketCloseStatus.Empty, null, _cts.Token);
+                while (_ws.State == WebSocketState.Open) Thread.Sleep(50);
+                Console.WriteLine($"socket state = {_ws.State} trying to reconnect ...");
+
+                //initialize and connect ws 
+                _ws = new ClientWebSocket();
+                this.State = _ws.State;
+
+                //connect socket
+                _cts = new CancellationTokenSource();
+                await _ws.ConnectAsync(new Uri(_url), _cts.Token);
+                while (_ws.State != WebSocketState.Open) Thread.Sleep(50);
+                _lastReceiveTime = DateTime.UtcNow.GetUnixTimeFromUTC();
+
+                ////////////////////////////////////////////////////////////////////
+                //start msg loop and timer
+                this.Receive();
+                _closeCheckTimer.Start();
+                Thread.Sleep(1000);
             }
             catch (Exception ex)
             {
@@ -210,33 +260,10 @@ namespace CryptoCommon.Shared
                 Console.WriteLine("error while closing socket. sleep for 10 seconds....");
                 Thread.Sleep(10000);
             }
-
-            Console.WriteLine($"socket state = {_ws.State} trying to reconnect ...");
-
-            //cancel the receive thread loop
-            if (_cts.Token.CanBeCanceled)
+            finally
             {
-                _cts.Cancel();
-                _cts = new CancellationTokenSource();
+                _isTimerBusy = !_isTimerBusy;
             }
-
-            _closeCheckTimer.Stop();
-            _ws.Abort();
-            _ws.Dispose();
-            _ws = null;
-            _ws = new ClientWebSocket();
-            this.State = _ws.State;
-
-            await _ws.ConnectAsync(new Uri(_url), _cts.Token);
-            while (_ws.State != WebSocketState.Open)
-                Thread.Sleep(50);
-
-            Thread.Sleep(1000);
-            this.receive();                                                          
-            _closeCheckTimer.Start();
-
-            Thread.Sleep(10000);
-            Console.WriteLine($"socket state = {_ws.State}");
         }
 
         //private async Task CloseSocket()
@@ -257,7 +284,7 @@ namespace CryptoCommon.Shared
         //    }
         //}
 
-        protected async Task SendAsync(string msg)
+        public async Task SendAsync(string msg)
         {
             lock (this)
             {

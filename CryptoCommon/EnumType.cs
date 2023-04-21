@@ -217,7 +217,7 @@ namespace CryptoCommon.DataTypes
         Rsi_singleUndershoot,
         Rsi_doubleBottom,
         Rsi_singleOvershoot,
-        Rsi_doubleTop,
+        TraderShootTurn,
         SpotEmaCross,
         TraderShoot,
         TraderTurn,

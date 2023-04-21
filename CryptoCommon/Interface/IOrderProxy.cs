@@ -1,4 +1,6 @@
 ﻿using CryptoCommon.DataTypes;
+using Newtonsoft.Json;
+using PortableCSharpLib;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,8 +10,38 @@ using System.Threading.Tasks;
 
 namespace CryptoCommon.Services
 {
+    public class PotentialOrder
+    {
+        public DateTime TimeCreatedStr => TimeCreated.GetUTCFromUnixTime();
+        public string Side => IsBuyFirst ? "buy" : "sell";
+        public string Id => $"{Symbol}_{Interval}_{Side}_{TimeCreatedStr}";
+
+        public string Symbol { get; set; }
+        public int Interval { get; set; }
+        public long TimeCreated { get; set; }
+        public List<double> Prices { get; set; }
+        public double QtyEach { get; set; }
+        public bool IsBuyFirst { get; set; } 
+        public bool IsPriceAdjusted { get; set; } = false;
+        public bool IsSubmitted { get; set; } = false;
+        public bool IsExpired { get; set; } = false;
+        public double StartPrice { get; set; }
+        public double EndPrice { get; set; }
+        public double PrevPrice { get; set; }
+    }
+
     public interface IOrderProxy
     {
+        HashSet<string> Symbols { get; }
+
+        ConcurrentDictionary<string, PotentialOrder> PendingOrders { get; }
+        void AddPendingOrder(PotentialOrder o);
+        void MovePendingOrder(params string[] symbols);
+        bool MoveBackPendingOrder(string symbol, int interval, bool isBuyFirst, int lookbackSeconds = 14400);
+        bool IsPendingOrderExistForSymbol(string symbol);
+        int GetNumOfPastOrders(int seconds, long tnow);
+        List<long> WaterfallTimeStamps { get; }
+
         //ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolBuyFirst { get; }
         //ConcurrentDictionary<string, long> PlaceOrderTimeBySymbolSellFirst { get; }
         long GetPlaceOrderTimeGlobal(bool isBuyFirst);
@@ -32,6 +64,7 @@ namespace CryptoCommon.Services
 
         bool IsOrderActionInProgress(string symbol);
 
+        void SetDumpFile(bool v);
         void Start();
         void Stop();
         FZOrder PlaceOrder(FZOrder order);

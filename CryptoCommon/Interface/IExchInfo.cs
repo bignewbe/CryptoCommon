@@ -9,9 +9,9 @@ namespace CryptoCommon.Interface
     public interface IExchInfo
     {
         string Exchange { get; }
-        double GetLotSz(string symbol);
+        //double GetLotSz(string symbol);
         double GetTickSz(string symbol);
-        double GetQtySz(string symbol);
+        double GetMinSz(string symbol);
         string GetPriceFmt(string symbol);
         string GetQtyFmt(string symbol);
     }

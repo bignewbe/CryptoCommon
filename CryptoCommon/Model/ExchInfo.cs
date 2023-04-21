@@ -26,9 +26,9 @@ namespace CryptoCommon.Model
         }
 
         //special for Okex
-        public double GetLotSz(string symbol) => _instruments[symbol].LotSz;
+        //public double GetLotSz(string symbol) => _instruments[symbol].LotSz;
         public double GetTickSz(string symbol) => _instruments[symbol].TickSz;
-        public double GetQtySz(string symbol) => _instruments[symbol].MinSz;
+        public double GetMinSz(string symbol) => _instruments[symbol].MinSz;
         public string GetPriceFmt(string symbol)
         {
             var d = _instruments[symbol].TickSz;
@@ -64,7 +64,8 @@ namespace CryptoCommon.Model
             {
                 fmt += ".0";
                 long f = 10;
-                while (d * f < 0.999)
+                var count = 0;
+                while (d * f < 0.999 && count++ < 10)
                 {
                     fmt += "0";
                     f *= 10;

@@ -38,6 +38,8 @@ namespace CryptoCommonUnitTest
         [TestMethod]
         public async Task Test_All()
         {
+            //var orderDb = new OrderDb(new Repo<FZOrderEnt, ApplicationDbContext>(""));
+
             {
                 var r1 = await _db.GetAllKeyValues();
                 await _db.DeleteByKeys(r1.Keys.ToArray());

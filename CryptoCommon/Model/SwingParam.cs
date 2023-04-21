@@ -150,6 +150,7 @@ namespace CryptoCommon.DataTypes
                 EnumType.TraderShoot => "a",
                 EnumType.TraderTurn => "b",
                 EnumType.TraderGrid => "c",
+                EnumType.TraderShootTurn => "d",
                 _ => "x",
             };
             var tradeModeStr = tradeMode switch
@@ -1043,8 +1044,6 @@ namespace CryptoCommon.DataTypes
         [JsonIgnore]
         public bool IsDetectLargeRatio { get; set; }
         [JsonIgnore]
-        public double LargeRatio_MinRatio { get; set; }
-        [JsonIgnore]
         public double LargeRatio_MinChange { get; set; }
 
         public double MinChgFromLast { get; set; }
@@ -1099,7 +1098,9 @@ namespace CryptoCommon.DataTypes
         public bool IsCompound { get; set; }
 
         public int NumDigits { get; set; } = 4;
-        
+
+        [JsonIgnore]
+        public double Avg { get; set; }
         [JsonIgnore]
         public double Std { get; set; }
         [JsonIgnore]
@@ -1250,7 +1251,7 @@ namespace CryptoCommon.DataTypes
             this.StopLoss = other.StopLoss;
 
             this.IsDetectLargeRatio = other.IsDetectLargeRatio;
-            this.LargeRatio_MinRatio = other.LargeRatio_MinRatio;
+            this.Avg = other.Avg;
             this.LargeRatio_MinChange = other.LargeRatio_MinChange;
             this.MinChgFromLast = other.MinChgFromLast;
             this.MinChgFromMA = other.MinChgFromMA;
@@ -1367,7 +1368,7 @@ namespace CryptoCommon.DataTypes
                     
                     this.IsDetectLargeRatio == other.IsDetectLargeRatio &&
                     this.IsDetectLargeRatio == other.IsDetectLargeRatio &&
-                    this.LargeRatio_MinRatio == other.LargeRatio_MinRatio &&
+                    this.Avg == other.Avg &&
                     this.LargeRatio_MinChange == other.LargeRatio_MinChange &&
                     
                     this.QtyMaxHold == other.QtyMaxHold &&

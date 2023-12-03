@@ -25,11 +25,12 @@ namespace CryptoCommon.Services
         CancellationTokenSource _cts = new CancellationTokenSource();
         ConcurrentDictionary<string, long> _lastSaveTime = new ConcurrentDictionary<string, long>();
         ConcurrentQueue<string> _quoteIdToSave = new ConcurrentQueue<string>();
-        ConcurrentQueue<List<Ticker>> _tickerQueue = new ConcurrentQueue<List<Ticker>>();
+        //ConcurrentQueue<List<Ticker>> _tickerQueue = new ConcurrentQueue<List<Ticker>>();
         //ConcurrentQueue<List<OHLC>> _ohlcQueue = new ConcurrentQueue<List<OHLC>>();
         ConcurrentQueue<string> _symbolToUpdate = new ConcurrentQueue<string>();
         ConcurrentQueue<string> _symbolToInitQueue = new ConcurrentQueue<string>();
         ConcurrentDictionary<string, OHLC> _candles = new ConcurrentDictionary<string, OHLC>();
+        ConcurrentDictionary<string, long> _updatedTime = new ConcurrentDictionary<string, long>();
 
         private System.Timers.Timer _timerSaveQuote = new System.Timers.Timer(2000);
 
@@ -127,11 +128,17 @@ namespace CryptoCommon.Services
         {
             //if (!_symbols.Contains(candles[0].Symbol)) return;
             var c = candles[0];
+            var tnow = DateTime.UtcNow.GetUnixTimeFromUTC();
             if (!_candles.ContainsKey(c.Symbol))
-                _candles.TryAdd(c.Symbol, new OHLC());
-
-            if (!_candles[c.Symbol].Equals(c))
             {
+                _candles.TryAdd(c.Symbol, new OHLC());
+                _updatedTime.TryAdd(c.Symbol, 0);
+            }
+
+            //limit update frequency
+            if (tnow - _updatedTime[c.Symbol] > 5 && !_candles[c.Symbol].Equals(c))
+            {
+                _updatedTime[c.Symbol] = tnow;
                 _candles[c.Symbol].Copy(c);
 
                 if (!_symbolToUpdate.Contains(c.Symbol))
@@ -308,7 +315,10 @@ namespace CryptoCommon.Services
                     //var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
                     if (q == null || (q != null && q.LastTime/q.Interval != DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval))
                     {
-                        var missingNum = q == null? _limit : (int)(DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval - q.LastTime / q.Interval) + 10;
+                        var missingNum = _limit;
+                        if (q != null)
+                          missingNum = Math.Min(_limit, (int)(DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval - q.LastTime / q.Interval) + 10);
+
                         var retry = 0;
                         while (retry++ < 2)
                         {
@@ -367,7 +377,7 @@ namespace CryptoCommon.Services
             Task.Factory.StartNew(() =>
             {
                 while (!_cts.Token.IsCancellationRequested)
-                {                   
+                {
                     string symbol;
                     if (_symbolToUpdate.TryDequeue(out symbol))
                     {
@@ -383,8 +393,9 @@ namespace CryptoCommon.Services
                         {
                             OnExceptionOccured?.Invoke(this, Exchange, ex);
                         }
+                        Thread.Sleep(5);
                     }
-                    //Thread.Sleep(500);
+                    Thread.Sleep(5);
                 }
             }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

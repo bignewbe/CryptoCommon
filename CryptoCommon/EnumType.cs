@@ -50,12 +50,19 @@ namespace CryptoCommon.DataTypes
         stop_sell,
         stop_buy,
 
+        stop_open_long,  //price rise > stop price => open long/buy long
+        stop_open_short, //price drop < stop price => open short/sell short
+        stop_close_long, //price drop < stop price => close long/sell long
+        stop_close_short,//price rise > stop price => close short/buy short
+
         buy_fok,
         sell_fok,
         buy_ioc,
         sell_ioc,
         buy_oli,
         sell_oli
+        //stop_long,
+        //stop_short,
 //fok: Fill-or-kill order
 //ioc: Immediate-or-cancel order
 //optimal_limit_ioc
@@ -218,10 +225,9 @@ namespace CryptoCommon.DataTypes
         Rsi_doubleBottom,
         Rsi_singleOvershoot,
         TraderShootTurn,
-        SpotEmaCross,
         TraderShoot,
-        TraderTurn,
         TraderGrid,
-        TestType
+        TestType,
+        TraderDivertTurn
     }
 }

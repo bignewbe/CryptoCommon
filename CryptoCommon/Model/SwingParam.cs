@@ -148,9 +148,10 @@ namespace CryptoCommon.DataTypes
             var tradeTypeStr = tradeType switch
             {
                 EnumType.TraderShoot => "a",
-                EnumType.TraderTurn => "b",
+                //EnumType.TraderTurn => "b",
                 EnumType.TraderGrid => "c",
-                EnumType.TraderShootTurn => "d",
+                EnumType.TraderDivertTurn => "d",
+                EnumType.TraderShootTurn => "e",
                 _ => "x",
             };
             var tradeModeStr = tradeMode switch
@@ -242,123 +243,123 @@ namespace CryptoCommon.DataTypes
                 IsCloseOrder = isCloseOrder
             };
 
-            if (tradeType == EnumType.TraderTurn)
-            {
-                double minPotential = interval switch
-                {
-                    300 => 0.015,
-                    900 => 0.02,
-                    1800 => 0.02,
-                    3600 => 0.04,
-                    7200 => 0.06,
-                    14400 => 0.08,
-                    _ => throw new NotImplementedException(),
-                };
+            //if (tradeType == EnumType.TraderTurn)
+            //{
+            //    double minPotential = interval switch
+            //    {
+            //        300 => 0.015,
+            //        900 => 0.02,
+            //        1800 => 0.02,
+            //        3600 => 0.04,
+            //        7200 => 0.06,
+            //        14400 => 0.08,
+            //        _ => throw new NotImplementedException(),
+            //    };
 
-                if (items.Length >= 10)
-                {
-                    var str = items[9];
-                    if (str != "d")
-                        minPotential = double.Parse(str);
-                }
-                p.MinPotential = minPotential;
+            //    if (items.Length >= 10)
+            //    {
+            //        var str = items[9];
+            //        if (str != "d")
+            //            minPotential = double.Parse(str);
+            //    }
+            //    p.MinPotential = minPotential;
 
 
-                double? rsi1_single = null;
-                double? rsi3_single = null;
-                double? rsi1_double1 = null;
-                double? rsi3_double1 = null;
-                double? rsi1_double2 = null;
-                double? rsi3_double2 = null;
-                int? numBars = 5;
-                int? maxDist = 3;
-                double? stopLoss = -0.12;
+            //    double? rsi1_single = null;
+            //    double? rsi3_single = null;
+            //    double? rsi1_double1 = null;
+            //    double? rsi3_double1 = null;
+            //    double? rsi1_double2 = null;
+            //    double? rsi3_double2 = null;
+            //    int? numBars = 5;
+            //    int? maxDist = 3;
+            //    double? stopLoss = -0.12;
 
-                if (items.Length >= 11)
-                {
-                    var str = items[10];
-                    if (str != "d")
-                        rsi1_single = double.Parse(str);
-                }
+            //    if (items.Length >= 11)
+            //    {
+            //        var str = items[10];
+            //        if (str != "d")
+            //            rsi1_single = double.Parse(str);
+            //    }
 
-                if (items.Length >= 12)
-                {
-                    var str = items[11];
-                    if (str != "d")
-                        rsi3_single = double.Parse(str);
-                }
+            //    if (items.Length >= 12)
+            //    {
+            //        var str = items[11];
+            //        if (str != "d")
+            //            rsi3_single = double.Parse(str);
+            //    }
 
-                if (items.Length >= 13)
-                {
-                    var str = items[12];
-                    if (str != "d")
-                        rsi1_double1 = double.Parse(str);
-                }
+            //    if (items.Length >= 13)
+            //    {
+            //        var str = items[12];
+            //        if (str != "d")
+            //            rsi1_double1 = double.Parse(str);
+            //    }
 
-                if (items.Length >= 14)
-                {
-                    var str = items[13];
-                    if (str != "d")
-                        rsi3_double1 = double.Parse(str);
-                }
-                if (items.Length >= 15)
-                {
-                    var str = items[14];
-                    if (str != "d")
-                        rsi1_double2 = double.Parse(str);
-                }
-                if (items.Length >= 16)
-                {
-                    var str = items[15];
-                    if (str != "d")
-                        rsi3_double2 = double.Parse(str);
-                }
-                if (items.Length >= 17)
-                {
-                    var str = items[16];
-                    if (str != "d")
-                        numBars = int.Parse(str);
-                }
-                if (items.Length >= 18)
-                {
-                    var str = items[17];
-                    if (str != "d")
-                        maxDist = int.Parse(str);
-                }
-                if (items.Length >= 19)
-                {
-                    var str = items[18];
-                    if (str != "d")
-                        stopLoss = double.Parse(str);
-                }
+            //    if (items.Length >= 14)
+            //    {
+            //        var str = items[13];
+            //        if (str != "d")
+            //            rsi3_double1 = double.Parse(str);
+            //    }
+            //    if (items.Length >= 15)
+            //    {
+            //        var str = items[14];
+            //        if (str != "d")
+            //            rsi1_double2 = double.Parse(str);
+            //    }
+            //    if (items.Length >= 16)
+            //    {
+            //        var str = items[15];
+            //        if (str != "d")
+            //            rsi3_double2 = double.Parse(str);
+            //    }
+            //    if (items.Length >= 17)
+            //    {
+            //        var str = items[16];
+            //        if (str != "d")
+            //            numBars = int.Parse(str);
+            //    }
+            //    if (items.Length >= 18)
+            //    {
+            //        var str = items[17];
+            //        if (str != "d")
+            //            maxDist = int.Parse(str);
+            //    }
+            //    if (items.Length >= 19)
+            //    {
+            //        var str = items[18];
+            //        if (str != "d")
+            //            stopLoss = double.Parse(str);
+            //    }
 
-                p.NumBars = numBars.Value;
-                p.MaxDist = maxDist.Value;
-                p.StopLoss = stopLoss.Value;
+            //    p.NumBars = numBars.Value;
+            //    p.MaxDist = maxDist.Value;
+            //    p.StopLoss = stopLoss.Value;
 
-                //////////////////////////////////////////////////////////////////////////////////////
-                if (p.IsBuyFirst)
-                {
-                    p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
-                    p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 20;
-                    p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 40;
-                    p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 20;
-                    p.Rsi3Thd_D1 = rsi3_double1.HasValue ? rsi3_double1.Value : 40;
-                    p.Rsi1Thd_D2 = rsi1_double2.HasValue ? rsi1_double2.Value : 20;
-                    p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 40;
-                }
-                else
-                {
-                    p.PriceOnlySell = price.HasValue ? price.Value : double.MinValue;
-                    p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 80;
-                    p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 60;
-                    p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 80;
-                    p.Rsi3Thd_D1 = rsi3_double1.HasValue ? rsi3_double1.Value : 60;
-                    p.Rsi1Thd_D2 = rsi1_double2.HasValue ? rsi1_double2.Value : 80;
-                    p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 60;
-                }
-            }
-            else if (tradeType == EnumType.TraderShoot)
+            //    //////////////////////////////////////////////////////////////////////////////////////
+            //    if (p.IsBuyFirst)
+            //    {
+            //        p.PriceOnlyBuy = price.HasValue ? price.Value : double.MaxValue;
+            //        p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 20;
+            //        p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 40;
+            //        p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 20;
+            //        p.Rsi3Thd_D1 = rsi3_double1.HasValue ? rsi3_double1.Value : 40;
+            //        p.Rsi1Thd_D2 = rsi1_double2.HasValue ? rsi1_double2.Value : 20;
+            //        p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 40;
+            //    }
+            //    else
+            //    {
+            //        p.PriceOnlySell = price.HasValue ? price.Value : double.MinValue;
+            //        p.Rsi1Thd_S = rsi1_single.HasValue ? rsi1_single.Value : 80;
+            //        p.Rsi3Thd_S = rsi3_single.HasValue ? rsi3_single.Value : 60;
+            //        p.Rsi1Thd_D1 = rsi1_double1.HasValue ? rsi1_double1.Value : 80;
+            //        p.Rsi3Thd_D1 = rsi3_double1.HasValue ? rsi3_double1.Value : 60;
+            //        p.Rsi1Thd_D2 = rsi1_double2.HasValue ? rsi1_double2.Value : 80;
+            //        p.Rsi3Thd_D2 = rsi3_double2.HasValue ? rsi3_double2.Value : 60;
+            //    }
+            //}
+            if (tradeType == EnumType.TraderShoot)
             {
                 double? rsi1 = null;
                 double? rsi3 = null;

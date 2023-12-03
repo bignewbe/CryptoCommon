@@ -51,7 +51,7 @@ namespace CryptoCommon.DataBase
         //    //    throw new Exception($"{tableName} is not supported");
         //}
 
-        public Repo(string connectionStr)
+        public Repo(string connectionStr, bool isCheckDbContext=true)
         {
             _funcCreateDbContext = () =>
             {
@@ -61,31 +61,34 @@ namespace CryptoCommon.DataBase
             };
 
             //check dbContext
-            using (var dbContext = _funcCreateDbContext())
+            if (isCheckDbContext)
             {
-                //Log.Information("=== check DbContext ===");
-                var count = 0;
-                var isValid = false;
-                while (count++ < 20)
+                using (var dbContext = _funcCreateDbContext())
                 {
-                    try
+                    //Log.Information("=== check DbContext ===");
+                    var count = 0;
+                    var isValid = false;
+                    while (count++ < 20)
                     {
-                        dbContext.Database.EnsureCreated();
-                        isValid = true;
-                        break;
-                    }
-                    catch (Exception ex)
+                        try
+                        {
+                            dbContext.Database.EnsureCreated();
+                            isValid = true;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Thread.Sleep(1000);
+                        }
+                    };
+                    if (!isValid)
                     {
-                        Thread.Sleep(1000);
+                        //Log.Information("=== DbContext check failed ===");
+                        throw new MyException("dbError", "failed to connect to dababase after 20 seconds");
                     }
+                    //Log.Information("=== DbContext check succeeded ===");
                 };
-                if (!isValid)
-                {
-                    //Log.Information("=== DbContext check failed ===");
-                    throw new MyException("dbError", "failed to connect to dababase after 20 seconds");
-                }
-                //Log.Information("=== DbContext check succeeded ===");
-            };
+            }
         }
 
         //public bool CheckDbContextValid()

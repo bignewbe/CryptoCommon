@@ -14,8 +14,9 @@ namespace CryptoCommon.Services
     {
         public DateTime TimeCreatedStr => TimeCreated.GetUTCFromUnixTime();
         public string Side => IsBuyFirst ? "buy" : "sell";
-        public string Id => $"{Symbol}_{Interval}_{Side}_{TimeCreatedStr}";
-
+        public string Id => $"{ParamId}_{Symbol}_{Interval}_{Side}_{TimeCreatedStr}";
+                
+        public string ParamId { get; set; }
         public string Symbol { get; set; }
         public int Interval { get; set; }
         public long TimeCreated { get; set; }
@@ -28,6 +29,11 @@ namespace CryptoCommon.Services
         public double StartPrice { get; set; }
         public double EndPrice { get; set; }
         public double PrevPrice { get; set; }
+
+        public PotentialOrder(string paramId)
+        {
+            this.ParamId = paramId;
+        }
     }
 
     public interface IOrderProxy
@@ -36,9 +42,9 @@ namespace CryptoCommon.Services
 
         ConcurrentDictionary<string, PotentialOrder> PendingOrders { get; }
         void AddPendingOrder(PotentialOrder o);
-        void MovePendingOrder(params string[] symbols);
-        bool MoveBackPendingOrder(string symbol, int interval, bool isBuyFirst, int lookbackSeconds = 14400);
-        bool IsPendingOrderExistForSymbol(string symbol);
+        void RemovePendingOrder(string paramId);
+        bool MoveBackPendingOrder(string paramId, int lookbackSeconds = 14400);
+        bool IsPendingOrderExist(string paramId);
         int GetNumOfPastOrders(int seconds, long tnow);
         List<long> WaterfallTimeStamps { get; }
 

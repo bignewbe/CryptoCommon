@@ -22,6 +22,7 @@ namespace CryptoCommon.Services
         //void AddTickerList(params Ticker[] tickers);
         //ServiceResult<QuoteCapture> GetInMemoryQuoteCapture(string symbol);
 
+        ServiceResult<int> GetNumOfReceivedSymbols();
         ServiceResult<List<string>> GetAvaliableSymbols();
         ServiceResult<List<string>> GetAvaliableQuoteIds();
         ServiceResult<QuoteBasicBase> GetQuoteBasic(string symbol, int interval, long stime, int num);

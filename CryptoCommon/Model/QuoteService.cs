@@ -54,7 +54,8 @@ namespace CryptoCommon.Services
         private bool _isFillGap = true;
         private int _numBarsFillGap;
         private int _limit;
-
+        private bool _isAddCandleBusy;
+        private bool _isInitQuoteBusy;
 
         public List<string> AvailableSymbols { get { return new List<string>(_symbolsInitialized); } }
         public string Exchange { get { return _qbStore.Exchange; } }
@@ -84,8 +85,8 @@ namespace CryptoCommon.Services
             _timerSaveQuote.Elapsed += _timer_Elapsed;
             _timerSaveQuote.Start();
 
-            this.ProcessInit();
-            this.ProcessUpdate();
+            //this.ProcessInit();
+            //this.ProcessUpdate();
         }
 
         private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -136,13 +137,16 @@ namespace CryptoCommon.Services
             }
 
             //limit update frequency
-            if (tnow - _updatedTime[c.Symbol] > 5 && !_candles[c.Symbol].Equals(c))
+            if (tnow - _updatedTime[c.Symbol] > 1 && !_candles[c.Symbol].Equals(c))
             {
                 _updatedTime[c.Symbol] = tnow;
                 _candles[c.Symbol].Copy(c);
 
                 if (!_symbolToUpdate.Contains(c.Symbol))
+                {
                     _symbolToUpdate.Enqueue(c.Symbol);
+                    this.StartAddCandleQueue();
+                }
             }
         }
 
@@ -345,60 +349,121 @@ namespace CryptoCommon.Services
             Console.WriteLine($"{symbol} initialized");
         }
 
-        private void ProcessInit()
+        //private void ProcessInit()
+        //{
+        //    Task.Factory.StartNew(() =>
+        //    {
+        //        while (!_cts.Token.IsCancellationRequested)
+        //        {
+        //            string symbol;
+        //            if (_symbolToInitQueue.TryDequeue(out symbol))
+        //            {
+        //                try
+        //                {
+        //                    this.InitQuoteBasic(symbol);
+        //                    //if (_isFillGap)
+        //                    //    this.InitQuoteBasic(symbol);
+        //                    //else
+        //                    //    this.InitQuoteBasic2(symbol);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    OnExceptionOccured?.Invoke(this, Exchange, ex);
+        //                }
+        //            }
+        //            //Thread.Sleep(500);
+        //        }
+        //    }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        //}
+
+        //private void ProcessUpdate()
+        //{
+        //    Task.Factory.StartNew(() =>
+        //    {
+        //        while (!_cts.Token.IsCancellationRequested)
+        //        {
+        //            string symbol;
+        //            if (_symbolToUpdate.TryDequeue(out symbol))
+        //            {
+        //                try
+        //                {
+        //                    var d = _candles[symbol];
+        //                    if (_symbolsInitialized.Contains(symbol))
+        //                        _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true, true);
+        //                    else
+        //                        _symbolToInitQueue.Enqueue(symbol);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    OnExceptionOccured?.Invoke(this, Exchange, ex);
+        //                }
+        //                Thread.Sleep(5);
+        //            }
+        //            Thread.Sleep(5);
+        //        }
+        //    }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        //}
+
+        private void StartInitQuoteQueue()
         {
-            Task.Factory.StartNew(() =>
+            lock (this)
             {
-                while (!_cts.Token.IsCancellationRequested)
+                if (_isInitQuoteBusy) return;
+                _isInitQuoteBusy = !_isInitQuoteBusy;
+            }
+
+            Task.Run(() =>
+            {
+                string symbol;
+                while (_symbolToInitQueue.TryDequeue(out symbol))
                 {
-                    string symbol;
-                    if (_symbolToInitQueue.TryDequeue(out symbol))
+                    try
                     {
-                        try
-                        {
-                            this.InitQuoteBasic(symbol);
-                            //if (_isFillGap)
-                            //    this.InitQuoteBasic(symbol);
-                            //else
-                            //    this.InitQuoteBasic2(symbol);
-                        }
-                        catch (Exception ex)
-                        {
-                            OnExceptionOccured?.Invoke(this, Exchange, ex);
-                        }
+                        this.InitQuoteBasic(symbol);
                     }
-                    //Thread.Sleep(500);
+                    catch (Exception ex)
+                    {
+                        OnExceptionOccured?.Invoke(this, Exchange, ex);
+                    }
                 }
-            }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                _isInitQuoteBusy = !_isInitQuoteBusy;
+            });
         }
 
-        private void ProcessUpdate()
+        private void StartAddCandleQueue()
         {
-            Task.Factory.StartNew(() =>
+            lock (this)
             {
-                while (!_cts.Token.IsCancellationRequested)
+                if (_isAddCandleBusy) return;
+                _isAddCandleBusy = !_isAddCandleBusy;
+            }
+
+            Task.Run(() =>
+            {
+                string symbol;
+                while (_symbolToUpdate.TryDequeue(out symbol))
                 {
-                    string symbol;
-                    if (_symbolToUpdate.TryDequeue(out symbol))
+                    try
                     {
-                        try
+                        var d = _candles[symbol];
+                        if (_symbolsInitialized.Contains(symbol))
+                            _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true, true);
+                        else if (!_symbolToInitQueue.Contains(symbol))
                         {
-                            var d = _candles[symbol];
-                            if (_symbolsInitialized.Contains(symbol))
-                                _qbStore.AddCandle(d.Symbol, d.Interval, d.Time, d.Open, d.Close, d.High, d.Low, d.Volume, true, true);
-                            else
-                                _symbolToInitQueue.Enqueue(symbol);
-                        }
-                        catch (Exception ex)
-                        {
-                            OnExceptionOccured?.Invoke(this, Exchange, ex);
+                            _symbolToInitQueue.Enqueue(symbol);
+                            this.StartInitQuoteQueue();
                         }
                         Thread.Sleep(5);
                     }
-                    Thread.Sleep(5);
+                    catch (Exception ex)
+                    {
+                        OnExceptionOccured?.Invoke(this, Exchange, ex);
+                    }
                 }
-            }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                _isAddCandleBusy = !_isAddCandleBusy;
+            });
         }
+
 
         public ServiceResult<QuoteBasicBase> GetInMemoryQuoteBasic(string symbol, int interval)
         {
@@ -406,6 +471,11 @@ namespace CryptoCommon.Services
             return r;
         }
 
+        public ServiceResult<int> GetNumOfReceivedSymbols()
+        {
+            var tnow = DateTime.UtcNow.GetUnixTimeFromUTC();
+            return new ServiceResult<int> { Result = true, Data = _updatedTime.Values.Count(t => tnow - t < 60) };
+        }
         public ServiceResult<List<string>> GetAvaliableSymbols()
         {
             return new ServiceResult<List<string>> { Result = true, Data = new List<string>(_symbolsInitialized) };

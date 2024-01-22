@@ -8,10 +8,11 @@ namespace CryptoCommon.Shared.ExchProxy
         Task<FZOrder> PlaceOrder(FZOrder order, int timeout = 5000);
         Task<bool> CancelOrder(string symbol, string orderId, int timeout = 5000);
         Task<FZOrder> CheckOrder(string symbol, string orderId, int timeout = 5000);
-        //Task<FZOrder> ModifyOrder(FZOrder order);
-        Task<FZOrder> ModifyOrderSzAndPx(FZOrder order);
-        Task<FZOrder> ModifyOrderSz(FZOrder order);
-        Task<FZOrder> ModifyOrderPx(FZOrder order);
+        Task<FZOrder> ModifyOrder(FZOrder order);
+        
+        //Task<FZOrder> ModifyOrderSzAndPx(FZOrder order);
+        //Task<FZOrder> ModifyOrderSz(FZOrder order);
+        //Task<FZOrder> ModifyOrderPx(FZOrder order);
 
         //Task<FZOrder> ModifyOrderType(FZOrder order);
         //Task<string> ModifyOrderPrice(string symbol, string orderId, double newPrice, int timeout = 5000);

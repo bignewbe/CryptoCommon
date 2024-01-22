@@ -73,6 +73,7 @@ namespace CryptoCommon.DataBase
                         try
                         {
                             dbContext.Database.EnsureCreated();
+                            //dbContext.Database.Migrate();
                             isValid = true;
                             break;
                         }
@@ -243,7 +244,7 @@ namespace CryptoCommon.DataBase
         {
             using (var _dbContext = _funcCreateDbContext())
             {
-                var _table = _dbContext.Set<T1>();
+                var _table = _dbContext.Set<T1>().AsQueryable();
 
                 if (navigationPropertyPath == null)
                 {

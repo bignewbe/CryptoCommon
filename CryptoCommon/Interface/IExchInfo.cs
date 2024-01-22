@@ -14,5 +14,6 @@ namespace CryptoCommon.Interface
         double GetMinSz(string symbol);
         string GetPriceFmt(string symbol);
         string GetQtyFmt(string symbol);
+
     }
 }

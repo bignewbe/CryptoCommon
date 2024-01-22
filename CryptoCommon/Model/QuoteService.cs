@@ -136,16 +136,18 @@ namespace CryptoCommon.Services
                 _updatedTime.TryAdd(c.Symbol, 0);
             }
 
-            //limit update frequency
-            if (tnow - _updatedTime[c.Symbol] > 1 && !_candles[c.Symbol].Equals(c))
+            if (!_candles[c.Symbol].Equals(c))
             {
-                _updatedTime[c.Symbol] = tnow;
-                _candles[c.Symbol].Copy(c);
-
-                if (!_symbolToUpdate.Contains(c.Symbol))
+                if ((_candles[c.Symbol].Time == c.Time || !_symbolToUpdate.Contains(c.Symbol)))
                 {
-                    _symbolToUpdate.Enqueue(c.Symbol);
-                    this.StartAddCandleQueue();
+                    _updatedTime[c.Symbol] = tnow;
+                    _candles[c.Symbol].Copy(c);
+
+                    if (!_symbolToUpdate.Contains(c.Symbol))
+                    {
+                        _symbolToUpdate.Enqueue(c.Symbol);
+                        this.StartAddCandleQueue();
+                    }
                 }
             }
         }
@@ -289,6 +291,7 @@ namespace CryptoCommon.Services
             Console.WriteLine($"initializing {symbol}...");
 
             var minInterval = 60;
+            QuoteBasicBase quoteMinInterval = null; 
             foreach (var interval in _qbStore.Intervals)
             {
                 if (interval >= minInterval)
@@ -316,8 +319,11 @@ namespace CryptoCommon.Services
                         _qbStore.AddQuoteBasic(q, false, true);
                     }
 
+                    if (q != null && q.LastTime / q.Interval != DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval && quoteMinInterval != null)
+                        q.Append(quoteMinInterval, false, false);
+
                     //var missingNum = q == null ? _limit : (int)CFacility.Clip((DateTime.UtcNow.GetUnixTimeFromUTC() - q.LastTime) / interval + 10, 0, _limit);
-                    if (q == null || (q != null && q.LastTime/q.Interval != DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval))
+                    if (q == null || (q.LastTime/q.Interval != DateTime.UtcNow.GetUnixTimeFromUTC() / q.Interval))
                     {
                         var missingNum = _limit;
                         if (q != null)
@@ -341,7 +347,11 @@ namespace CryptoCommon.Services
 
                     q = _qbStore.GetQuoteBasic(symbol, interval);
                     if (q != null && q.Count > 0)
+                    {
                         _quoteIdInitialized.Add($"{symbol}_{interval}");
+                        if (interval == minInterval)
+                            quoteMinInterval = q;
+                    }
                 }
             }
 

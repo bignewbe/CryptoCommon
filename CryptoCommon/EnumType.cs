@@ -50,10 +50,19 @@ namespace CryptoCommon.DataTypes
         stop_sell,
         stop_buy,
 
+
         stop_open_long,  //price rise > stop price => open long/buy long
         stop_open_short, //price drop < stop price => open short/sell short
         stop_close_long, //price drop < stop price => close long/sell long
         stop_close_short,//price rise > stop price => close short/buy short
+
+        stop_sell_market,
+        stop_buy_market,
+
+        stop_open_long_market,  //price rise > stop price => open long/buy long
+        stop_open_short_market, //price drop < stop price => open short/sell short
+        stop_close_long_market, //price drop < stop price => close long/sell long
+        stop_close_short_market,//price rise > stop price => close short/buy short
 
         buy_fok,
         sell_fok,

@@ -91,4 +91,81 @@ namespace CryptoCommon.DataBase
             return o.Order;
         }
     }
+
+    public class OrderDb2 : IOrderDb
+    {
+        private ConcurrentDictionary<string, int> _orderIdToId = new ConcurrentDictionary<string, int>();
+        private IRepo<FZOrderEnt2> _repo;
+
+        public OrderDb2(IRepo<FZOrderEnt2> repo)
+        {
+            _repo = repo;
+        }
+
+        public async Task AddUpdateAsync(FZOrder order)
+        {
+            var orderId = order.OrderId;
+            if (_orderIdToId.ContainsKey(orderId))
+            {
+                var et = new FZOrderEnt2(order) { Id = _orderIdToId[orderId] };
+                await _repo.UpdateByIdAsync(_orderIdToId[orderId], updates => updates.SetProperty(p => p, p => order)).ConfigureAwait(false);
+            }
+            else
+            {
+                var t = await _repo.GetByNameAsync(orderId).ConfigureAwait(false);
+                if (t != null)
+                {
+                    _orderIdToId.TryAdd(orderId, t.Id);
+                    await _repo.UpdateByIdAsync(_orderIdToId[orderId], updates => updates.SetProperty(p => p, p => order)).ConfigureAwait(false);
+                }
+                else
+                {
+                    var et = new FZOrderEnt2(order);
+                    await _repo.AddAsync(et).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async Task<List<FZOrder>> GetAllOrdersAsync()
+        {
+            var lst = await _repo.GetAllAsync().ConfigureAwait(false);
+            foreach (var o in lst)
+            {
+                if (!_orderIdToId.ContainsKey(o.Name))
+                    _orderIdToId.TryAdd(o.Name, o.Id);
+            }
+            return lst.Select(t => t as FZOrder).ToList();
+        }
+
+        public async Task DeleteCancelledOrdersAsync()
+        {
+            var lst = await _repo.GetAllAsync().ConfigureAwait(false);
+            var ids = lst.Where(t => t.State == OrderState.cancelled).Select(t => t.Id).ToArray();
+            if (ids.Length > 0)
+            {
+                await _repo.DeleteByIdsAsync(ids).ConfigureAwait(false);
+                foreach (var t in lst)
+                    if (ids.Contains(t.Id))
+                        _orderIdToId.TryRemove(t.Name, out _);
+            }
+        }
+
+        public async Task DeleteOrders(params string[] orderIds)
+        {
+            if (orderIds.Length > 0)
+            {
+                await _repo.DeleteByNamesAsync(orderIds).ConfigureAwait(false);
+                foreach (var orderId in orderIds)
+                    _orderIdToId.TryRemove(orderId, out _);
+            }
+        }
+
+        public async Task<FZOrder> GetOrderByOrderId(string orderId)
+        {
+            var o = await _repo.GetByNameAsync(orderId).ConfigureAwait(false);
+            if (o != null)
+                _orderIdToId.TryAdd(o.Name, o.Id);
+            return o;
+        }
+    }
 }

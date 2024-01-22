@@ -38,6 +38,7 @@ namespace CryptoCommon.Services
 
     public interface IOrderProxy
     {
+        string Exchange { get; }
         HashSet<string> Symbols { get; }
 
         ConcurrentDictionary<string, PotentialOrder> PendingOrders { get; }
@@ -68,31 +69,45 @@ namespace CryptoCommon.Services
         event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<List<FZOrder>> OnOpenOrderListChanged;
         event PortableCSharpLib.EventHandlers.ItemChangedEventHandler<List<FZOrder>> OnClosedOrderListChanged;
 
-        bool IsOrderActionInProgress(string symbol);
-
         void SetDumpFile(bool v);
         void Start();
         void Stop();
+
+
+        double ConvertToExchPrice(string symbol, double price);
+        double ApproximateQtyDigits(string symbol, OrderType ot, double qty);
+
+        bool IsOrderActionInProgress(string symbol);
+        FZOrder FindParent(string refId);
+
+        //List<FZOrder> GetOpenOrders(params OrderType[] orderTypes);
+        //List<FZOrder> GetCloseOrders(params OrderType[] orderTypes);
+        //List<FZOrder> GetOpenOrdersByRefId(string refId, params OrderType[] orderTypes);
+        //List<FZOrder> GetOpenOrdersBySymbol(string symbol, params OrderType[] orderTypes);
+        //List<FZOrder> GetCloseOrdersByRefId(string refId, params OrderType[] orderTypes);
+        //List<FZOrder> GetCloseOrdersBySymbol(string symbol, params OrderType[] orderTypes);
+        
         FZOrder PlaceOrder(FZOrder order);
+        FZOrder PlaceOrder(string symbol, OrderType orderType, double price, double qty, string refId=null);
+        FZOrder ModifyOrder(FZOrder order);
+
         bool CancelOrder(FZOrder order);
-        FZOrder ModifyOrderSzAndPx(FZOrder order);
-        FZOrder ModifyOrderPx(FZOrder order);
 
-        //void ModifyOrderPrice(string symbol, string orderId, double newPrice);
-        //FZOrder ModifyOrderSz(FZOrder order);
-
-        //void PlaceOrder(FZOrder order);
-        //void CancelOrder(FZOrder order);
-        //FZOrder CheckOrder(FZOrder order);
-
-        List<FZOrder> GetOpenOrdersBySymbol(string symbol);
-        List<FZOrder> GetClosedOrdersBySymbol(string symbol);
-
-        List<FZOrder> GetOpenOrders();
-        List<FZOrder> GetClosedOrders();
+        //List<FZOrder> GetOpenOrdersBySymbol(string symbol);
+        //List<FZOrder> GetClosedOrdersBySymbol(string symbol);
+        //List<FZOrder> GetOpenOrders();
+        //List<FZOrder> GetClosedOrders();
 
         void UpdateOrders(params FZOrder[] orders);
         Orderbook GetOrderbook(string symbol);
-        //double GetMinSz(string symbol);
     }
 }
+
+//double GetMinSz(string symbol);
+//FZOrder ModifyOrderSzAndPx(FZOrder order);
+//FZOrder ModifyOrderPx(FZOrder order);
+//void ModifyOrderPrice(string symbol, string orderId, double newPrice);
+//FZOrder ModifyOrderSz(FZOrder order);
+//void PlaceOrder(FZOrder order);
+//void CancelOrder(FZOrder order);
+//FZOrder CheckOrder(FZOrder order);

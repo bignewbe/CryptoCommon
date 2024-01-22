@@ -42,4 +42,33 @@ namespace CryptoCommon.DataBase.Entity
         }
     }
 
+    public class FZOrderEnt2 : FZOrder, IIdAndName<FZOrderEnt2> 
+    {
+        public new int Id { get; set; }
+        public string Name { get; set; }
+
+        public FZOrderEnt2() {}
+        public FZOrderEnt2(FZOrder order) => this.Copy(order);
+        public FZOrderEnt2(FZOrderEnt2 order) => this.Copy(order);
+
+        public void Copy(FZOrder other)
+        {
+            if (other != null)
+            {
+                Name = other.OrderId;
+                base.Copy(other);                
+            }
+        }
+
+        public void Copy(FZOrderEnt2 other)
+        {
+            this.Copy(other);
+            this.Name = other.Name;
+        }
+
+        public bool Equals(FZOrderEnt2? other)
+        {
+            return other!=null && base.Equals(other);
+        }
+    }
 }

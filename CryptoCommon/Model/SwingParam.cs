@@ -973,13 +973,13 @@ namespace CryptoCommon.DataTypes
         public string Exchange { get; set; }
         public string Symbol { get; set; }
         public string GivenId { get; set; }
-        
+
+        public string SubAlgoIdStr { get; set; }
         //params for future grid trading
         [JsonIgnore]
         public int IntervalBetweenTwoOrder { get; set; } = 120;
         public double Percent { get; set; }
-        [JsonIgnore]
-        public int MaxHoldQty { get; set; }
+        public string AccountId { get; set; }
        
         //used for spot swing
         public int Interval { get; set; }
@@ -994,16 +994,17 @@ namespace CryptoCommon.DataTypes
         [JsonIgnore]
         public bool IsDetectUndershoot { get; set; }
 
-        [JsonIgnore]
-        public int NumPrevCandles { get; set; }
+        public string UserId { get; set; }
         [JsonIgnore]
         public double MinRatio { get; set; }
-        
+
         //public bool IsCheckPrev_US { get; set; }
         //public bool IsCheckPrev_OS { get; set; }
 
         [JsonIgnore]
         public bool IsCheckStopLoss { get; set; }
+        [JsonIgnore]
+        public bool IsAjustOpenOrder { get; set; }
         [JsonIgnore]
         public bool IsGuranteeProfit { get; set; }
         public double MinPotential { get; set; }
@@ -1137,7 +1138,6 @@ namespace CryptoCommon.DataTypes
         public EnumType PriceStrategy { get; set; }
         public int QtyMaxUnhedged { get; set; }
         public bool IsCloseImmediate { get; set; } = false;
-        //public bool IsCheckStopLoss { get; set; }
 
         public double QtyFactor { get; set; }
         public double QtyMax { get; set; }
@@ -1190,6 +1190,7 @@ namespace CryptoCommon.DataTypes
             this.Exchange = other.Exchange;
             this.Symbol = other.Symbol;
             this.GivenId = other.GivenId;
+            this.SubAlgoIdStr = other.SubAlgoIdStr;
             this.Percent = other.Percent;
             this.QtyEach = other.QtyEach;
             this.PriceStartOpenLong = other.PriceStartOpenLong;
@@ -1197,7 +1198,7 @@ namespace CryptoCommon.DataTypes
             this.PriceStartCloseShort = other.PriceStartCloseShort;
             this.PriceStartCloseLong = other.PriceStartCloseLong;
 
-            this.MaxHoldQty = other.MaxHoldQty;
+            this.AccountId = other.AccountId;
             this.Interval = other.Interval;
             this.NumDigits = other.NumDigits;
             this.Tradertype = other.Tradertype;
@@ -1223,7 +1224,7 @@ namespace CryptoCommon.DataTypes
             this.PriceStrategy = other.PriceStrategy;
             this.QtyMaxUnhedged = other.QtyMaxUnhedged;
             this.IsCloseImmediate = other.IsCloseImmediate;
-            this.NumPrevCandles = other.NumPrevCandles;
+            this.UserId = other.UserId;
             //this.IsPlaceOrder = other.IsPlaceOrder;            
 
             //this.IsBuyFirst = other.IsBuyFirst;
@@ -1232,6 +1233,7 @@ namespace CryptoCommon.DataTypes
             this.IsDetectUndershoot = other.IsDetectUndershoot;
 
             this.IsCheckStopLoss = other.IsCheckStopLoss;
+            this.IsAjustOpenOrder = other.IsAjustOpenOrder;
             this.IsGuranteeProfit = other.IsGuranteeProfit;
             this.MinRatio = other.MinRatio;
             this.MinPotential = other.MinPotential;
@@ -1296,6 +1298,7 @@ namespace CryptoCommon.DataTypes
             return (this.Exchange == other.Exchange &&
                     this.Symbol == other.Symbol &&
                     this.GivenId == other.GivenId &&
+                    this.SubAlgoIdStr == other.SubAlgoIdStr && 
                     this.Percent == other.Percent &&
                     this.QtyEach == other.QtyEach &&
                     this.PriceStartOpenLong == other.PriceStartOpenLong &&
@@ -1303,7 +1306,7 @@ namespace CryptoCommon.DataTypes
                     this.PriceStartCloseShort == other.PriceStartCloseShort &&
                     this.PriceStartCloseLong == other.PriceStartCloseLong &&
                     
-                    this.MaxHoldQty == other.MaxHoldQty &&
+                    this.AccountId == other.AccountId &&
                     this.Interval == other.Interval &&
                     this.NumDigits == other.NumDigits &&
                     this.Tradertype == other.Tradertype &&
@@ -1335,7 +1338,7 @@ namespace CryptoCommon.DataTypes
                     
                     this.IsBuyFirst == other.IsBuyFirst &&
                     this.IsSellFirst == other.IsSellFirst &&
-                    this.NumPrevCandles == other.NumPrevCandles &&
+                    this.UserId == other.UserId &&
                     //this.IsPlaceOrder == other.IsPlaceOrder &&
                     this.MinChgFromLast == other.MinChgFromLast &&
                     this.MinChgFromMA == other.MinChgFromMA &&                    
@@ -1352,6 +1355,7 @@ namespace CryptoCommon.DataTypes
                     this.Ratio == other.Ratio &&
                     this.MinPotential == other.MinPotential &&
                     this.IsCheckStopLoss == other.IsCheckStopLoss &&
+                    this.IsAjustOpenOrder == other.IsAjustOpenOrder &&
                     this.IsGuranteeProfit == other.IsGuranteeProfit &&
                     this.IsCheckVolumeRatio_OS == other.IsCheckVolumeRatio_OS &&
                     this.IsCheckVolumeRatio_US == other.IsCheckVolumeRatio_US &&

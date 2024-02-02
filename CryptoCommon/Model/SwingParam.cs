@@ -763,7 +763,7 @@ namespace CryptoCommon.DataTypes
                     var s = string.Format("{0,10} {1,10} {2,5} {3,8} {4,8} {5,5} {6,5} {7,8:0.000} {8,8:0.000} {9,8:0.0000} {10,8:0.0000} {11,3} {12,20} {13,3} {14,8}" +
                         " {15} {16} {17} {18} {19} {20} {21} {22} {23}\n",
                         p.Symbol1, p.Symbol2, p.Leverage, p.QtyMaxHoldLong, p.QtyMaxHoldShort, p.NumTrades, p.QtyEach, p.PriceStartOpenLong, p.PriceStartCloseLong, p.PriceStartOpenShort, p.PriceStartCloseShort,
-                        p.PriceDelta1, p.PriceDelta2, p.Tradertype, p.GivenId, p.Exchange, p.MaxWaitingTimeForOrderToFinish, p.Symbol1_NumDigits, p.Symbol2_NumDigits,
+                        p.TradeQtyCoef, p.PriceDelta2, p.Tradertype, p.GivenId, p.Exchange, p.MaxWaitingTimeForOrderToFinish, p.Symbol1_NumDigits, p.Symbol2_NumDigits,
                         p.PriceStrategy, p.Commision, p.QtyMaxUnhedged, p.IsCloseImmediate, p.MinProfit);
                     str.Append(s);
                 }
@@ -827,7 +827,7 @@ namespace CryptoCommon.DataTypes
                             PriceStartCloseLong = double.Parse(items[8]),
                             PriceStartOpenShort = double.Parse(items[9]),
                             PriceStartCloseShort = double.Parse(items[10]),
-                            PriceDelta1 = double.Parse(items[11]),
+                            TradeQtyCoef = double.Parse(items[11]),
                             PriceDelta2 = double.Parse(items[12]),
                             //NumDigits = int.Parse(items[11]),
                             Tradertype = (EnumType)Enum.Parse(typeof(EnumType), items[13]),
@@ -1115,7 +1115,7 @@ namespace CryptoCommon.DataTypes
 
         public double Leverage { get; set; }
         public double Commision { get; internal set; } = 0.001;
-        public double PriceDelta1 { get; set; }
+        public double TradeQtyCoef { get; set; }
         public double PriceDelta2 { get; set; }
         public int QtyMaxHoldLong { get; set; }
         public int QtyMaxHoldShort { get; set; }
@@ -1210,7 +1210,7 @@ namespace CryptoCommon.DataTypes
             this.Symbol2         = other.Symbol2        ;
             this.Leverage        = other.Leverage       ;
             this.Commision       = other.Commision      ;
-            this.PriceDelta1     = other.PriceDelta1    ;
+            this.TradeQtyCoef     = other.TradeQtyCoef    ;
             this.PriceDelta2     = other.PriceDelta2    ;
             this.QtyMaxHoldLong  = other.QtyMaxHoldLong ;
             this.QtyMaxHoldShort = other.QtyMaxHoldShort;
@@ -1321,7 +1321,7 @@ namespace CryptoCommon.DataTypes
                     this.Symbol2 == other.Symbol2 &&
                     this.Leverage == other.Leverage &&
                     this.Commision == other.Commision &&
-                    this.PriceDelta1 == other.PriceDelta1 &&
+                    this.TradeQtyCoef == other.TradeQtyCoef &&
                     this.PriceDelta2 == other.PriceDelta2 &&
                     this.QtyMaxHoldLong == other.QtyMaxHoldLong &&
                     this.QtyMaxHoldShort == other.QtyMaxHoldShort &&

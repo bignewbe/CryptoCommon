@@ -27,6 +27,7 @@ namespace CryptoCommon.Shared.ExchProxy
         public string MarginMode { get; set; }
         public double Margin { get; set; }
         public double Mmr { get; set; }
+        public int Leverage { get; set; }
 
         public AccountPosition()
         {

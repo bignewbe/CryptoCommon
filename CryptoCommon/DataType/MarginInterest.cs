@@ -46,7 +46,8 @@ namespace CryptoCommon.Shared.ExchProxy
         //public double MultiplyFactor { get; set; }
         public SymbolPeriod Period { get; set; }
         public SymbolState State { get; set; }
-        public int MaxLeverage { get; set; }
+        public int Leverage { get; set; }
+        public double MaintMarginRatio { get; set; }
     }
 
     public class MaxLoan : EqualAndCopyUseReflection<MaxLoan>, IIdEqualCopy<MaxLoan>

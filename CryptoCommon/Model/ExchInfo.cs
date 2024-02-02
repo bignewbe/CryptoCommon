@@ -73,5 +73,13 @@ namespace CryptoCommon.Model
             }
             return fmt;
         }
+
+        public int GetLeverage(string symbol)
+        {
+            if (_instruments.ContainsKey(symbol))
+                return _instruments[symbol].Leverage;
+            else
+                return -1;
+        }
     }
 }

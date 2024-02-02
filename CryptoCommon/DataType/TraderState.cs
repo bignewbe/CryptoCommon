@@ -125,6 +125,8 @@ namespace CryptoCommon.Shared.ExchProxy
         public double AvgShortPrice { get; set; }
         [JsonProperty(PropertyName = "F")]
         public double AvgLongPrice { get; set; }
+        [JsonProperty(PropertyName = "G")]
+        public double MarginRatio { get; set; }
         #endregion
     }
 }

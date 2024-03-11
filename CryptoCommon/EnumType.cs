@@ -69,7 +69,11 @@ namespace CryptoCommon.DataTypes
         buy_ioc,
         sell_ioc,
         buy_oli,
-        sell_oli
+        sell_oli,
+
+        open_long_market,
+        open_short_market
+
         //stop_long,
         //stop_short,
 //fok: Fill-or-kill order

@@ -2,6 +2,8 @@
 using CryptoCommon.Shared.ExchProxy;
 using Newtonsoft.Json;
 using PortableCSharpLib;
+using PortableCSharpLib.DataType;
+using PortableCSharpLib.Interface;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -41,6 +43,8 @@ namespace CryptoCommon.Services
     {
         string Exchange { get; }
         HashSet<string> Symbols { get; }
+        IGenericProxy<AccountPosition> PositionProxy { get; }
+        IGenericProxy<AccountBalance> BalanceProxy { get; }
 
         ConcurrentDictionary<string, PotentialOrder> PendingOrders { get; }
         void AddPendingOrder(PotentialOrder o);
@@ -57,7 +61,10 @@ namespace CryptoCommon.Services
         long GetPlaceOrderTime(string symbol, bool isBuyFirst);
         void SetPrevPrice(string symbol, double price, bool isBuyFirst);
         double GetPrevPrice(string symbol, bool isBuyFirst);
-        
+        (int countExecuted, int countCreated, double thd) ComputeUFR(List<FZOrder> openOrders);
+        long GetLastUfrOrderTime();
+        void SetUfrOrderTime(long time);
+
         bool IsStarted { get; }
         DateTime GetCurrentTime();
         ConcurrentDictionary<string, FZOrder> OpenOrders { get; }
@@ -91,8 +98,10 @@ namespace CryptoCommon.Services
         Orderbook GetOrderbook(string symbol);
 
         TradeState GetAccountState(string symbol);
-        void UpdateFuturePnl(string symbol, double price);
-        (double wbalance, double pnl, double maintMargin) GetFuturePnl();
+        
+        //void UpdateFuturePnl(string symbol, double price);
+        void UpdateFuturePnl(ConcurrentDictionary<string, OHLC> candleToProcessDic);
+        (double walletBalance, double urealizedPnl, double initMargin, double initPositionValue, double maxPnl, string idMaxPnl) GetFuturePnl();
 
         //List<FZOrder> GetOpenOrders(params OrderType[] orderTypes);
         //List<FZOrder> GetCloseOrders(params OrderType[] orderTypes);

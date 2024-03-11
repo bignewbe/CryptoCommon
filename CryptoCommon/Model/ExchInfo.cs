@@ -26,7 +26,7 @@ namespace CryptoCommon.Model
         }
 
         //special for Okex
-        //public double GetLotSz(string symbol) => _instruments[symbol].LotSz;
+        public double GetLotSz(string symbol) => _instruments[symbol].LotSz;
         public double GetTickSz(string symbol) => _instruments[symbol].TickSz;
         public double GetMinSz(string symbol) => _instruments[symbol].MinSz;
         public string GetPriceFmt(string symbol)
